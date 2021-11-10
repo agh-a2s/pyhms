@@ -59,6 +59,10 @@ class Deme:
         return self._current_pop
 
     @property
+    def best(self):
+        return max(self.population)
+
+    @property
     def active(self) -> bool:
         return self._active
 

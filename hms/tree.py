@@ -46,6 +46,11 @@ class DemeTree:
                     yield level_no, deme
 
     @property
+    def leaves(self) -> Generator[Deme, None, None]:
+        for leaf in self._levels[self.height - 1]:
+            yield leaf
+
+    @property
     def non_leaves(self) -> Generator[Tuple[int, Deme], None, None]:
         for level_no in range(self.height - 1):
             for deme in self._levels[level_no]:
@@ -84,6 +89,8 @@ class DemeTree:
         for level, deme in self.active_non_leaves:
             if self._can_sprout(deme, level, self):
                 self._do_sprout(deme, level)
+            else:
+                tree_logger.debug(f"Sprout refused for {deme}")
 
     def _do_sprout(self, deme, level):
         new_id = self._next_child_id(deme, level)
