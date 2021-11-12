@@ -56,7 +56,10 @@ class Deme:
 
     @property
     def population(self):
-        return self._current_pop
+        if self._current_pop is not None:
+            return self._current_pop
+        else:
+            return self._history[-1]
 
     @property
     def best(self):

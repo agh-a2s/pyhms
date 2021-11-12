@@ -3,6 +3,7 @@ import logging
 from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
+from .persist.tree import DemeTreeData
 from .lsc import fitness_steadiness
 from .usc import metaepoch_limit
 from .algorithm import hms
@@ -27,6 +28,9 @@ config = [
 ]
 
 optima, tree = hms(level_config=config, gsc=metaepoch_limit(20))
+
+tree_data = DemeTreeData(tree)
+tree_data.save_binary()
 
 print("Local optima found:")
 for o in optima:

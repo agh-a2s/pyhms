@@ -1,5 +1,6 @@
 from typing import Generator, List, Tuple
 import logging
+import pickle
 
 from .config import LevelConfig
 from .deme import Deme
