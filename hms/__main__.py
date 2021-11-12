@@ -1,18 +1,10 @@
 import logging
-import numpy as np
-import numpy.random as nprand
 
 from leap_ec import problem
-from leap_ec.simple import ea_solve
 from leap_ec.problem import FunctionProblem
-from hms.algorithm import hms
 
-from hms.sprout import far_enough
-
-from .gsc import metaepoch_limit
-from .tree import DemeTree
+from .algorithm import hms
 from .config import LevelConfig
-from .deme import Deme
 from .single_pop.sea import SEA
 
 def f(x):
