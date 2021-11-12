@@ -1,6 +1,6 @@
 from typing import List
 
-from .gsc import metaepoch_limit
+from .usc import metaepoch_limit
 from .sprout import far_enough
 from .config import LevelConfig
 from .tree import DemeTree

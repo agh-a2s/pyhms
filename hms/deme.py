@@ -1,3 +1,4 @@
+import logging
 from leap_ec.decoder import IdentityDecoder
 from leap_ec.individual import Individual
 import numpy as np
@@ -6,7 +7,7 @@ from .initializers import sample_normal
 from .config import LevelConfig
 from .util import compute_avg_fitness, compute_centroid
 
-
+deme_logger = logging.getLogger(__name__)
 class Deme:
     def __init__(self, id: str, config: LevelConfig, started_at=1, leaf=False, 
         seed=None) -> None:
@@ -50,9 +51,8 @@ class Deme:
             self._centroid = compute_centroid(self._current_pop)
         return self._centroid
 
-    @property
-    def avg_fitness(self) -> float:
-        return compute_avg_fitness(self._current_pop)
+    def avg_fitness(self, metaepoch=-1) -> float:
+        return compute_avg_fitness(self._history[metaepoch])
 
     @property
     def population(self):
@@ -61,6 +61,10 @@ class Deme:
     @property
     def best(self):
         return max(self.population)
+
+    @property
+    def metaepoch_count(self):
+        return len(self._history) - 1
 
     @property
     def active(self) -> bool:
@@ -81,6 +85,7 @@ class Deme:
 
         if self._lsc(self):
             self._active = False
+            deme_logger.debug(f"{self} stopped after {self.metaepoch_count} metaepochs")
 
     def add_child(self, deme):
         self._children.append(deme)
