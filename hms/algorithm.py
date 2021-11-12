@@ -1,7 +1,7 @@
 from typing import List
 
 from .gsc import metaepoch_limit
-from .lsc import far_enough
+from .sprout import far_enough
 from .config import LevelConfig
 from .tree import DemeTree
 

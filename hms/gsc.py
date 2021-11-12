@@ -1,3 +1,6 @@
+"""
+    Global stopping conditions.
+"""
 from .tree import DemeTree
 
 def metaepoch_limit(limit: int):
