@@ -103,7 +103,7 @@ class DemeTree:
             leaf=is_leaf,
             seed=max(deme.population)
             )
-        deme.add_child(deme)
+        deme.add_child(child)
         self._levels[level + 1].append(child)
 
 
