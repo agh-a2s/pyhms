@@ -2,27 +2,40 @@
     Deme tree data.
 """
 import pickle
-import json
+from typing import List
+from datetime import datetime
 
 from .deme import DemeData
-from ..tree import DemeTree
+from ..tree import AbstractDemeTree, DemeTree
 
-class DemeTreeData:
+FILE_NAME_EXT = ".dat"
+
+class DemeTreeData(AbstractDemeTree):
     def __init__(self, tree: DemeTree) -> None:
-        self.meatapoch_count = tree.metaepoch_count
-        self.levels = [[] for _ in range(tree.height)]
+        super().__init__(tree.metaepoch_count)
+        self._levels = [[] for _ in range(tree.height)]
         for lvl in range(tree.height):
             for deme in tree.level(lvl):
-                self.levels[lvl].append(DemeData(deme))
+                self._levels[lvl].append(DemeData(deme))
 
-    def save_binary(self, file_name="hms.dat"):
+    @property
+    def levels(self) -> List[List[DemeData]]:
+        return self._levels
+
+    def save_binary(self, file_name_prefix="hms"):
+        file_name = self.__class__._create_file_name(file_name_prefix)
         with open(file_name, "wb") as f:
             pickle.dump(self, f)
 
     @staticmethod
-    def load_binary(file_name="hms.dat"):
-        tree = None
-        with open(file_name, "rb") as f:
-            tree = pickle.load(f)
+    def _create_file_name(prefix):
+        dt_now = datetime.now()
+        dt_part = dt_now.strftime('-%Y%m%d-%H%M%S')
+        return prefix + dt_part + FILE_NAME_EXT
 
-        return tree
+    @staticmethod
+    def load_binary(file_name):
+        out_tree = None
+        with open(file_name, "rb") as infile:
+            out_tree = pickle.load(infile)
+        return out_tree

@@ -1,15 +1,68 @@
+from abc import ABC, abstractmethod
 from typing import Generator, List, Tuple
 import logging
-import pickle
 
 from .config import LevelConfig
-from .deme import Deme
+from .deme import AbstractDeme, Deme
 
 tree_logger = logging.getLogger(__name__)
 
-class DemeTree:
+class AbstractDemeTree(ABC):
+    def __init__(self, metaepoch_count: int) -> None:
+        super().__init__()
+        self._metaepoch_count = metaepoch_count
+
+    @property
+    def metaepoch_count(self) -> int:
+        return self._metaepoch_count
+
+    @property
+    @abstractmethod
+    def levels(self) -> List[List[AbstractDeme]]:
+        raise NotImplementedError()
+
+    def level(self, no: int) -> List[AbstractDeme]:
+        return self.levels[no]
+
+    @property
+    def height(self) -> int:
+        return len(self.levels)
+
+    @property
+    def root(self):
+        return self.levels[0][0]
+
+    @property
+    def leaves(self) -> List[AbstractDeme]:
+        return self.levels[-1]
+
+    @property
+    def non_leaves(self) -> Generator[Tuple[int, AbstractDeme], None, None]:
+        for level_no in range(self.height - 1):
+            for deme in self.levels[level_no]:
+                yield level_no, deme
+
+    @property
+    def all_demes(self) -> Generator[Tuple[int, AbstractDeme], None, None]:
+        for level_no in range(self.height):
+            for deme in self.levels[level_no]:
+                yield level_no, deme
+
+    def demes(self, level_numbers) -> Generator[Tuple[int, AbstractDeme], None, None]:
+        for level_no in level_numbers:
+            for deme in self.levels[level_no]:
+                yield level_no, deme
+
+    @property
+    def optima(self):
+        return [leaf.best for leaf in self.leaves]
+
+class DemeTree(AbstractDemeTree):
     def __init__(self, level_config: List[LevelConfig], gsc, 
         sprout_cond=lambda deme, level, tree: True) -> None:
+    
+        super().__init__(0)
+    
         if len(level_config) < 1:
             raise ValueError("Level number must be positive")
 
@@ -18,64 +71,30 @@ class DemeTree:
         root_deme = Deme("root", level_config[0], leaf=(self.height == 1))
         self._levels[0].append(root_deme)
 
-        self._metaepoch_counter = 0
         self._gsc = gsc
         self._can_sprout = sprout_cond
 
     @property
-    def height(self):
-        return len(self._levels)
-
-    @property
-    def root(self):
-        return self._levels[0][0]
-
-    def level(self, no: int) -> List[Deme]:
-        return self._levels[no]
-
-    @property
-    def all_demes(self) -> Generator[Tuple[int, Deme], None, None]:
-        for level_no in range(self.height):
-            for deme in self._levels[level_no]:
-                yield level_no, deme
+    def levels(self):
+        return self._levels
 
     @property
     def active_demes(self) -> Generator[Tuple[int, Deme], None, None]:
         for level_no in range(self.height):
-            for deme in self._levels[level_no]:
+            for deme in self.levels[level_no]:
                 if deme.active:
                     yield level_no, deme
-
-    @property
-    def leaves(self) -> Generator[Deme, None, None]:
-        for leaf in self._levels[self.height - 1]:
-            yield leaf
-
-    @property
-    def non_leaves(self) -> Generator[Tuple[int, Deme], None, None]:
-        for level_no in range(self.height - 1):
-            for deme in self._levels[level_no]:
-                yield level_no, deme
 
     @property
     def active_non_leaves(self) -> Generator[Tuple[int, Deme], None, None]:
         for level_no in range(self.height - 1):
-            for deme in self._levels[level_no]:
+            for deme in self.levels[level_no]:
                 if deme.active:
                     yield level_no, deme
 
-    def demes(self, level_numbers) -> Generator[Tuple[int, Deme], None, None]:
-        for level in level_numbers:
-            for deme in self._levels[level]:
-                yield level, deme
-
-    @property
-    def metaepoch_count(self) -> int:
-        return self._metaepoch_counter
-
     def run(self):
         while not self._gsc(self):
-            self._metaepoch_counter += 1
+            self._metaepoch_count += 1
             tree_logger.debug(f"Metaepoch {self.metaepoch_count}")
             self.run_metaepoch()
             if not self._gsc(self):

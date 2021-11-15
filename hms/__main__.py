@@ -3,7 +3,7 @@ import logging
 from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
-from .gsc import dont_stop
+from .gsc import all_stopped
 from .persist.tree import DemeTreeData
 from .lsc import all_children_stopped, fitness_steadiness
 from .usc import metaepoch_limit
@@ -24,17 +24,17 @@ config = [
     LevelConfig(
         SEA(2, problem, bounds, pop_size=5, mutation_std=0.2), 
         sample_std_dev=0.1, 
-        lsc=metaepoch_limit(2)
+        lsc=fitness_steadiness(max_deviation=0.1)
         )
 ]
 
-optima, tree = hms(level_config=config, gsc=dont_stop())
+tree = hms(level_config=config, gsc=all_stopped())
 
 tree_data = DemeTreeData(tree)
 tree_data.save_binary()
 
 print("Local optima found:")
-for o in optima:
+for o in tree.optima:
     print(o)
 
 print("\nDeme info:")

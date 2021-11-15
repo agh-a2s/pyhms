@@ -1,11 +1,14 @@
 """
     Deme data.
 """
-from ..deme import Deme
+from ..deme import AbstractDeme, Deme
 from .solution import Solution
 
-class DemeData:
+class DemeData(AbstractDeme):
     def __init__(self, deme: Deme) -> None:
-        self.id = deme.id
-        self.history = [Solution.simplify_population(pop) for pop in deme.history]
-        self.started_at = deme._started_at
+        super().__init__(deme.id, deme._started_at)
+        self._history = [Solution.simplify_population(pop) for pop in deme.history]
+
+    @property
+    def history(self) -> list:
+        return self._history

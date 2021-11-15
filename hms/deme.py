@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import logging
 from leap_ec.decoder import IdentityDecoder
 from leap_ec.individual import Individual
@@ -8,10 +9,38 @@ from .config import LevelConfig
 from .util import compute_avg_fitness, compute_centroid
 
 deme_logger = logging.getLogger(__name__)
-class Deme:
+
+class AbstractDeme(ABC):
+    def __init__(self, id: str, started_at: int = 1) -> None:
+        super().__init__()
+        self._id = id
+        self._started_at = started_at
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def started_at(self) -> int:
+        return self._started_at
+
+    @property
+    @abstractmethod
+    def history(self) -> list:
+        raise NotImplementedError()
+
+    @property
+    def metaepoch_count(self) -> int:
+        return len(self.history) - 1
+
+    @property
+    def best(self):
+        return max(self.history[-1])
+
+class Deme(AbstractDeme):
     def __init__(self, id: str, config: LevelConfig, started_at=1, leaf=False, 
         seed=None) -> None:
-        self._id = id
+        super().__init__(id, started_at)
         self._ea = config.ea
         self._sample_std_dev = config.sample_std_dev
         self._lsc = config.lsc
@@ -34,16 +63,11 @@ class Deme:
             Individual.evaluate_population(pop)
             self._current_pop = pop
         
-        self._started_at = started_at
         self._history = [self._current_pop]
         self._active = True
         self._children = []
         self._leaf = leaf
         self._centroid: np.array = None
-
-    @property
-    def id(self) -> str:
-        return self._id
 
     @property
     def centroid(self) -> np.array:
@@ -60,14 +84,6 @@ class Deme:
             return self._current_pop
         else:
             return self._history[-1]
-
-    @property
-    def best(self):
-        return max(self.population)
-
-    @property
-    def metaepoch_count(self):
-        return len(self._history) - 1
 
     @property
     def active(self) -> bool:
