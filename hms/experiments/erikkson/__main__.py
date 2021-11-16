@@ -18,24 +18,26 @@ fake_solver_config = {
 }
 
 real_solver_config = {
-    "script_path": "solver/iga-ads/examples/erikkson/inverse.sh",
-    "solver_path": "/home/prac/maciej.smolka/eksperymenty/erikkson/solver/iga-ads/build/"
+    "script_path": "../solver/iga-ads/examples/erikkson/inverse.sh",
+    "solver_path": "../solver/iga-ads/build/"
 }
 
 solver_config = real_solver_config
 
-problem = ErikksonProblem(
-    script_path=solver_config["script_path"],
-    solver_path=solver_config["solver_path"],
-    accuracy_level=1,
-    observed_data=load_list(DATA_FILE)
-)
+def erikkson(accuracy_level: int):
+    return ErikksonProblem(
+        script_path=solver_config["script_path"],
+        solver_path=solver_config["solver_path"],
+        accuracy_level=1,
+        observed_data=load_list(DATA_FILE)
+    )
+
 bounds = [(-10, 10) for _ in range(2)]
 
 hms_config = [
-    LevelConfig(SEA(2, problem, bounds, pop_size=20)),
+    LevelConfig(SEA(2, erikkson(0), bounds, pop_size=20)),
     LevelConfig(
-        SEA(2, problem, bounds, pop_size=5, mutation_std=0.2), 
+        SEA(2, erikkson(1), bounds, pop_size=5, mutation_std=0.2), 
         sample_std_dev=0.1, 
         lsc=fitness_steadiness(max_deviation=0.1)
         )
