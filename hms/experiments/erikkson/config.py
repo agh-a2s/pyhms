@@ -24,7 +24,7 @@ def erikkson(accuracy_level: int):
     return ErikksonProblem(
         script_path=solver_config["script_path"],
         solver_path=solver_config["solver_path"],
-        accuracy_level=1,
+        accuracy_level=accuracy_level,
         observed_data=data
     )
 
