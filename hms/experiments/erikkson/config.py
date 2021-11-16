@@ -4,8 +4,7 @@ from ...single_pop.sea import SEA
 from ...config import LevelConfig
 from ...util import load_list
 from ...problems.erikkson import ErikksonProblem
-
-DATA_FILE = "hms/data/erikkson-4-1-0.txt"
+from ...data.erikkson_4_1_0 import data
 
 fake_solver_config = {
     "script_path": "scripts/fake_erikkson.py",
@@ -26,7 +25,7 @@ def erikkson(accuracy_level: int):
         script_path=solver_config["script_path"],
         solver_path=solver_config["solver_path"],
         accuracy_level=1,
-        observed_data=load_list(DATA_FILE)
+        observed_data=data
     )
 
 bounds = [(-10, 10) for _ in range(2)]
