@@ -12,3 +12,9 @@ def metaepoch_limit(limit: int):
         return obj.metaepoch_count >= limit
 
     return stop_cond
+
+def dont_stop():
+    def stop_cond(_: Union[Deme, DemeTree]) -> bool:
+        return False
+
+    return stop_cond

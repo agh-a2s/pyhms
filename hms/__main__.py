@@ -20,9 +20,21 @@ problem = FunctionProblem(f, maximize=False)
 bounds = [(-10, 10) for _ in range(2)]
 
 config = [
-    LevelConfig(SEA(2, problem, bounds, pop_size=20), lsc=all_children_stopped()),
     LevelConfig(
-        SEA(2, problem, bounds, pop_size=5, mutation_std=0.2), 
+        ea_class=SEA, 
+        generations=2, 
+        problem=problem, 
+        bounds=bounds, 
+        pop_size=20, 
+        lsc=all_children_stopped()
+        ),
+    LevelConfig(
+        ea_class=SEA, 
+        generations=2, 
+        problem=problem, 
+        bounds=bounds, 
+        pop_size=5, 
+        mutation_std=0.2, 
         sample_std_dev=0.1, 
         lsc=fitness_steadiness(max_deviation=0.1)
         )

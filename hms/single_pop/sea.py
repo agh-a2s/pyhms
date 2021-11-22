@@ -14,9 +14,9 @@ class AbstractEA(ABC):
         self.bounds = bounds
         self.pop_size = pop_size
 
-class LeapEA(AbstractEA):
+class SimpleEA(AbstractEA):
     """
-    A single population EA (SEA skeleton).
+    A simple single population EA (SEA skeleton).
     """
     def __init__(self, generations, problem, bounds, pop_size, pipeline, 
         k_elites=1, representation=None) -> None:
@@ -48,7 +48,7 @@ class LeapEA(AbstractEA):
 
         return parents
 
-class SEA(LeapEA):
+class SEA(SimpleEA):
     """
     An implementation of SEA using LEAP.
     """
@@ -69,4 +69,17 @@ class SEA(LeapEA):
             ], 
             k_elites=k_elites, 
             representation=representation
+            )
+
+    @classmethod
+    def create(cls, generations, problem, bounds, pop_size, **kwargs):
+        mutation_std = kwargs.get('mutation_std') or 1.0
+        k_elites = kwargs.get('k_elites') or 1
+        return cls(
+            generations=generations,
+            problem=problem,
+            bounds=bounds,
+            pop_size=pop_size,
+            mutation_std=mutation_std,
+            k_elites=k_elites
             )

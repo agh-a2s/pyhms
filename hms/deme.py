@@ -41,12 +41,12 @@ class Deme(AbstractDeme):
     def __init__(self, id: str, config: LevelConfig, started_at=1, leaf=False, 
         seed=None) -> None:
         super().__init__(id, started_at)
-        self._ea = config.ea
         self._sample_std_dev = config.sample_std_dev
         self._lsc = config.lsc
-        self._problem = config.ea.problem
-        self._bounds = config.ea.bounds
-        self._pop_size = config.ea.pop_size
+        self._problem = config.problem
+        self._bounds = config.bounds
+        self._pop_size = config.pop_size
+        self._ea = config.ea_class.create(**config.__dict__)
         
         if seed is None:
             self._current_pop = self._ea.run()
