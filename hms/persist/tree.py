@@ -13,6 +13,7 @@ FILE_NAME_EXT = ".dat"
 class DemeTreeData(AbstractDemeTree):
     def __init__(self, tree: DemeTree) -> None:
         super().__init__(tree.metaepoch_count)
+        self.config = tree._config
         self._levels = [[] for _ in range(tree.height)]
         for lvl in range(tree.height):
             for deme in tree.level(lvl):

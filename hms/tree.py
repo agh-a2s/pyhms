@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Generator, List, Tuple
 import logging
 
-from .config import LevelConfig
+from .config import TreeConfig
 from .deme import AbstractDeme, Deme
 
 tree_logger = logging.getLogger(__name__)
@@ -58,21 +58,20 @@ class AbstractDemeTree(ABC):
         return [leaf.best for leaf in self.leaves]
 
 class DemeTree(AbstractDemeTree):
-    def __init__(self, level_config: List[LevelConfig], gsc, 
-        sprout_cond=lambda deme, level, tree: True) -> None:
+    def __init__(self, config: TreeConfig) -> None:
     
         super().__init__(0)
-    
-        if len(level_config) < 1:
+        nlevels = len(config.levels)
+        if nlevels < 1:
             raise ValueError("Level number must be positive")
 
-        self._level_config = level_config
-        self._levels: List[List[Deme]] = [[] for _ in range(len(level_config))]
-        root_deme = Deme("root", level_config[0], leaf=(self.height == 1))
+        self._config = config
+        self._levels: List[List[Deme]] = [[] for _ in range(nlevels)]
+        root_deme = Deme("root", config.levels[0], leaf=(nlevels == 1))
         self._levels[0].append(root_deme)
 
-        self._gsc = gsc
-        self._can_sprout = sprout_cond
+        self._gsc = config.gsc
+        self._can_sprout = config.sprout_cond
 
     @property
     def levels(self):
@@ -117,7 +116,7 @@ class DemeTree(AbstractDemeTree):
         is_leaf = (level == self.height - 1)
         child = Deme(
             id=new_id, 
-            config=self._level_config[level + 1], 
+            config=self._config.levels[level + 1], 
             started_at=self.metaepoch_count, 
             leaf=is_leaf,
             seed=max(deme.population)
