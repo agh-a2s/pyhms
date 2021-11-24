@@ -6,6 +6,8 @@ from leap_ec.problem import Problem
 def square(x) -> float:
     if not isinstance(x, np.ndarray):
         xa = np.array(x)
+    else:
+        xa = x
     if xa.ndim == 0:
         xa = np.array([x])
     return sum(xa**2)

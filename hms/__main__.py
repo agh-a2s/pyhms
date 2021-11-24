@@ -3,6 +3,7 @@ import logging
 from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
+from .problem import StatsGatheringProblem, square
 from .gsc import all_stopped
 from .persist.tree import DemeTreeData
 from .lsc import all_children_stopped, fitness_steadiness
@@ -11,12 +12,9 @@ from .algorithm import hms
 from .config import LevelConfig
 from .single_pop.sea import SEA
 
-def f(x):
-    return sum(x**2)
-
 logging.basicConfig(level=logging.DEBUG)
 
-problem = FunctionProblem(f, maximize=False)
+problem = StatsGatheringProblem(FunctionProblem(square, maximize=False))
 bounds = [(-10, 10) for _ in range(2)]
 
 config = [
@@ -55,3 +53,9 @@ for level, deme in tree.all_demes:
     print(f"Best {deme.best}")
     print(f"Average fitness in last population {deme.avg_fitness()}")
     print(f"Average fitness in first population {deme.avg_fitness(0)}")
+
+print("\nEvaluation stats:")
+print(f"Count: {problem.n_evaluations}")
+m, s = problem.duration_stats
+print(f"Time avg.: {m}")
+print(f"Time std. dev.: {s}")
