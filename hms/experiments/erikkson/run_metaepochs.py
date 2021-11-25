@@ -1,7 +1,7 @@
 import logging
 
+from ...sprout import far_enough
 from .config_solver import erikkson, bounds
-
 from ...config import LevelConfig
 from ...algorithm import hms
 from ...single_pop.sea import SEA
@@ -32,10 +32,12 @@ hms_config = [
 
 gsc = metaepoch_limit(50)
 
+sprout_cond = far_enough(min_distance=1.0)
+
 logging.basicConfig(level=logging.DEBUG)
 
 def main():
-    tree = hms(level_config=hms_config, gsc=gsc)
+    tree = hms(level_config=hms_config, gsc=gsc, sprout_cond=sprout_cond)
     DemeTreeData(tree).save_binary("erikkson")
 
 if __name__ == '__main__':
