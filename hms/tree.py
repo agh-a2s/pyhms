@@ -78,6 +78,10 @@ class DemeTree(AbstractDemeTree):
         return self._levels
 
     @property
+    def config(self) -> TreeConfig:
+        return self._config
+
+    @property
     def active_demes(self) -> Generator[Tuple[int, Deme], None, None]:
         for level_no in range(self.height):
             for deme in self.levels[level_no]:

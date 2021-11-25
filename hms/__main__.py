@@ -1,13 +1,14 @@
 import logging
+import copy
 
 from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
 from .problem import StatsGatheringProblem, square
-from .gsc import all_stopped
+from .gsc import all_stopped, fitness_eval_limit_reached
 from .persist.tree import DemeTreeData
 from .lsc import all_children_stopped, fitness_steadiness
-from .usc import metaepoch_limit
+from .usc import dont_stop, metaepoch_limit
 from .algorithm import hms
 from .config import LevelConfig
 from .single_pop.sea import SEA
@@ -17,6 +18,8 @@ logging.basicConfig(level=logging.DEBUG)
 problem = StatsGatheringProblem(FunctionProblem(square, maximize=False))
 bounds = [(-10, 10) for _ in range(2)]
 
+# If one wants to count evaluations for different levels separately, one has to
+# use different instances of problem at each level.
 config = [
     LevelConfig(
         ea_class=SEA, 
@@ -24,12 +27,12 @@ config = [
         problem=problem, 
         bounds=bounds, 
         pop_size=20, 
-        lsc=all_children_stopped()
+        lsc=dont_stop()
         ),
     LevelConfig(
         ea_class=SEA, 
         generations=2, 
-        problem=problem, 
+        problem=copy.deepcopy(problem), 
         bounds=bounds, 
         pop_size=5, 
         mutation_std=0.2, 
@@ -38,7 +41,7 @@ config = [
         )
 ]
 
-tree = hms(level_config=config, gsc=all_stopped())
+tree = hms(level_config=config, gsc=fitness_eval_limit_reached(limit=1000, weights=None))
 
 tree_data = DemeTreeData(tree)
 tree_data.save_binary()
@@ -55,7 +58,10 @@ for level, deme in tree.all_demes:
     print(f"Average fitness in first population {deme.avg_fitness(0)}")
 
 print("\nEvaluation stats:")
-print(f"Count: {problem.n_evaluations}")
-m, s = problem.duration_stats
-print(f"Time avg.: {m}")
-print(f"Time std. dev.: {s}")
+for i in range(len(tree.config.levels)):
+    print(f"Level {i}")
+    prb = tree.config.levels[i].problem
+    print(f"Count: {prb.n_evaluations}")
+    m, s = prb.duration_stats
+    print(f"Time avg.: {m}")
+    print(f"Time std. dev.: {s}")
