@@ -16,6 +16,8 @@ hms_config = [
         problem=erikkson(0), 
         bounds=bounds, 
         pop_size=20,
+        mutation_std=5.0,
+        k_elites=0,
         lsc=dont_stop()
         ),
     LevelConfig(
@@ -24,15 +26,15 @@ hms_config = [
         problem=erikkson(1), 
         bounds=bounds, 
         pop_size=5, 
-        mutation_std=0.2, 
-        sample_std_dev=0.1, 
+        mutation_std=0.5, 
+        sample_std_dev=0.5, 
         lsc=fitness_steadiness(max_deviation=0.1)
         )
 ]
 
 gsc = metaepoch_limit(50)
 
-sprout_cond = far_enough(min_distance=1.0)
+sprout_cond = far_enough(min_distance=0.5)
 
 logging.basicConfig(level=logging.DEBUG)
 
