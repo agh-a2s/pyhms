@@ -4,6 +4,8 @@ import copy
 from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
+from hms.sprout import far_enough
+
 from .problem import StatsGatheringProblem, square
 from .gsc import all_stopped, fitness_eval_limit_reached
 from .persist.tree import DemeTreeData
@@ -41,27 +43,35 @@ config = [
         )
 ]
 
-tree = hms(level_config=config, gsc=fitness_eval_limit_reached(limit=1000, weights=None))
+gsc=fitness_eval_limit_reached(limit=1000, weights=None)
 
-tree_data = DemeTreeData(tree)
-tree_data.save_binary()
+sprout_cond=far_enough(0.1)
 
-print("Local optima found:")
-for o in tree.optima:
-    print(o)
+def main():
+    tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond)
 
-print("\nDeme info:")
-for level, deme in tree.all_demes:
-    print(f"Level {level} {deme}")
-    print(f"Best {deme.best}")
-    print(f"Average fitness in last population {deme.avg_fitness()}")
-    print(f"Average fitness in first population {deme.avg_fitness(0)}")
+    tree_data = DemeTreeData(tree)
+    tree_data.save_binary()
 
-print("\nEvaluation stats:")
-for i in range(len(tree.config.levels)):
-    print(f"Level {i}")
-    prb = tree.config.levels[i].problem
-    print(f"Count: {prb.n_evaluations}")
-    m, s = prb.duration_stats
-    print(f"Time avg.: {m}")
-    print(f"Time std. dev.: {s}")
+    print("Local optima found:")
+    for o in tree.optima:
+        print(o)
+
+    print("\nDeme info:")
+    for level, deme in tree.all_demes:
+        print(f"Level {level} {deme}")
+        print(f"Best {deme.best}")
+        print(f"Average fitness in last population {deme.avg_fitness()}")
+        print(f"Average fitness in first population {deme.avg_fitness(0)}")
+
+    print("\nEvaluation stats:")
+    for i in range(len(tree.config.levels)):
+        print(f"Level {i}")
+        prb = tree.config.levels[i].problem
+        print(f"Count: {prb.n_evaluations}")
+        m, s = prb.duration_stats
+        print(f"Time avg.: {m}")
+        print(f"Time std. dev.: {s}")
+
+if __name__ == "__main__":
+    main()

@@ -11,7 +11,7 @@ from .util import compute_avg_fitness, compute_centroid
 deme_logger = logging.getLogger(__name__)
 
 class AbstractDeme(ABC):
-    def __init__(self, id: str, started_at: int = 1) -> None:
+    def __init__(self, id: str, started_at: int = 0) -> None:
         super().__init__()
         self._id = id
         self._started_at = started_at
@@ -37,8 +37,11 @@ class AbstractDeme(ABC):
     def best(self):
         return max(self.history[-1])
 
+    def avg_fitness(self, metaepoch=-1) -> float:
+        return compute_avg_fitness(self.history[metaepoch])
+
 class Deme(AbstractDeme):
-    def __init__(self, id: str, config: LevelConfig, started_at=1, leaf=False, 
+    def __init__(self, id: str, config: LevelConfig, started_at=0, leaf=False, 
         seed=None) -> None:
         super().__init__(id, started_at)
         self._sample_std_dev = config.sample_std_dev
@@ -74,9 +77,6 @@ class Deme(AbstractDeme):
         if self._centroid is None:
             self._centroid = compute_centroid(self._current_pop)
         return self._centroid
-
-    def avg_fitness(self, metaepoch=-1) -> float:
-        return compute_avg_fitness(self._history[metaepoch])
 
     @property
     def population(self):
@@ -115,4 +115,4 @@ class Deme(AbstractDeme):
 
     def __str__(self) -> str:
         bsf = max(self._current_pop)
-        return f"Deme {self.id} started at {self._started_at} best fitness {bsf.fitness}"
+        return f"Deme {self.id} started at {self.started_at} best fitness {bsf.fitness}"

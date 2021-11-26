@@ -6,7 +6,7 @@ from .solution import Solution
 
 class DemeData(AbstractDeme):
     def __init__(self, deme: Deme) -> None:
-        super().__init__(deme.id, deme._started_at)
+        super().__init__(deme.id, deme.started_at)
         self._history = [Solution.simplify_population(pop) for pop in deme.history]
 
     @property

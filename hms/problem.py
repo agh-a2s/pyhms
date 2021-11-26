@@ -1,7 +1,7 @@
 import statistics as stats
 import time
 import numpy as np
-from leap_ec.problem import Problem
+from leap_ec.problem import FunctionProblem, Problem
 
 def square(x) -> float:
     if not isinstance(x, np.ndarray):
@@ -46,3 +46,10 @@ class StatsGatheringProblem(Problem):
         m = stats.mean(self._durations)
         s = stats.stdev(self._durations, xbar=m)
         return m, s
+
+    def __str__(self) -> str:
+        if isinstance(self._inner, FunctionProblem):
+            inner_str = f"FunctionProblem({self._inner.__dict__})"
+        else:
+            inner_str = str(self._inner)
+        return f"StatsGatheringProblem({inner_str})"

@@ -48,8 +48,12 @@ class ErikksonProblem(ScalarProblem):
     def run_command(self, cmd) -> str:
         logger.debug(f"Command: {cmd}")
         p = sp.run(cmd, capture_output=True, check=True, text=True)
+        p.check_returncode()
         logger.debug(f"External cmd STDOUT: {p.stdout}")
         logger.debug(f"External cmd STDERR: {p.stderr}")
         outs = p.stdout.split('\n')
         # First line ignored
         return outs[1]
+
+    def __str__(self) -> str:
+        return f"ErikksonProblem(acc={self.accuracy_level}, loss={self.loss_function.__name__})"

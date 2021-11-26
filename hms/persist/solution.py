@@ -19,6 +19,10 @@ class Solution:
     def simplify_population(population: List[Individual]):
         return [Solution.simplify(ind) for ind in population]
 
+    @property
+    def fitness(self) -> float:
+        return self.value
+
     def __lt__(self, other):
         """
         a < b means a IS WORSE THAN b. In minimization context it means:

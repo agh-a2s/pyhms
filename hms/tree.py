@@ -8,9 +8,10 @@ from .deme import AbstractDeme, Deme
 tree_logger = logging.getLogger(__name__)
 
 class AbstractDemeTree(ABC):
-    def __init__(self, metaepoch_count: int) -> None:
+    def __init__(self, metaepoch_count: int, config: TreeConfig) -> None:
         super().__init__()
         self._metaepoch_count = metaepoch_count
+        self.config = config
 
     @property
     def metaepoch_count(self) -> int:
@@ -60,12 +61,11 @@ class AbstractDemeTree(ABC):
 class DemeTree(AbstractDemeTree):
     def __init__(self, config: TreeConfig) -> None:
     
-        super().__init__(0)
+        super().__init__(0, config)
         nlevels = len(config.levels)
         if nlevels < 1:
             raise ValueError("Level number must be positive")
 
-        self._config = config
         self._levels: List[List[Deme]] = [[] for _ in range(nlevels)]
         root_deme = Deme("root", config.levels[0], leaf=(nlevels == 1))
         self._levels[0].append(root_deme)
@@ -76,10 +76,6 @@ class DemeTree(AbstractDemeTree):
     @property
     def levels(self):
         return self._levels
-
-    @property
-    def config(self) -> TreeConfig:
-        return self._config
 
     @property
     def active_demes(self) -> Generator[Tuple[int, Deme], None, None]:
@@ -120,7 +116,7 @@ class DemeTree(AbstractDemeTree):
         is_leaf = (level == self.height - 1)
         child = Deme(
             id=new_id, 
-            config=self._config.levels[level + 1], 
+            config=self.config.levels[level + 1], 
             started_at=self.metaepoch_count, 
             leaf=is_leaf,
             seed=max(deme.population)
