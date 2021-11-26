@@ -1,28 +1,37 @@
 """
     Local stopping conditions.
 """
+from abc import ABC, abstractmethod
+from typing import Any
 import numpy as np
-import toolz
 
 from .deme import Deme
 
-def fitness_steadiness_sc(deme: Deme, max_deviation: float, n_metaepochs: int) -> bool:
-    if n_metaepochs > deme.metaepoch_count:
-        return False
-    
-    avg_fits = [deme.avg_fitness(n) for n in range(-n_metaepochs, 0)]
-    return max(abs(avg_fits - np.mean(avg_fits))) <= max_deviation
+class lsc(ABC):
+    @abstractmethod
+    def satisfied(self, deme: Deme) -> bool:
+        raise NotImplementedError()
 
-def fitness_steadiness(max_deviation: float = 0.001, n_metaepochs: int = 5):
-    return toolz.curry(
-        fitness_steadiness_sc, 
-        max_deviation=max_deviation, 
-        n_metaepochs=n_metaepochs
-        )
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self.satisfied(*args, **kwds)
 
-def all_children_stopped_sc(deme: Deme) -> bool:
-    ch = deme.children
-    return not (ch == []) and np.all([not c.active for c in ch])
+class fitness_steadiness(lsc):
+    def __init__(self, max_deviation: float = 0.001, n_metaepochs: int = 5) -> None:
+        super().__init__()
+        self.max_deviation = max_deviation
+        self.n_metaepochs = n_metaepochs
 
-def all_children_stopped():
-    return all_children_stopped_sc
+    def satisfied(self, deme: Deme) -> bool:
+        if self.n_metaepochs > deme.metaepoch_count:
+            return False
+        
+        avg_fits = [deme.avg_fitness(n) for n in range(-self.n_metaepochs, 0)]
+        return max(abs(avg_fits - np.mean(avg_fits))) <= self.max_deviation
+
+    def __str__(self) -> str:
+        return f"fitness_steadiness(max_dev={self.max_deviation}, n={self.n_metaepochs})"
+
+class all_children_stopped(lsc):
+    def satisfied(self, deme: Deme) -> bool:
+        ch = deme.children
+        return not (ch == []) and np.all([not c.active for c in ch])

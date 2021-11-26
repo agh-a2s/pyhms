@@ -1,20 +1,34 @@
 """
     Universal stopping conditions. May be used as both local and global s.c.
 """
-import toolz
-from typing import Union
+from abc import ABC, abstractmethod
+from typing import Any, Union
 
 from .deme import Deme
 from .tree import DemeTree
 
-def metaepoch_limit_sc(obj: Union[Deme, DemeTree], limit: int) -> bool:
-    return obj.metaepoch_count >= limit
+class usc(ABC):
+    @abstractmethod
+    def satisfied(self, obj: Union[DemeTree, Deme]) -> bool:
+        raise NotImplementedError()
 
-def metaepoch_limit(limit: int):
-    return toolz.curry(metaepoch_limit_sc, limit=limit)
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        return self.satisfied(*args, **kwds)
+        
+class metaepoch_limit(usc):
+    def __init__(self, limit: int) -> None:
+        super().__init__()
+        self.limit = limit
 
-def dont_stop_sc(_: Union[Deme, DemeTree]) -> bool:
-    return False
+    def satisfied(self, obj: Union[DemeTree, Deme]) -> bool:
+        return obj.metaepoch_count >= self.limit
 
-def dont_stop():
-    return dont_stop_sc
+    def __str__(self) -> str:
+        return f"metaepoch_limit({self.limit})"
+
+class dont_stop(usc):
+    def satisfied(self, _: Union[DemeTree, Deme]) -> bool:
+        return False
+
+    def __str__(self) -> str:
+        return "dont_stop"
