@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from leap_ec.individual import Individual
 from leap_ec.representation import Representation
@@ -13,6 +13,10 @@ class AbstractEA(ABC):
         self.problem = problem
         self.bounds = bounds
         self.pop_size = pop_size
+
+    @abstractmethod
+    def run(self, parents=None):
+        raise NotImplementedError()
 
 class SimpleEA(AbstractEA):
     """

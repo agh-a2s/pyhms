@@ -32,3 +32,10 @@ class dont_stop(usc):
 
     def __str__(self) -> str:
         return "dont_stop"
+
+class dont_run(usc):
+    def satisfied(self, _: Union[DemeTree, Deme]) -> bool:
+        return True
+
+    def __str__(self) -> str:
+        return "dont_run"

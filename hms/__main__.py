@@ -38,14 +38,15 @@ config = [
         bounds=bounds, 
         pop_size=5, 
         mutation_std=0.2, 
-        sample_std_dev=0.1, 
+        sample_std_dev=0.1,
+        run_minimize=True,
         lsc=fitness_steadiness(max_deviation=0.1)
         )
 ]
 
-gsc=fitness_eval_limit_reached(limit=1000, weights=None)
+gsc = fitness_eval_limit_reached(limit=1000, weights=None)
 
-sprout_cond=far_enough(0.1)
+sprout_cond = far_enough(0.1)
 
 def main():
     tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond)

@@ -35,3 +35,6 @@ class all_children_stopped(lsc):
     def satisfied(self, deme: Deme) -> bool:
         ch = deme.children
         return not (ch == []) and np.all([not c.active for c in ch])
+
+    def __str__(self) -> str:
+        return "all_children_stopped"

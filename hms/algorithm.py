@@ -1,7 +1,9 @@
 from typing import List
 
-from .usc import metaepoch_limit
-from .sprout import far_enough
+from .gsc import root_stopped
+from .single_pop.null_ea import NullEA
+from .usc import dont_run, metaepoch_limit
+from .sprout import far_enough, level_limit
 from .config import LevelConfig, TreeConfig
 from .tree import DemeTree
 
@@ -11,3 +13,19 @@ def hms(level_config: List[LevelConfig], gsc=metaepoch_limit(10),
     hms_tree = DemeTree(config)
     hms_tree.run()
     return hms_tree
+
+def local_optimization(x0, problem, bounds):
+    level_config = [
+        LevelConfig(
+            ea_class=NullEA, 
+            seed=x0,
+            pop_size=1, 
+            problem=problem, 
+            bounds=bounds, 
+            lsc=dont_run(), 
+            run_minimize=True
+            )
+        ]
+    gsc = root_stopped()
+    sprout_condition = level_limit(0)
+    return hms(level_config, gsc, sprout_condition)
