@@ -3,10 +3,12 @@
 """
 from abc import ABC, abstractmethod
 from typing import Any, List, Union
+import logging
 
 from .problem import StatsGatheringProblem
 from .tree import DemeTree
 
+logger = logging.getLogger(__name__)
 class gsc(ABC):
     @abstractmethod
     def satisfied(self, tree: DemeTree) -> bool:
@@ -59,3 +61,26 @@ class fitness_eval_limit_reached(gsc):
 
     def __str__(self) -> str:
         return f"fitness_eval_limit_reached(limit={self.limit}, weights={self.weights})"
+
+class no_active_nonroot_demes(gsc):
+    def __init__(self, n_metaepochs: int = 5) -> None:
+        super().__init__()
+        self.n_metaepochs = n_metaepochs
+
+    def satisfied(self, tree: DemeTree) -> bool:
+        step = tree.metaepoch_count
+        logger.debug(f"Step {step}")
+        for level_no in range(1, tree.height):
+            if len(tree.levels[level_no]) == 0:
+                return False
+
+            for deme in tree.levels[level_no]:
+                logger.debug(f"Deme {deme.id} st {deme.started_at} mc {deme.metaepoch_count}")
+                if deme.active or \
+                    step <= deme.started_at + deme.metaepoch_count + self.n_metaepochs:
+                    return False
+
+        return True
+
+    def __str__(self) -> str:
+        return f"no_active_nonroot_demes({self.n_metaepochs})"
