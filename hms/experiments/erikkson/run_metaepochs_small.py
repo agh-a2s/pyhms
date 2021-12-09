@@ -1,12 +1,12 @@
 import logging
 
-from ...sprout import far_enough
-from .config_solver import erikkson, bounds
-from ...config import LevelConfig
-from ...algorithm import hms
-from ...single_pop.sea import SEA
-from ...usc import metaepoch_limit, dont_stop
-from ...persist.tree import DemeTreeData
+from hms.sprout import far_enough
+from hms.experiments.erikkson.config_solver import erikkson, bounds
+from hms.config import LevelConfig
+from hms import hms
+from hms.single_pop import SEA
+from hms.usc import metaepoch_limit, dont_stop
+from hms.persist import DemeTreeData
 
 hms_config = [
     LevelConfig(

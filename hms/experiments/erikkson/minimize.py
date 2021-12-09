@@ -4,8 +4,8 @@ import logging
 
 from leap_ec.problem import FunctionProblem
 
-from ...algorithm import local_optimization
-from .config_solver import erikkson, bounds
+from hms import local_optimization
+from hms.experiments.erikkson.config_solver import erikkson, bounds
 
 logging.basicConfig(level=logging.DEBUG)
 

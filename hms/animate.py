@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os.path as op
 
-from .persist.tree import DemeTreeData
+from hms.persist import DemeTreeData
 
 data_file = sys.argv[1]
 tree = DemeTreeData.load_binary(data_file)

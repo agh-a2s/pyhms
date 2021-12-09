@@ -2,14 +2,13 @@ import logging
 import argparse
 import sys
 
-from .config_fake import erikkson, bounds
-
-from ...config import LevelConfig
-from ...algorithm import hms
-from ...single_pop.sea import SEA
-from ...usc import dont_stop, metaepoch_limit
-from ...lsc import fitness_steadiness
-from ...persist.tree import DemeTreeData
+from hms.experiments.erikkson.config_fake import erikkson, bounds
+from hms.config import LevelConfig
+from hms import hms
+from hms.single_pop import SEA
+from hms.usc import dont_stop, metaepoch_limit
+from hms.lsc import fitness_steadiness
+from hms.persist import DemeTreeData
 
 hms_config = [
     LevelConfig(

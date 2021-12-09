@@ -1,8 +1,8 @@
 import sys
 
-from .config import LevelConfig, TreeConfig
-from .tree import AbstractDemeTree
-from .persist.tree import DemeTreeData
+from hms.config import TreeConfig
+from hms import AbstractDemeTree
+from hms.persist import DemeTreeData
 class Summary:
     def __init__(self, tree: AbstractDemeTree):
         self._tree = tree

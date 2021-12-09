@@ -2,15 +2,15 @@ import logging
 
 from leap_ec.problem import FunctionProblem
 
-from ...gsc import no_active_nonroot_demes
-from ...problem import StatsGatheringProblem, square
-from ...sprout import far_enough
-from ...config import LevelConfig
-from ...algorithm import hms
-from ...single_pop.sea import SEA
-from ...usc import dont_stop
-from ...lsc import fitness_steadiness
-from ...persist.tree import DemeTreeData
+from hms.gsc import no_active_nonroot_demes
+from hms.problem import StatsGatheringProblem, square
+from hms.sprout import far_enough
+from hms.config import LevelConfig
+from hms import hms
+from hms.single_pop import SEA
+from hms.usc import dont_stop
+from hms.lsc import fitness_steadiness
+from hms.persist import DemeTreeData
 
 bounds = [(-20, 20) for _ in range(2)]
 

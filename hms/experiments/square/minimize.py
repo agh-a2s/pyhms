@@ -4,8 +4,8 @@ import logging
 
 from leap_ec.problem import FunctionProblem
 
-from ...algorithm import local_optimization
-from ...problem import StatsGatheringProblem, square
+from hms import local_optimization
+from hms.problem import StatsGatheringProblem, square
 
 problem = StatsGatheringProblem(FunctionProblem(square, maximize=False))
 

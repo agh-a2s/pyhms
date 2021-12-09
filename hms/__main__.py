@@ -5,15 +5,14 @@ from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
 from hms.sprout import far_enough
-
-from .problem import StatsGatheringProblem, square
-from .gsc import all_stopped, fitness_eval_limit_reached
-from .persist.tree import DemeTreeData
-from .lsc import all_children_stopped, fitness_steadiness
-from .usc import dont_stop, metaepoch_limit
-from .algorithm import hms
-from .config import LevelConfig
-from .single_pop.sea import SEA
+from hms.problem import StatsGatheringProblem, square
+from hms.gsc import all_stopped, fitness_eval_limit_reached
+from hms.persist import DemeTreeData
+from hms.lsc import all_children_stopped, fitness_steadiness
+from hms.usc import dont_stop, metaepoch_limit
+from hms import hms
+from hms.config import LevelConfig
+from hms.single_pop import SEA
 
 logging.basicConfig(level=logging.DEBUG)
 
