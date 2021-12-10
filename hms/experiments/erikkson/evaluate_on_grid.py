@@ -1,9 +1,11 @@
 import argparse
-import sys
+import logging
 from leap_ec.problem import FunctionProblem
 
 from hms.experiments.erikkson.config_solver import erikkson, bounds
 from hms.grid import Grid2DEvaluation
+
+logging.basicConfig(level=logging.DEBUG)
 
 def main():
     args = parse_args()
