@@ -25,6 +25,13 @@ class AbstractDemeTree(ABC):
     def level(self, no: int) -> List[AbstractDeme]:
         return self.levels[no]
 
+    def level_individuals(self, level_no: int) -> list:
+        inds = []
+        for deme in self.level(level_no):
+            inds += deme.all_individuals
+
+        return inds
+
     @property
     def height(self) -> int:
         return len(self.levels)

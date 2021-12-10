@@ -31,6 +31,14 @@ class AbstractDeme(ABC):
         raise NotImplementedError()
 
     @property
+    def all_individuals(self) -> list:
+        inds = []
+        for pop in self.history:
+            inds += pop
+
+        return inds
+
+    @property
     def metaepoch_count(self) -> int:
         return len(self.history) - 1
 

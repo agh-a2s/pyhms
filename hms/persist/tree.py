@@ -7,6 +7,7 @@ from datetime import datetime
 
 from .deme import DemeData
 from ..tree import AbstractDemeTree, DemeTree
+from ..util import unique_file_name
 
 FILE_NAME_EXT = ".dat"
 
@@ -23,15 +24,9 @@ class DemeTreeData(AbstractDemeTree):
         return self._levels
 
     def save_binary(self, file_name_prefix="hms"):
-        file_name = self.__class__._create_file_name(file_name_prefix)
+        file_name = unique_file_name(file_name_prefix, FILE_NAME_EXT)
         with open(file_name, "wb") as f:
             pickle.dump(self, f)
-
-    @staticmethod
-    def _create_file_name(prefix):
-        dt_now = datetime.now()
-        dt_part = dt_now.strftime('-%Y%m%d-%H%M%S')
-        return prefix + dt_part + FILE_NAME_EXT
 
     @staticmethod
     def load_binary(file_name):

@@ -1,6 +1,7 @@
 """
     Representation of a solution (point and value).
 """
+import numpy as np
 from typing import List
 from leap_ec.individual import Individual
 from leap_ec.problem import Problem
@@ -18,6 +19,10 @@ class Solution:
     @staticmethod
     def simplify_population(population: List[Individual]):
         return [Solution.simplify(ind) for ind in population]
+
+    @property
+    def genome(self) -> np.array:
+        return np.asarray(self.point)
 
     @property
     def fitness(self) -> float:
