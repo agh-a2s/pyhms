@@ -133,4 +133,6 @@ dmypy.json
 
 # MS additions
 *.dat
+*.gdat
 *.mp4
+
