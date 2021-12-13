@@ -3,6 +3,7 @@ import sys
 from hms.config import TreeConfig
 from hms import AbstractDemeTree
 from hms.persist import DemeTreeData
+from hms.grid import Grid2DEvaluation
 class Summary:
     def __init__(self, tree: AbstractDemeTree):
         self._tree = tree
@@ -60,9 +61,15 @@ class Summary:
 
 def main():
     file_name = sys.argv[1]
-    tree_data = DemeTreeData.load_binary(file_name)
-    summary = Summary(tree_data)
-    print(summary)
+    if file_name.endswith(".dat"):
+        tree_data = DemeTreeData.load_binary(file_name)
+        summary = Summary(tree_data)
+        print(summary)
+    elif file_name.endswith(".gdat"):
+        grid = Grid2DEvaluation.load_binary(file_name)
+        print(grid.summary())
+    else:
+        sys.exit("Unknown file extension")
 
 if __name__ == '__main__':
     main()

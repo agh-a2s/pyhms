@@ -43,3 +43,10 @@ class Grid2DEvaluation(object):
 
     def __str__(self) -> str:
         return f"Grid2DEvaluation(problem={self.problem}, bounds={self.bounds}, gran={self.granularity})"
+
+    def summary(self) -> str:
+        s = "Grid 2D evaluation:\n"
+        s += f"Problem: {self.problem}\n"
+        s += f"Bounds: {self.bounds}\n"
+        s += f"Granularity: {self.granularity}"
+        return s
