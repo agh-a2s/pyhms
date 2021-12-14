@@ -29,7 +29,7 @@ def scatterplot(population: Union[List[Solution], List[Individual]]):
 
 def imageplot(grid: Grid2DEvaluation):
     ax = plt.subplot()
-    ims = ax.imshow(grid.z.T, cmap=DEFAULT_CMAP, extent=bounds_to_extent(grid.bounds))
+    ims = ax.imshow(grid.imshow_view, cmap=DEFAULT_CMAP, extent=bounds_to_extent(grid.bounds))
     divider = make_axes_locatable(ax)
     cax = divider.append_axes('right', size='5%', pad=0.05)
     plt.colorbar(ims, cax=cax)

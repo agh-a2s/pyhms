@@ -41,6 +41,10 @@ class Grid2DEvaluation(object):
             for j, y in enumerate(ys):
                 self.z[i, j] = self.problem.evaluate(phenome=np.asarray([x, y]))
 
+    @property
+    def imshow_view(self) -> np.array:
+        return np.flipud(self.z.T)
+
     def __str__(self) -> str:
         return f"Grid2DEvaluation(problem={self.problem}, bounds={self.bounds}, gran={self.granularity})"
 
