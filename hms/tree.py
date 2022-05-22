@@ -3,7 +3,7 @@ from typing import Generator, List, Tuple
 import logging
 
 from .config import TreeConfig
-from .deme import AbstractDeme, Deme
+from .deme import AbstractDeme, EA_Deme
 
 tree_logger = logging.getLogger(__name__)
 
@@ -73,8 +73,8 @@ class DemeTree(AbstractDemeTree):
         if nlevels < 1:
             raise ValueError("Level number must be positive")
 
-        self._levels: List[List[Deme]] = [[] for _ in range(nlevels)]
-        root_deme = Deme("root", config.levels[0], leaf=(nlevels == 1))
+        self._levels: List[List[EA_Deme]] = [[] for _ in range(nlevels)]
+        root_deme = EA_Deme("root", config.levels[0], leaf=(nlevels == 1))
         self._levels[0].append(root_deme)
 
         self._gsc = config.gsc
@@ -85,14 +85,14 @@ class DemeTree(AbstractDemeTree):
         return self._levels
 
     @property
-    def active_demes(self) -> Generator[Tuple[int, Deme], None, None]:
+    def active_demes(self) -> Generator[Tuple[int, EA_Deme], None, None]:
         for level_no in range(self.height):
             for deme in self.levels[level_no]:
                 if deme.active:
                     yield level_no, deme
 
     @property
-    def active_non_leaves(self) -> Generator[Tuple[int, Deme], None, None]:
+    def active_non_leaves(self) -> Generator[Tuple[int, EA_Deme], None, None]:
         for level_no in range(self.height - 1):
             for deme in self.levels[level_no]:
                 if deme.active:
@@ -121,7 +121,7 @@ class DemeTree(AbstractDemeTree):
     def _do_sprout(self, deme, level):
         new_id = self._next_child_id(deme, level)
         is_leaf = (level == self.height - 1)
-        child = Deme(
+        child = EA_Deme(
             id=new_id, 
             config=self.config.levels[level + 1], 
             started_at=self.metaepoch_count, 
@@ -132,7 +132,7 @@ class DemeTree(AbstractDemeTree):
         self._levels[level + 1].append(child)
 
 
-    def _next_child_id(self, deme: Deme, level: int) -> str:
+    def _next_child_id(self, deme: EA_Deme, level: int) -> str:
         if level >= self.height - 1:
             raise ValueError("Only non-leaf levels are admissible")
 

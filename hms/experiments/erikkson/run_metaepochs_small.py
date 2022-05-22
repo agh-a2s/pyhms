@@ -2,14 +2,14 @@ import logging
 
 from hms.sprout import far_enough
 from hms.experiments.erikkson.config_solver import erikkson, bounds
-from hms.config import LevelConfig
+from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
 from hms.usc import metaepoch_limit, dont_stop
 from hms.persist import DemeTreeData
 
 hms_config = [
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=erikkson(0), 
@@ -17,7 +17,7 @@ hms_config = [
         pop_size=20,
         lsc=dont_stop()
         ),
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=erikkson(1), 

@@ -11,7 +11,7 @@ from hms.persist import DemeTreeData
 from hms.lsc import all_children_stopped, fitness_steadiness
 from hms.usc import dont_stop, metaepoch_limit
 from hms import hms
-from hms.config import LevelConfig
+from hms.config import EALevelConfig
 from hms.single_pop import SEA
 
 logging.basicConfig(level=logging.DEBUG)
@@ -22,7 +22,7 @@ bounds = [(-10, 10) for _ in range(2)]
 # If one wants to count evaluations for different levels separately, one has to
 # use different instances of problem at each level.
 config = [
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=problem, 
@@ -30,7 +30,7 @@ config = [
         pop_size=20, 
         lsc=dont_stop()
         ),
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=copy.deepcopy(problem), 
@@ -59,8 +59,8 @@ def main():
 
     print("\nDeme info:")
     for level, deme in tree.all_demes:
-        print(f"Level {level} {deme}")
-        print(f"Best {deme.best}")
+        print(f"Level {level}")
+        print(f"{deme}")
         print(f"Average fitness in last population {deme.avg_fitness()}")
         print(f"Average fitness in first population {deme.avg_fitness(0)}")
 

@@ -6,7 +6,7 @@ from hms.gsc import no_active_nonroot_demes
 from hms.problem import StatsGatheringProblem
 from hms.problems.relay2d import relay
 from hms.sprout import far_enough
-from hms.config import LevelConfig
+from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
 from hms.usc import dont_stop
@@ -16,7 +16,7 @@ from hms.persist import DemeTreeData
 bounds = [(-100, 100), (0, 100)]
 
 hms_config = [
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA,
         generations=2, 
         problem=StatsGatheringProblem(FunctionProblem(relay, maximize=False)), 
@@ -26,7 +26,7 @@ hms_config = [
         k_elites=0,
         lsc=dont_stop()
         ),
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=StatsGatheringProblem(FunctionProblem(relay, maximize=False)), 

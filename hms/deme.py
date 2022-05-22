@@ -6,7 +6,7 @@ import numpy as np
 import scipy.optimize as sopt
 
 from .initializers import sample_normal
-from .config import LevelConfig
+from .config import EALevelConfig
 from .util import compute_avg_fitness, compute_centroid
 
 deme_logger = logging.getLogger(__name__)
@@ -31,6 +31,11 @@ class AbstractDeme(ABC):
         raise NotImplementedError()
 
     @property
+    @abstractmethod
+    def centroid(self) -> np.array:
+        raise NotImplementedError()
+
+    @property
     def all_individuals(self) -> list:
         inds = []
         for pop in self.history:
@@ -49,9 +54,9 @@ class AbstractDeme(ABC):
     def avg_fitness(self, metaepoch=-1) -> float:
         return compute_avg_fitness(self.history[metaepoch])
 
-class Deme(AbstractDeme):
-    def __init__(self, id: str, config: LevelConfig, started_at=0, leaf=False, 
-        seed=None) -> None:
+class EA_Deme(AbstractDeme):
+    def __init__(self, id: str, config: EALevelConfig, started_at=0, leaf=False,
+                 seed=None) -> None:
         super().__init__(id, started_at)
         self._sample_std_dev = config.sample_std_dev
         self._lsc = config.lsc
@@ -100,6 +105,13 @@ class Deme(AbstractDeme):
             return self._current_pop
         else:
             return self._history[-1]
+
+    @property
+    def best(self):
+        if self._current_pop is not None:
+            return max(self._current_pop)
+        else:
+            return super().best
 
     @property
     def active(self) -> bool:
@@ -155,4 +167,4 @@ class Deme(AbstractDeme):
 
     def __str__(self) -> str:
         bsf = max(self._current_pop)
-        return f"Deme {self.id} started at {self.started_at} best fitness {bsf.fitness}"
+        return f"Deme {self.id} started at {self.started_at} with best achieved fitness {bsf.fitness}"
