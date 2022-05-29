@@ -1,13 +1,13 @@
 import logging
 
-from hms.gsc import no_active_nonroot_demes
+from hms.stop_conditions.gsc import no_active_nonroot_demes
 from hms.sprout import far_enough
 from hms.experiments.erikkson.config_solver import erikkson, bounds
 from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
-from hms.usc import dont_stop
-from hms.lsc import fitness_steadiness
+from hms.stop_conditions.usc import dont_stop
+from hms.stop_conditions.lsc import fitness_steadiness
 from hms.persist import DemeTreeData
 
 hms_config = [

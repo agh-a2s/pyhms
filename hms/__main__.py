@@ -1,18 +1,17 @@
 import logging
 import copy
 
-from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
 from hms.sprout import far_enough
 from hms.problem import StatsGatheringProblem, square
-from hms.gsc import all_stopped, fitness_eval_limit_reached
+from hms.stop_conditions.gsc import fitness_eval_limit_reached
 from hms.persist import DemeTreeData
-from hms.lsc import all_children_stopped, fitness_steadiness
-from hms.usc import dont_stop, metaepoch_limit
+from hms.stop_conditions.lsc import fitness_steadiness
+from hms.stop_conditions.usc import dont_stop
 from hms import hms
 from hms.config import EALevelConfig
-from hms.single_pop import SEA
+from hms.demes.single_pop_eas.sea import SEA
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -3,13 +3,14 @@
 """
 import numpy as np
 
-from ..deme import AbstractDeme, EA_Deme
-from .solution import Solution
+from ..demes.abstract_deme import AbstractDeme
+from ..demes.ea_deme import EADeme
+from .pers_solution import Solution
 from ..util import compute_centroid
 
 class DemeData(AbstractDeme):
-    def __init__(self, deme: EA_Deme) -> None:
-        super().__init__(deme.id, deme.started_at)
+    def __init__(self, deme: EADeme) -> None:
+        super().__init__(deme.id, deme.started_at, deme.config)
         self._history = [Solution.simplify_population(pop) for pop in deme.history]
 
     @property

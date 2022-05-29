@@ -4,8 +4,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Union
 
-from .deme import AbstractDeme
-from .tree import DemeTree
+from ..demes.abstract_deme import AbstractDeme
+from ..tree import DemeTree
 
 class usc(ABC):
     @abstractmethod

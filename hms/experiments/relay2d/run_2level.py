@@ -2,15 +2,15 @@ import logging
 
 from leap_ec.problem import FunctionProblem
 
-from hms.gsc import no_active_nonroot_demes
+from hms.stop_conditions.gsc import no_active_nonroot_demes
 from hms.problem import StatsGatheringProblem
-from hms.problems.relay2d import relay
+from hms.experiments.problems.relay2d import relay
 from hms.sprout import far_enough
 from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
-from hms.usc import dont_stop
-from hms.lsc import fitness_steadiness
+from hms.stop_conditions.usc import dont_stop
+from hms.stop_conditions.lsc import fitness_steadiness
 from hms.persist import DemeTreeData
 
 bounds = [(-100, 100), (0, 100)]

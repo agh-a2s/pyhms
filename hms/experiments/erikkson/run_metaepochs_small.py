@@ -5,7 +5,7 @@ from hms.experiments.erikkson.config_solver import erikkson, bounds
 from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
-from hms.usc import metaepoch_limit, dont_stop
+from hms.stop_conditions.usc import metaepoch_limit, dont_stop
 from hms.persist import DemeTreeData
 
 hms_config = [

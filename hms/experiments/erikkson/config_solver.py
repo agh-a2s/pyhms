@@ -1,6 +1,6 @@
 from ...problem import StatsGatheringProblem
-from ...problems.erikkson import ErikksonProblem
-from ...data.erikkson_4_1_0 import data
+from hms.experiments.problems import ErikksonProblem
+from hms.experiments.data import data
 
 SOLVER_DIR = "/home/prac/maciej.smolka/eksperymenty/erikkson/solver/iga-ads/"
 

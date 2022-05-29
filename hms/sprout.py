@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Union
 import numpy.linalg as nla
 
-from .deme import AbstractDeme
+from .demes.abstract_deme import AbstractDeme
 from .tree import DemeTree
 
 class sprout_condition(ABC):
