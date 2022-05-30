@@ -15,7 +15,7 @@ class CMADeme(AbstractDeme):
         super().__init__(id, started_at, config)
         self._x0 = x0
         self._sigma0 = config.sigma0
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0)
+        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'verbose': -9})
 
         self._centroid = None
         self._history = [[self._x0]]
