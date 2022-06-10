@@ -15,6 +15,7 @@ class CMADeme(AbstractDeme):
         super().__init__(id, started_at, config)
         self._x0 = x0
         self._sigma0 = config.sigma0
+        self.generations = config.generations
         self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'verbose': -9})
 
         self._centroid = None
@@ -34,12 +35,15 @@ class CMADeme(AbstractDeme):
         return self._centroid
 
     def run_metaepoch(self) -> None:
-        solutions = self._cma_es.ask()
-        individuals = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in solutions]
-        self._cma_es.tell(solutions, [ind.evaluate() for ind in individuals])
-        self._cma_es.disp()
-        self._centroid = None
+        epoch_counter = 0
+        individuals = []
+        while epoch_counter < self.generations:
+            solutions = self._cma_es.ask()
+            individuals = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in solutions]
+            self._cma_es.tell(solutions, [ind.evaluate() for ind in individuals])
+            epoch_counter += 1
 
+        self._centroid = None
         self._history.append(individuals)
 
         if self._lsc(self):
