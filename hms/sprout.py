@@ -5,12 +5,12 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Union
 import numpy.linalg as nla
 
-from .deme import Deme
+from .demes.abstract_deme import AbstractDeme
 from .tree import DemeTree
 
 class sprout_condition(ABC):
     @abstractmethod
-    def sprout_possible(self, deme: Deme, level: int, tree: DemeTree) -> bool:
+    def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
         raise NotImplementedError()
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
@@ -21,7 +21,7 @@ class level_limit(sprout_condition):
         super().__init__()
         self.limit = limit
 
-    def sprout_possible(self, deme: Deme, level: int, tree: DemeTree) -> bool:
+    def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
         return len(tree.level(level)) < self.limit
 
     def __str__(self) -> str:
@@ -36,9 +36,9 @@ class far_enough(sprout_condition):
         self.min_distance = min_distance
         self.norm_ord = norm_ord
 
-    def sprout_possible(self, deme: Deme, level: int, tree: DemeTree) -> bool:
+    def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
         child_siblings = tree.level(level + 1)
-        child_seed = max(deme.population)
+        child_seed = deme.best
         if isinstance(self.min_distance, list):
             min_dist = self.min_distance[level]
         elif isinstance(self.min_distance, float):

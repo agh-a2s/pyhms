@@ -1,14 +1,17 @@
 """
     Global stopping conditions.
 """
-from abc import ABC, abstractmethod
-from typing import Any, List, Union
 import logging
 
-from .problem import StatsGatheringProblem
-from .tree import DemeTree
+from abc import ABC, abstractmethod
+from typing import Any, Union, List
+
+from ..problem import StatsGatheringProblem
+from ..tree import DemeTree
 
 logger = logging.getLogger(__name__)
+
+
 class gsc(ABC):
     @abstractmethod
     def satisfied(self, tree: DemeTree) -> bool:
@@ -17,6 +20,7 @@ class gsc(ABC):
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.satisfied(*args, **kwds)
 
+
 class root_stopped(gsc):
     def satisfied(self, tree: DemeTree) -> bool:
         return not tree.root.active
@@ -24,12 +28,14 @@ class root_stopped(gsc):
     def __str__(self) -> str:
         return "root_stopped"
 
+
 class all_stopped(gsc):
     def satisfied(self, tree: DemeTree) -> bool:
         return len(list(tree.active_demes)) == 0
 
     def __str__(self) -> str:
         return "all_stopped"
+
 
 class fitness_eval_limit_reached(gsc):
     def __init__(self, limit: int, weights: Union[List[float], str] = 'equal') -> None:
@@ -42,8 +48,8 @@ class fitness_eval_limit_reached(gsc):
         n_levels = len(levels)
         if self.weights is None or isinstance(self.weights, str):
             self._transform_weights(n_levels)
-        
-        n_evals = 0    
+
+        n_evals = 0
         for i in range(n_levels):
             if not isinstance(levels[i].problem, StatsGatheringProblem):
                 raise ValueError("Problem has to be an instance of StatsGatheringProblem")
@@ -62,6 +68,7 @@ class fitness_eval_limit_reached(gsc):
     def __str__(self) -> str:
         return f"fitness_eval_limit_reached(limit={self.limit}, weights={self.weights})"
 
+
 class no_active_nonroot_demes(gsc):
     def __init__(self, n_metaepochs: int = 5) -> None:
         super().__init__()
@@ -77,7 +84,7 @@ class no_active_nonroot_demes(gsc):
             for deme in tree.levels[level_no]:
                 logger.debug(f"Deme {deme.id} st {deme.started_at} mc {deme.metaepoch_count}")
                 if deme.active or \
-                    step <= deme.started_at + deme.metaepoch_count + self.n_metaepochs:
+                        step <= deme.started_at + deme.metaepoch_count + self.n_metaepochs:
                     return False
 
         return True

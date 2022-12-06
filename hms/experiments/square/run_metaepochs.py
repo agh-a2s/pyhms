@@ -2,20 +2,20 @@ import logging
 
 from leap_ec.problem import FunctionProblem
 
-from hms.gsc import no_active_nonroot_demes
+from hms.stop_conditions.gsc import no_active_nonroot_demes
 from hms.problem import StatsGatheringProblem, square
 from hms.sprout import far_enough
-from hms.config import LevelConfig
+from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
-from hms.usc import dont_stop
-from hms.lsc import fitness_steadiness
+from hms.stop_conditions.usc import dont_stop
+from hms.stop_conditions.lsc import fitness_steadiness
 from hms.persist import DemeTreeData
 
 bounds = [(-20, 20) for _ in range(2)]
 
 hms_config = [
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA,
         generations=2, 
         problem=StatsGatheringProblem(FunctionProblem(square, maximize=False)), 
@@ -25,7 +25,7 @@ hms_config = [
         k_elites=0,
         lsc=dont_stop()
         ),
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=StatsGatheringProblem(FunctionProblem(square, maximize=False)), 

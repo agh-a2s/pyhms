@@ -3,15 +3,15 @@ import argparse
 import sys
 
 from hms.experiments.erikkson.config_fake import erikkson, bounds
-from hms.config import LevelConfig
+from hms.config import EALevelConfig
 from hms import hms
 from hms.single_pop import SEA
-from hms.usc import dont_stop, metaepoch_limit
-from hms.lsc import fitness_steadiness
+from hms.stop_conditions.usc import dont_stop, metaepoch_limit
+from hms.stop_conditions.lsc import fitness_steadiness
 from hms.persist import DemeTreeData
 
 hms_config = [
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=erikkson(0), 
@@ -19,7 +19,7 @@ hms_config = [
         pop_size=20,
         lsc=dont_stop()
         ),
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=erikkson(1), 

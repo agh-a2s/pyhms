@@ -3,7 +3,7 @@ import subprocess as sp
 from typing import List
 from leap_ec.problem import ScalarProblem
 
-from ..util import str_to_list
+from hms.util import str_to_list
 from .loss import squared_loss
 
 logger = logging.getLogger(__name__)

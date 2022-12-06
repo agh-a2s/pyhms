@@ -2,8 +2,8 @@ import argparse
 from leap_ec.problem import FunctionProblem
 
 from hms.problem import StatsGatheringProblem
-from hms.problems.relay2d import relay
-from hms.grid import Grid2DEvaluation
+from hms.experiments.problems.relay2d import relay
+from hms.visualisation.grid import Grid2DEvaluation
 
 problem = StatsGatheringProblem(FunctionProblem(relay, maximize=False))
 bounds = [(-100, 100), (0, 100)]

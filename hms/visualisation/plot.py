@@ -6,7 +6,7 @@ from typing import List, Union
 from leap_ec.individual import Individual
 
 from hms.persist import Solution, DemeTreeData
-from hms.grid import Grid2DEvaluation
+from hms.visualisation.grid import Grid2DEvaluation
 from hms.util import bounds_to_extent
 
 DEFAULT_CMAP = "gnuplot"

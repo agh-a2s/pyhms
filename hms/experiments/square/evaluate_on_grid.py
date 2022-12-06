@@ -2,7 +2,7 @@ import argparse
 from leap_ec.problem import FunctionProblem
 
 from hms.problem import StatsGatheringProblem, square
-from hms.grid import Grid2DEvaluation
+from hms.visualisation.grid import Grid2DEvaluation
 
 problem = StatsGatheringProblem(FunctionProblem(square, maximize=False))
 bounds = [(-20, 20), (-20, 20)]

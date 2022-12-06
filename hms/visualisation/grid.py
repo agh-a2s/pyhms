@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 
-from .util import unique_file_name
+from hms.util import unique_file_name
 
 FILE_NAME_EXT = ".gdat"
 

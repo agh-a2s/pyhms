@@ -1,9 +1,8 @@
 import argparse
 import logging
-from leap_ec.problem import FunctionProblem
 
 from hms.experiments.erikkson.config_solver import erikkson, bounds
-from hms.grid import Grid2DEvaluation
+from hms.visualisation.grid import Grid2DEvaluation
 
 logging.basicConfig(level=logging.DEBUG)
 

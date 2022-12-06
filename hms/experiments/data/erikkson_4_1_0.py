@@ -3,7 +3,7 @@
 """
 import os.path as op
 
-from ..util import load_list
+from hms.util import load_list
 
 DATA_FILE = op.join(op.dirname(op.abspath(__file__)), "erikkson_4_1_0.txt")
 

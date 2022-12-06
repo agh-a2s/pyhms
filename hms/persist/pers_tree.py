@@ -5,7 +5,7 @@ import pickle
 from typing import List
 from datetime import datetime
 
-from .deme import DemeData
+from .pers_deme import DemeData
 from ..tree import AbstractDemeTree, DemeTree
 from ..util import unique_file_name
 

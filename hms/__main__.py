@@ -1,18 +1,17 @@
 import logging
 import copy
 
-from leap_ec import problem
 from leap_ec.problem import FunctionProblem
 
 from hms.sprout import far_enough
 from hms.problem import StatsGatheringProblem, square
-from hms.gsc import all_stopped, fitness_eval_limit_reached
+from hms.stop_conditions.gsc import fitness_eval_limit_reached
 from hms.persist import DemeTreeData
-from hms.lsc import all_children_stopped, fitness_steadiness
-from hms.usc import dont_stop, metaepoch_limit
+from hms.stop_conditions.lsc import fitness_steadiness
+from hms.stop_conditions.usc import dont_stop
 from hms import hms
-from hms.config import LevelConfig
-from hms.single_pop import SEA
+from hms.config import EALevelConfig
+from hms.demes.single_pop_eas.sea import SEA
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -22,7 +21,7 @@ bounds = [(-10, 10) for _ in range(2)]
 # If one wants to count evaluations for different levels separately, one has to
 # use different instances of problem at each level.
 config = [
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=problem, 
@@ -30,7 +29,7 @@ config = [
         pop_size=20, 
         lsc=dont_stop()
         ),
-    LevelConfig(
+    EALevelConfig(
         ea_class=SEA, 
         generations=2, 
         problem=copy.deepcopy(problem), 
@@ -59,8 +58,8 @@ def main():
 
     print("\nDeme info:")
     for level, deme in tree.all_demes:
-        print(f"Level {level} {deme}")
-        print(f"Best {deme.best}")
+        print(f"Level {level}")
+        print(f"{deme}")
         print(f"Average fitness in last population {deme.avg_fitness()}")
         print(f"Average fitness in first population {deme.avg_fitness(0)}")
 
