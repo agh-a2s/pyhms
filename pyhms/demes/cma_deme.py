@@ -45,7 +45,7 @@ class CMADeme(AbstractDeme):
         self._centroid = None
         self._history.append(individuals)
 
-        if self._lsc(self):
+        if self._lsc(self) or self._cma_es.stop():
             self._active = False
             # deme_logger.debug(f"{self} stopped after {self.metaepoch_count} metaepochs")
 
