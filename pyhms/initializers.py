@@ -21,3 +21,7 @@ def sample_normal(center: np.array, std_dev: float, bounds=None):
         return x
 
     return create
+
+
+def inject_population():
+    pass

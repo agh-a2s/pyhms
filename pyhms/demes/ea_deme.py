@@ -20,6 +20,8 @@ class EADeme(AbstractDeme):
 
         if seed is None:
             self._current_pop = self._ea.run()
+        elif seed == "inject":
+            pass
         else:
             x = seed.genome
             pop = Individual.create_population(
