@@ -16,6 +16,20 @@ class sprout_condition(ABC):
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.sprout_possible(*args, **kwds)
 
+class composite_condition(sprout_condition):
+    def __init__(self, conditions: List[sprout_condition]) -> None:
+        super().__init__()
+        self.conditions = conditions
+
+    def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
+        for condition in self.conditions:
+            if not condition.sprout_possible(deme, level, tree):
+                return False
+        return True
+
+    def __str__(self) -> str:
+        return f"composite_condition({self.conditions})"
+
 class level_limit(sprout_condition):
     def __init__(self, limit: int) -> None:
         super().__init__()
@@ -54,3 +68,15 @@ class far_enough(sprout_condition):
         if self.norm_ord != 2:
             par_str += f", ord={self.norm_ord}"
         return f"far_enough({par_str})"
+
+class level_limit(sprout_condition):
+    def __init__(self, limit: int) -> None:
+        super().__init__()
+        self.limit = limit
+
+    def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
+        #[guzowski] Check if the number of active demes on each level is less than the limit
+        return all([len(list(filter(lambda deme: deme.active, level))) <= self.limit for level in tree.levels])
+
+    def __str__(self) -> str:
+        return f"level_limit({self.limit})"
