@@ -2,6 +2,34 @@ import time
 import numpy as np
 from leap_ec.problem import FunctionProblem, Problem
 
+class EvalCountingProblem(Problem):
+    def __init__(self, decorated_problem: Problem):
+        super().__init__()
+        self._inner: Problem = decorated_problem
+        self._n_evals = 0
+
+    def evaluate(self, phenome, *args, **kwargs):
+        ret_val = self._inner.evaluate(phenome, *args, **kwargs)
+        self._n_evals += 1
+        return ret_val
+
+    def worse_than(self, first_fitness, second_fitness):
+        return self._inner.worse_than(first_fitness, second_fitness)
+
+    def equivalent(self, first_fitness, second_fitness):
+        return self._inner.equivalent(first_fitness, second_fitness)
+
+    @property
+    def n_evaluations(self):
+        return self._n_evals
+
+    def __str__(self) -> str:
+        if isinstance(self._inner, FunctionProblem):
+            inner_str = f"FunctionProblem({self._inner.__dict__})"
+        else:
+            inner_str = str(self._inner)
+        return f"EvalCountingProblem({inner_str})"
+
 class StatsGatheringProblem(Problem):
     def __init__(self, decorated_problem: Problem):
         super().__init__()
