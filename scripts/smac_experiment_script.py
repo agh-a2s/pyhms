@@ -1,6 +1,4 @@
 import csv
-import multiprocessing
-import os
 
 from multiprocess import Pool
 from smac_functions_new import run_smac_experiment

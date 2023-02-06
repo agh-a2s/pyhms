@@ -1,9 +1,7 @@
-import ast
 import copy
 import csv
-import numpy as np
-import pandas as pd
-import pickle as pkl
+
+from cma.bbobbenchmarks import instantiate
 
 from pyhms.pyhms.hms import hms
 from pyhms.pyhms.config import EALevelConfig, CMALevelConfig
@@ -18,23 +16,6 @@ from ConfigSpace.hyperparameters import UniformIntegerHyperparameter, UniformFlo
 from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.scenario.scenario import Scenario
 
-from rpy2.robjects.packages import importr
-from rpy2.robjects.vectors import BoolVector, FloatVector, FloatMatrix, IntVector, StrVector
-from rpy2.robjects import ListVector, NA_Complex, NA_Character, NA_Integer
-import rpy2.robjects.packages as rpackages
-import rpy2.robjects as R
-from rpy2.robjects import numpy2ri
-
-base = importr('base')
-utils = importr('utils')
-smoof = importr('smoof', lib_loc='~/R_libs/')
-
-# utils.chooseCRANmirror(ind=1)
-# packnames = ['smoof']
-# names_to_install = [x for x in packnames if not rpackages.isinstalled(x)]
-# if len(names_to_install) > 0:
-#     utils.install_packages(StrVector(names_to_install), lib = "/usr/lib/R/x86_64-pc-linux-gnu-library/3.6")
-# smoof = importr('smoof')
 
 def prepare_evaluator_sea_2(test_problem, dim_number, bounds, evaluation_factor):
     def evaluator_sea_2(config):
@@ -232,8 +213,8 @@ def prepare_config(hms_variant, function_set, dim_number, bounds, evaluation_fac
         return prepare_cma_3(function_set(dim_number), dim_number, bounds, evaluation_factor)
 
 def run_smac_experiment(parameters):
-    bbob_fun = smoof.makeBBOBFunction(parameters['dim'], parameters['test_problem'], 1)
-    test_problem = EvalCountingProblem(FunctionProblem(lambda x: bbob_fun(FloatVector(x))[0], maximize=False))
+    bbob_fun = instantiate(parameters['test_problem'])
+    test_problem = EvalCountingProblem(FunctionProblem(lambda x: bbob_fun(x), maximize=False))
     experiment = prepare_config(parameters['config'], test_problem, parameters['dim'], parameters['bounds'], parameters['eval'], True)
     best_found_config = experiment.optimize()
     rh = experiment.get_runhistory()
