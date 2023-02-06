@@ -6,7 +6,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Union, List
 
-from ..problem import StatsGatheringProblem
+from ..problem import StatsGatheringProblem, EvalCountingProblem
 from ..tree import DemeTree
 
 logger = logging.getLogger(__name__)
@@ -51,8 +51,8 @@ class fitness_eval_limit_reached(gsc):
 
         n_evals = 0
         for i in range(n_levels):
-            if not isinstance(levels[i].problem, StatsGatheringProblem):
-                raise ValueError("Problem has to be an instance of StatsGatheringProblem")
+            if not isinstance(levels[i].problem, StatsGatheringProblem) and not isinstance(levels[i].problem, EvalCountingProblem):
+                raise ValueError("Problem has to be an instance of EvalCountingProblem")
 
             n_evals += self.weights[i] * levels[i].problem.n_evaluations
 

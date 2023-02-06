@@ -120,7 +120,7 @@ def prepare_evaluator_cma_3(test_problem, dim_number, bounds, evaluation_factor)
             return 2147483647.0
     return evaluator_cma_3
     
-def prepare_sea_2(function_set, dim_number, bounds, evaluation_factor):
+def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
     # Define hyperparameters
     configspace = ConfigurationSpace()
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.25, 20.0))
@@ -144,11 +144,11 @@ def prepare_sea_2(function_set, dim_number, bounds, evaluation_factor):
         "cs": configspace,
     })
     
-    evaluator = prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
+    evaluator = prepare_evaluator_sea_2(test_problem, dim_number, bounds, evaluation_factor)
 
     return SMAC4HPO(scenario=scenario, tae_runner=evaluator)
 
-def prepare_cma_2(function_set, dim_number, bounds, evaluation_factor):
+def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
     # Define hyperparameters
     configspace = ConfigurationSpace()
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.25, 20.0))
@@ -170,11 +170,11 @@ def prepare_cma_2(function_set, dim_number, bounds, evaluation_factor):
         "cs": configspace,
     })
     
-    evaluator = prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
+    evaluator = prepare_evaluator_cma_2(test_problem, dim_number, bounds, evaluation_factor)
 
     return SMAC4HPO(scenario=scenario, tae_runner=evaluator)
 
-def prepare_cma_3(function_set, dim_number, bounds, evaluation_factor):
+def prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor):
     # Define hyperparameters
     configspace = ConfigurationSpace()
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.25, 20.0))
@@ -200,22 +200,22 @@ def prepare_cma_3(function_set, dim_number, bounds, evaluation_factor):
         "cs": configspace,
     })
     
-    evaluator = prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
+    evaluator = prepare_evaluator_cma_3(test_problem, dim_number, bounds, evaluation_factor)
 
     return SMAC4HPO(scenario=scenario, tae_runner=evaluator)
 
-def prepare_config(hms_variant, function_set, dim_number, bounds, evaluation_factor):
+def prepare_config(hms_variant, test_problem, dim_number, bounds, evaluation_factor):
     if hms_variant == "sea_2":
-        return prepare_sea_2(function_set(dim_number), dim_number, bounds, evaluation_factor)
+        return prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor)
     elif hms_variant == "cma_2":
-        return prepare_cma_2(function_set(dim_number), dim_number, bounds, evaluation_factor)
+        return prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor)
     elif hms_variant == "cma_3":
-        return prepare_cma_3(function_set(dim_number), dim_number, bounds, evaluation_factor)
+        return prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor)
 
 def run_smac_experiment(parameters):
-    bbob_fun = instantiate(parameters['test_problem'])
+    bbob_fun = instantiate(parameters['test_problem'])[0]
     test_problem = EvalCountingProblem(FunctionProblem(lambda x: bbob_fun(x), maximize=False))
-    experiment = prepare_config(parameters['config'], test_problem, parameters['dim'], parameters['bounds'], parameters['eval'], True)
+    experiment = prepare_config(parameters['config'], test_problem, parameters['dim'], parameters['bounds'], parameters['eval'])
     best_found_config = experiment.optimize()
     rh = experiment.get_runhistory()
     fit = rh.get_instance_costs_for_config(best_found_config)
