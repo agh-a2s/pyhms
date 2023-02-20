@@ -18,10 +18,11 @@ class EALevelConfig(BaseLevelConfig):
         return str(self.__dict__)
 
 class CMALevelConfig(BaseLevelConfig):
-    def __init__(self, problem, bounds, lsc, sigma0, generations) -> None:
+    def __init__(self, problem, bounds, lsc, sigma0, generations, **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.sigma0 = sigma0
         self.generations = generations
+        self.__dict__.update(kwargs)
 
     def __str__(self) -> str:
         return str(self.__dict__)

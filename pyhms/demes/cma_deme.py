@@ -82,7 +82,7 @@ class CMADeme(AbstractDeme):
             opt_ind.fitness = res.fun
             if maximize:
                 opt_ind.fitness = -res.fun
-            self._current_pop.append(opt_ind)
+            self.history[-1].append(opt_ind)
 
     def add_child(self, deme):
         self._children.append(deme)
