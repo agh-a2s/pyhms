@@ -85,6 +85,7 @@ def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
     def evaluator_sea_2(config):
         gsc = fitness_eval_limit_reached(limit=dim_number*evaluation_factor, weights=None)
         sprout_cond = composite_condition([far_enough(config["far_enough"]), level_limit(config["level_limit"])])
+        options = {'hibernation': True}
 
         minimas = []
         for test_problem in function_set:
@@ -106,10 +107,11 @@ def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
                 pop_size=config["pop2"],
                 mutation_std=config["mutation2"],
                 sample_std_dev=config["sample_dev2"],
-                lsc=metaepoch_limit(config["meataepoch2"])
+                lsc=metaepoch_limit(config["meataepoch2"]),
+                run_minimize=True
                 )
             ]
-            tree = hms(level_config=config_sea2, gsc=gsc, sprout_cond=sprout_cond)
+            tree = hms(level_config=config_sea2, gsc=gsc, sprout_cond=sprout_cond, options=options)
             if len(tree.optima) > 0:
                 minimas.append(min([o.fitness for o in tree.optima]))
             else:
@@ -121,6 +123,7 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
     def evaluator_cma_2(config):
         gsc = fitness_eval_limit_reached(limit=dim_number*evaluation_factor, weights=None)
         sprout_cond = composite_condition([far_enough(config["far_enough"]), level_limit(config["level_limit"])])
+        options = {'hibernation': True}
 
         minimas = []
         for test_problem in function_set:
@@ -139,10 +142,11 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
                 bounds=bounds*dim_number,
                 lsc=metaepoch_limit(config["meataepoch2"]),
                 sigma0=config["sigma2"],
-                generations=config["generations"]
+                generations=config["generations"],
+                run_minimize=True
                 )
             ]
-            tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond)
+            tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond, options=options)
             if len(tree.optima) > 0:
                 minimas.append(min([o.fitness for o in tree.optima]))
             else:
@@ -154,6 +158,7 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
     def evaluator_cma_3(config):
         gsc = fitness_eval_limit_reached(limit=dim_number*evaluation_factor, weights=None)
         sprout_cond = composite_condition([far_enough(config["far_enough"]), level_limit(config["level_limit"])])
+        options = {'hibernation': True}
 
         minimas = []
         for test_problem in function_set:
@@ -182,10 +187,11 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
                 bounds=bounds*dim_number,
                 lsc=metaepoch_limit(config["meataepoch3"]),
                 sigma0=config["sigma3"],
-                generations=config["generations"]
+                generations=config["generations"],
+                run_minimize=True
                 )
             ]
-            tree = hms(level_config=config_cma3, gsc=gsc, sprout_cond=sprout_cond)
+            tree = hms(level_config=config_cma3, gsc=gsc, sprout_cond=sprout_cond, options=options)
             if len(tree.optima) > 0:
                 minimas.append(min([o.fitness for o in tree.optima]))
             else:
@@ -212,7 +218,7 @@ def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
         "runcount-limit": 1000,  # Max number of function evaluations
         "deterministic": "false",
         "maxR": 3,  # Each configuration will be evaluated maximal 3 times with various seeds
-        "minR": 1,  # Each configuration will be repeated at least 1 time with different seeds
+        "minR": 2,  # Each configuration will be repeated at least 2 times with different seeds
         "output_dir": "smac_outputs",
         "cs": configspace,
     })
@@ -238,7 +244,7 @@ def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
         "runcount-limit": 1000,  # Max number of function evaluations
         "deterministic": "false",
         "maxR": 3,  # Each configuration will be evaluated maximal 3 times with various seeds
-        "minR": 1,  # Each configuration will be repeated at least 1 time with different seeds
+        "minR": 2,  # Each configuration will be repeated at least 2 times with different seeds
         "output_dir": "smac_outputs",
         "cs": configspace,
     })
@@ -268,7 +274,7 @@ def prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor):
         "runcount-limit": 1000,  # Max number of function evaluations
         "deterministic": "false",
         "maxR": 3,  # Each configuration will be evaluated maximal 3 times with various seeds
-        "minR": 1,  # Each configuration will be repeated at least 1 time with different seeds
+        "minR": 2,  # Each configuration will be repeated at least 2 times with different seeds
         "output_dir": "smac_outputs",
         "cs": configspace,
     })

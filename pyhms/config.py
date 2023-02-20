@@ -27,7 +27,8 @@ class CMALevelConfig(BaseLevelConfig):
         return str(self.__dict__)
 
 class TreeConfig:
-    def __init__(self, levels: List[BaseLevelConfig], gsc, sprout_cond) -> None:
+    def __init__(self, levels: List[BaseLevelConfig], gsc, sprout_cond, options={}) -> None:
         self.levels = levels
         self.gsc = gsc
         self.sprout_cond = sprout_cond
+        self.options = options

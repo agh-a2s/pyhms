@@ -51,7 +51,7 @@ class far_enough(sprout_condition):
         self.norm_ord = norm_ord
 
     def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
-        child_siblings = tree.level(level + 1)
+        child_siblings = tree.level(level)
         child_seed = deme.best
         if isinstance(self.min_distance, list):
             min_dist = self.min_distance[level]
@@ -69,14 +69,17 @@ class far_enough(sprout_condition):
             par_str += f", ord={self.norm_ord}"
         return f"far_enough({par_str})"
 
-class level_limit(sprout_condition):
+class deme_per_level_limit(sprout_condition):
     def __init__(self, limit: int) -> None:
         super().__init__()
         self.limit = limit
 
     def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
-        #[guzowski] Check if the number of active demes on each level is less than the limit
-        return all([len(list(filter(lambda deme: deme.active, level))) <= self.limit for level in tree.levels])
+        #[guzowski] Check if the number of active demes on higher level is less than the limit
+        if level + 1 >= tree.height:
+            return False
+        higher_level = tree.level(level + 1)
+        return len(list(filter(lambda deme: deme.active, higher_level))) < self.limit
 
     def __str__(self) -> str:
-        return f"level_limit({self.limit})"
+        return f"deme_per_level_limit({self.limit})"
