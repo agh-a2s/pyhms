@@ -95,6 +95,13 @@ class DemeTree(AbstractDemeTree):
                     yield level_no, deme
 
     @property
+    def active_demes_reversed(self) -> Generator[Tuple[int, EADeme], None, None]:
+        for level_no in reversed(range(self.height)):
+            for deme in reversed(self.levels[level_no]):
+                if deme.active:
+                    yield level_no, deme
+
+    @property
     def active_non_leaves(self) -> Generator[Tuple[int, EADeme], None, None]:
         for level_no in range(self.height - 1):
             for deme in self.levels[level_no]:
@@ -109,7 +116,7 @@ class DemeTree(AbstractDemeTree):
                 self.run_sprout()
 
     def run_metaepoch(self):
-        for level, deme in self.active_demes:
+        for level, deme in self.active_demes_reversed:
             if deme.is_leaf or (not self.hibernation or self._can_sprout(deme, level, self)):
                 deme.run_metaepoch()
 
