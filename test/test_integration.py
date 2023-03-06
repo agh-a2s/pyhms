@@ -18,7 +18,7 @@ class TestIntegration(unittest.TestCase):
     def test_hibernation_resume(self):
         function_problem = EvalCountingProblem(FunctionProblem(lambda x: self.square(x), maximize=False))
         gsc = fitness_eval_limit_reached(limit=1000)
-        sprout_cond = composite_condition(deme_per_level_limit(2), far_enough(0.1))
+        sprout_cond = composite_condition([deme_per_level_limit(2), far_enough(0.1)])
         options = {'hibernation': True}
 
         config = [

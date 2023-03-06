@@ -7,7 +7,7 @@ from pyhms.pyhms.hms import hms
 from pyhms.pyhms.config import EALevelConfig, CMALevelConfig
 from pyhms.pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.pyhms.problem import EvalCountingProblem, FunctionProblem
-from pyhms.pyhms.sprout import composite_condition, far_enough, level_limit
+from pyhms.pyhms.sprout import composite_condition, far_enough, deme_per_level_limit
 from pyhms.pyhms.stop_conditions.gsc import fitness_eval_limit_reached
 from pyhms.pyhms.stop_conditions.usc import metaepoch_limit, dont_stop
 
@@ -83,9 +83,9 @@ def set5_mmod_weak_struct():
 
 def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor):
     def evaluator_sea_2(config):
-        gsc = fitness_eval_limit_reached(limit=dim_number*evaluation_factor, weights=None)
-        sprout_cond = composite_condition([far_enough(config["far_enough"]), level_limit(config["level_limit"])])
-        options = {'hibernation': True}
+        gsc = fitness_eval_limit_reached(limit=evaluation_factor, weights=None)
+        sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+        options = {'hibernation': False}
 
         minimas = []
         for test_problem in function_set:
@@ -121,9 +121,9 @@ def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
 
 def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor):
     def evaluator_cma_2(config):
-        gsc = fitness_eval_limit_reached(limit=dim_number*evaluation_factor, weights=None)
-        sprout_cond = composite_condition([far_enough(config["far_enough"]), level_limit(config["level_limit"])])
-        options = {'hibernation': True}
+        gsc = fitness_eval_limit_reached(limit=evaluation_factor, weights=None)
+        sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+        options = {'hibernation': False}
 
         minimas = []
         for test_problem in function_set:
@@ -142,8 +142,7 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
                 bounds=bounds*dim_number,
                 lsc=metaepoch_limit(config["meataepoch2"]),
                 sigma0=config["sigma2"],
-                generations=config["generations"],
-                run_minimize=True
+                generations=config["generations"]
                 )
             ]
             tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond, options=options)
@@ -156,9 +155,9 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
 
 def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor):
     def evaluator_cma_3(config):
-        gsc = fitness_eval_limit_reached(limit=dim_number*evaluation_factor, weights=None)
-        sprout_cond = composite_condition([far_enough(config["far_enough"]), level_limit(config["level_limit"])])
-        options = {'hibernation': True}
+        gsc = fitness_eval_limit_reached(limit=evaluation_factor, weights=None)
+        sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+        options = {'hibernation': False}
 
         minimas = []
         for test_problem in function_set:
@@ -187,8 +186,7 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
                 bounds=bounds*dim_number,
                 lsc=metaepoch_limit(config["meataepoch3"]),
                 sigma0=config["sigma3"],
-                generations=config["generations"],
-                run_minimize=True
+                generations=config["generations"]
                 )
             ]
             tree = hms(level_config=config_cma3, gsc=gsc, sprout_cond=sprout_cond, options=options)
@@ -202,10 +200,10 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
 def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
     # Define hyperparameters
     configspace = ConfigurationSpace()
-    configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.25, 20.0))
+    configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("level_limit", 2, 10))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 50, 500))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop2", 50, 500))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 20, 300))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop2", 20, 300))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("generations", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 5, 40))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation1", 0.25, 3.0))
@@ -217,8 +215,8 @@ def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
         "run_obj": "quality",  # Optimize quality
         "runcount-limit": 1000,  # Max number of function evaluations
         "deterministic": "false",
-        "maxR": 3,  # Each configuration will be evaluated maximal 3 times with various seeds
-        "minR": 2,  # Each configuration will be repeated at least 2 times with different seeds
+        "maxR": 2,  # Each configuration will be evaluated maximal 3 times with various seeds
+        "minR": 1,  # Each configuration will be repeated at least 2 times with different seeds
         "output_dir": "smac_outputs",
         "cs": configspace,
     })
@@ -230,21 +228,21 @@ def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
 def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
     # Define hyperparameters
     configspace = ConfigurationSpace()
-    configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.25, 20.0))
+    configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("level_limit", 2, 10))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 50, 500))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 20, 300))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("generations", 2, 10))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 50, 400))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 30, 300))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation1", 0.25, 3.0))
-    configspace.add_hyperparameter(UniformFloatHyperparameter("sigma2", 0.01, 2.0))
+    configspace.add_hyperparameter(UniformFloatHyperparameter("sigma2", 0.1, 3.0))
 
     # Meta data for the optimization
     scenario = Scenario({
         "run_obj": "quality",  # Optimize quality
         "runcount-limit": 1000,  # Max number of function evaluations
         "deterministic": "false",
-        "maxR": 3,  # Each configuration will be evaluated maximal 3 times with various seeds
-        "minR": 2,  # Each configuration will be repeated at least 2 times with different seeds
+        "maxR": 2,  # Each configuration will be evaluated maximal 3 times with various seeds
+        "minR": 1,  # Each configuration will be repeated at least 2 times with different seeds
         "output_dir": "smac_outputs",
         "cs": configspace,
     })
@@ -256,25 +254,25 @@ def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
 def prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor):
     # Define hyperparameters
     configspace = ConfigurationSpace()
-    configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.25, 20.0))
+    configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("level_limit", 2, 10))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 50, 500))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop2", 50, 500))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 20, 300))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("pop2", 20, 300))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("generations", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 5, 20))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch3", 50, 400))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch3", 30, 300))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation1", 0.25, 3.0))
-    configspace.add_hyperparameter(UniformFloatHyperparameter("mutation2", 0.01, 1.0))
+    configspace.add_hyperparameter(UniformFloatHyperparameter("mutation2", 0.1, 1.0))
     configspace.add_hyperparameter(UniformFloatHyperparameter("sample_dev2", 0.1, 3.0))
-    configspace.add_hyperparameter(UniformFloatHyperparameter("sigma3", 0.01, 2.0))
+    configspace.add_hyperparameter(UniformFloatHyperparameter("sigma3", 0.1, 2.0))
 
     # Meta data for the optimization
     scenario = Scenario({
         "run_obj": "quality",  # Optimize quality
         "runcount-limit": 1000,  # Max number of function evaluations
         "deterministic": "false",
-        "maxR": 3,  # Each configuration will be evaluated maximal 3 times with various seeds
-        "minR": 2,  # Each configuration will be repeated at least 2 times with different seeds
+        "maxR": 2,  # Each configuration will be evaluated maximal 3 times with various seeds
+        "minR": 1,  # Each configuration will be repeated at least 2 times with different seeds
         "output_dir": "smac_outputs",
         "cs": configspace,
     })
@@ -296,9 +294,7 @@ def run_smac_experiment(parameters):
     test_problem = func_sets[parameters['test_problem']]
     experiment = prepare_config(parameters['config'], test_problem(), parameters['dim'], parameters['bounds'], parameters['eval'])
     best_found_config = experiment.optimize()
-    rh = experiment.get_runhistory()
-    fit = rh.get_instance_costs_for_config(best_found_config)
-    result = [parameters['config'], parameters['eval'], parameters['dim'], parameters['test_problem'], best_found_config.get_dictionary(), list(fit.values())[0]]
+    result = [parameters['config'], parameters['eval'], parameters['dim'], parameters['test_problem'], best_found_config.get_dictionary()]
     with open('backup_results.csv', 'a') as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerow(result)

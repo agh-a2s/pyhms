@@ -16,7 +16,9 @@ class CMADeme(AbstractDeme):
         self._x0 = x0
         self._sigma0 = config.sigma0
         self.generations = config.generations
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'verbose': -9})
+        lb = [bound[0] for bound in config.bounds]
+        ub = [bound[1] for bound in config.bounds]
+        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'bounds': [lb, ub], 'verbose': -9})
 
         self._centroid = None
         self._history = [[self._x0]]

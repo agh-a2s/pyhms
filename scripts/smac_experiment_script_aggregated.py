@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     max_pool = 55
 
-    evaluation_limits = [10000]
+    evaluation_limits = [9500]
     dimensions_list = [10]
     bounds=[(-5, 5)]
     hms_level_configurations = ["sea_2", "cma_2", "cma_3"]
@@ -30,11 +30,11 @@ if __name__ == '__main__':
         pool_outputs = p.map(run_smac_experiment, parameters)
 
     header = ['HMS variant', 'evaluation factor', 'dimensions', 'test suite', 'config', 'fitness']
-    with open('smac_results.csv', 'a') as f:
+    with open('smac_results_1.csv', 'a') as f:
         writer = csv.writer(f, delimiter=';')
         writer.writerow(header)
     
     for result in pool_outputs:
-        with open('smac_results.csv', 'a') as f:
+        with open('smac_results_1.csv', 'a') as f:
                 writer = csv.writer(f, delimiter=";")
                 writer.writerow(result)
