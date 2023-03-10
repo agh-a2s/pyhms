@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-from ..config import BaseLevelConfig
+from .deme_config import BaseLevelConfig
 from ..utils.misc_util import compute_avg_fitness
 
 
 class AbstractDeme(ABC):
-    def __init__(self, id: str, started_at: int = 0, config: BaseLevelConfig = None) -> None:
+    def __init__(self, id: str, config: BaseLevelConfig = None, started_at: int = 0, leaf: bool = False) -> None:
         super().__init__()
         self._id = id
         self._started_at = started_at
@@ -15,6 +15,7 @@ class AbstractDeme(ABC):
         self._problem = config.problem
         self._bounds = config.bounds
         self._active = True
+        self._leaf = leaf
 
     @property
     def id(self) -> str:
@@ -23,6 +24,11 @@ class AbstractDeme(ABC):
     @property
     def started_at(self) -> int:
         return self._started_at
+
+    @property
+    @abstractmethod
+    def algorithm(self):
+        raise NotImplementedError()
 
     @property
     @abstractmethod
@@ -39,6 +45,14 @@ class AbstractDeme(ABC):
         return self._active
 
     @property
+    def is_leaf(self) -> bool:
+        return self._leaf
+
+    @property
+    def best(self):
+        return max(self.history[-1])
+
+    @property
     def all_individuals(self) -> list:
         inds = []
         for pop in self.history:
@@ -49,10 +63,6 @@ class AbstractDeme(ABC):
     @property
     def metaepoch_count(self) -> int:
         return len(self.history) - 1
-
-    @property
-    def best(self):
-        return max(self.history[-1])
 
     @property
     def config(self):

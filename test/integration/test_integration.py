@@ -1,12 +1,11 @@
 import unittest
 
-from pyhms.config import CMALevelConfig, EALevelConfig
+from pyhms.demes.deme_config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
-from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.sprout import composite_condition, deme_per_level_limit, far_enough
+from pyhms.core.sprout import composite_condition, deme_per_level_limit, far_enough
 from pyhms.stop_conditions.gsc import fitness_eval_limit_reached
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
-from pyhms.problem import EvalCountingProblem, FunctionProblem
+from pyhms.core.problem import EvalCountingProblem
 
 
 class TestIntegration(unittest.TestCase):
@@ -16,14 +15,13 @@ class TestIntegration(unittest.TestCase):
         return sum(x**2)
 
     def test_hibernation_resume(self):
-        function_problem = EvalCountingProblem(FunctionProblem(lambda x: self.square(x), maximize=False))
+        function_problem = EvalCountingProblem(lambda x: self.square(x), maximize=False)
         gsc = fitness_eval_limit_reached(limit=1000)
         sprout_cond = composite_condition([deme_per_level_limit(2), far_enough(0.1)])
         options = {'hibernation': True}
 
         config = [
         EALevelConfig(
-            ea_class=SEA, 
             generations=2, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 

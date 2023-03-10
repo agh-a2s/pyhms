@@ -7,9 +7,8 @@ class BaseLevelConfig():
         self.lsc = lsc
 
 class EALevelConfig(BaseLevelConfig):
-    def __init__(self, ea_class, pop_size, problem, bounds, lsc, sample_std_dev=1.0, **kwargs) -> None:
+    def __init__(self, pop_size, problem, bounds, lsc, sample_std_dev=1.0, **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
-        self.ea_class = ea_class
         self.pop_size = pop_size
         self.sample_std_dev = sample_std_dev
         self.__dict__.update(kwargs)

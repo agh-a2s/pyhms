@@ -6,8 +6,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Union, List
 
-from ..problem import StatsGatheringProblem, EvalCountingProblem
-from ..tree import DemeTree
+from ..core.problem import StatsGatheringProblem, EvalCountingProblem
+from ..core.tree import DemeTree
 
 logger = logging.getLogger(__name__)
 

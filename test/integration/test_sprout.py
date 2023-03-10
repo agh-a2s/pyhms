@@ -1,9 +1,9 @@
 import unittest
 
-from pyhms.config import CMALevelConfig, EALevelConfig
+from pyhms.demes.deme_config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.sprout import deme_per_level_limit
+from pyhms.core.sprout import deme_per_level_limit
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
 from leap_ec.problem import FunctionProblem
 

@@ -1,11 +1,11 @@
 import unittest
 
-from pyhms.config import CMALevelConfig, EALevelConfig
+from pymoo.problems.functional import FunctionalProblem
+
+from pyhms.demes.deme_config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
-from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.sprout import deme_per_level_limit
+from pyhms.core.sprout import deme_per_level_limit
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
-from leap_ec.problem import FunctionProblem
 
 
 class TestOptions(unittest.TestCase):
@@ -15,13 +15,12 @@ class TestOptions(unittest.TestCase):
         return sum(x**2)
 
     def test_local_optimization_ea(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+        function_problem = FunctionalProblem(n_var=1, objs=lambda x: self.square(x))
         gsc = metaepoch_limit(limit=5)
         sprout_cond = deme_per_level_limit(1)
 
         config = [
         EALevelConfig(
-            ea_class=SEA, 
             generations=2, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 
@@ -30,7 +29,6 @@ class TestOptions(unittest.TestCase):
             lsc=dont_stop()
             ),
         EALevelConfig(
-            ea_class=SEA, 
             generations=4, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 
@@ -57,13 +55,12 @@ class TestOptions(unittest.TestCase):
         self.assertGreaterEqual(max(child.history[-1]), max(child.history[-2]), "Quality after last metaepoch should be significantly better than before")
 
     def test_local_optimization_cma(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+        function_problem = FunctionalProblem(n_var=1, objs=lambda x: self.square(x))
         gsc = metaepoch_limit(limit=5)
         sprout_cond = deme_per_level_limit(1)
 
         config = [
         EALevelConfig(
-            ea_class=SEA, 
             generations=2, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 
@@ -96,14 +93,13 @@ class TestOptions(unittest.TestCase):
         self.assertGreaterEqual(max(child.history[-1]), max(child.history[-2]), "Quality after last metaepoch should be significantly better than before")
     
     def test_hibernation(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+        function_problem = FunctionalProblem(n_var=1, objs=lambda x: self.square(x))
         gsc = metaepoch_limit(limit=10)
         sprout_cond = deme_per_level_limit(1)
         options = {'hibernation': True}
 
         config = [
         EALevelConfig(
-            ea_class=SEA, 
             generations=2, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 

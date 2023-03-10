@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Generator, List, Tuple
 
-from .config import TreeConfig, EALevelConfig, CMALevelConfig
-from .demes.abstract_deme import AbstractDeme
-from .demes.ea_deme import EADeme
-from .demes.cma_deme import CMADeme
+from ..demes.deme_config import TreeConfig, EALevelConfig, CMALevelConfig
+from ..demes.abstract_deme import AbstractDeme
+from ..demes.ea_deme import EADeme
+from ..demes.cma_deme import CMADeme
 
 class AbstractDemeTree(ABC):
     def __init__(self, metaepoch_count: int, config: TreeConfig) -> None:
