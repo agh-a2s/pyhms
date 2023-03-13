@@ -59,7 +59,7 @@ class far_enough(sprout_condition):
             min_dist = self.min_distance
 
         for sibling in child_siblings:
-            if nla.norm(child_seed.genome - sibling.centroid, ord=self.norm_ord) <= min_dist:
+            if nla.norm(child_seed.get("X") - sibling.centroid, ord=self.norm_ord) <= min_dist:
                 return False
         return True
 

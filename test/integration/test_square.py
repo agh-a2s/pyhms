@@ -2,10 +2,9 @@ import unittest
 
 from pyhms.demes.deme_config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
-from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.core.sprout import far_enough
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
-from leap_ec.problem import FunctionProblem
+from pyhms.core.problem import EvalCountingProblem
 
 
 class TestSquare(unittest.TestCase):
@@ -15,13 +14,12 @@ class TestSquare(unittest.TestCase):
         return sum(x**2)
 
     def test_square_optimization_ea(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+        function_problem = EvalCountingProblem(lambda x: self.square(x), 2, -20, 20)
         gsc = metaepoch_limit(limit=2)
         sprout_cond = far_enough(1.0)
 
         config = [
         EALevelConfig(
-            ea_class=SEA, 
             generations=2, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 
@@ -30,7 +28,6 @@ class TestSquare(unittest.TestCase):
             lsc=dont_stop()
             ),
         EALevelConfig(
-            ea_class=SEA, 
             generations=4, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 
@@ -54,13 +51,12 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(tree.height, 2, "Should be 2")
     
     def test_square_optimization_cma(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+        function_problem = EvalCountingProblem(lambda x: self.square(x), 2, -20, 20)
         gsc = metaepoch_limit(limit=2)
         sprout_cond = far_enough(1.0)
 
         config = [
         EALevelConfig(
-            ea_class=SEA, 
             generations=2, 
             problem=function_problem, 
             bounds=[(-20, 20), (-20, 20)], 

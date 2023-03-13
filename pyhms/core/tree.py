@@ -138,7 +138,7 @@ class DemeTree(AbstractDemeTree):
                 config=config,
                 started_at=self.metaepoch_count,
                 leaf=is_leaf,
-                seed=max(deme.population)
+                seed=deme.best
             )
         elif isinstance(config, CMALevelConfig):
             child = CMADeme(

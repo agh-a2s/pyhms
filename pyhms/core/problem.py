@@ -8,8 +8,8 @@ class EvalCountingProblem(Problem):
         self.fit_fun = fit_fun
         self._n_evals = 0
 
-    def _evaluate(self, x, out):
-        out["F"] = self.fit_fun(x)
+    def _evaluate(self, x, out, *args, **kwargs):
+        out["F"] = np.array([self.fit_fun(ind) for ind in x])
         self._n_evals += 1
 
     @property
@@ -27,9 +27,9 @@ class StatsGatheringProblem(Problem):
         self._n_evals = 0
         self._durations = []
 
-    def _evaluate(self, x, out):
+    def _evaluate(self, x, out, *args, **kwargs):
         start_time = time.perf_counter()
-        out["F"] = self.fit_fun(x)
+        out["F"] = np.array([self.fit_fun(ind) for ind in x])
         end_time = time.perf_counter()
         self._durations.append(end_time - start_time)
         self._n_evals += 1

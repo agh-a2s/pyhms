@@ -9,9 +9,9 @@ class NormalSampling(Sampling):
         self._center = center
         self._std_dev = std_dev
 
-    def _do(self, problem: Problem, n_samples):
+    def _do(self, problem: Problem, n_samples, **kwargs):
         distribution = truncnorm((problem.xl - self._center) / self._std_dev, (problem.xu - self._center) / self._std_dev, loc=self._center, scale=self._std_dev)
-        return distribution.rvs(n_samples)
+        return distribution.rvs([n_samples, problem.n_var])
 
 
 def inject_population():

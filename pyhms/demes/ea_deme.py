@@ -14,13 +14,14 @@ class EADeme(AbstractDeme):
     def __init__(self, id: str, config: EALevelConfig, started_at=0, leaf=False, seed=None) -> None:
         super().__init__(id, config, started_at, leaf)
 
-        if seed is None:
+        self._seed = seed
+        if self._seed is None:
             self._sampler = FloatRandomSampling()
         else:
-            self._sampler = NormalSampling(center=seed, std_dev=config.sample_std_dev)
+            self._sampler = NormalSampling(center=self._seed.get("X"), std_dev=config.sample_std_dev)
         
-        self._ea = GA(pop_size=config.pop_size, sampling=self._sampler, callback=HistoryCallback, eliminate_duplicates=True)
-        self._ea.setup(self._problem)
+        self._ea = GA(pop_size=config.pop_size, sampling=self._sampler, eliminate_duplicates=True)
+        self._ea.setup(self._problem, callback=HistoryCallback())
 
         self._children = []
         self._leaf = leaf
@@ -44,16 +45,16 @@ class EADeme(AbstractDeme):
     @property
     def centroid(self) -> np.array:
         if self._centroid is None:
-            self._centroid = compute_centroid(self.population())
+            self._centroid = compute_centroid(self.population)
         return self._centroid
 
     @property
     def population(self):
-        return self._ea.pop()
+        return self._ea.pop
 
     def run_metaepoch(self) -> None:
         epoch_counter = 0
-        while epoch_counter < self._config.generations:
+        while epoch_counter < self._config.generations and self._ea.has_next():
             self._ea.next()
             epoch_counter += 1
 
@@ -91,8 +92,8 @@ class EADeme(AbstractDeme):
         return self._children
 
     def __str__(self) -> str:
-        bsf = max(self._current_pop)
+        bsf = self.best
         if self._seed is None:
-            return f"Root deme {self.id} with best achieved fitness {bsf}"
+            return f'Root deme {self.id} with best achieved fitness {bsf.get("F")}'
         else:
-            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {bsf}"
+            return f'Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.get("X")} with best {bsf.get("F")}'

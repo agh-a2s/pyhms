@@ -50,7 +50,7 @@ class AbstractDeme(ABC):
 
     @property
     def best(self):
-        return max(self.history[-1])
+        return min(self.history[-1], key=lambda x: x.get("F"))
 
     @property
     def all_individuals(self) -> list:

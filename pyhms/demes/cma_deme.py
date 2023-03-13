@@ -14,12 +14,16 @@ class CMADeme(AbstractDeme):
         super().__init__(id, config, started_at, False)
         self._x0 = x0
 
-        self._cma_es = CMAES(x0, config.sigma0, callback=HistoryCallback)
-        self._cma_es.setup(self._problem)
+        self._cma_es = CMAES(x0.get("X"), config.sigma0)
+        self._cma_es.setup(self._problem, callback=HistoryCallback())
 
         self._centroid = None
         self._active = True
         self._children = []
+
+    @property
+    def algorithm(self):
+        return self._cma_es
 
     @property
     def history(self) -> list:
@@ -50,6 +54,6 @@ class CMADeme(AbstractDeme):
         return self._children
 
     def __str__(self) -> str:
-        bsf = max(self._history[-1])
-        return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._x0.genome} with best {bsf}"
+        bsf = self.best
+        return f'Deme {self.id}, metaepoch {self.started_at} and seed {self._x0.get("X")} with best {bsf.get("F")}'
 

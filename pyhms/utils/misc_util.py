@@ -7,10 +7,10 @@ def print_pop(population):
         print(ind)
 
 def compute_centroid(population) -> np.array:
-    return np.mean([ind[0] for ind in population], axis=0)
+    return np.mean([ind.get("X") for ind in population], axis=0)
 
 def compute_avg_fitness(population) -> float:
-    return np.mean([ind.fitness for ind in population])
+    return np.mean([ind.get("F") for ind in population])
 
 def str_to_list(in_str: str) -> List[float]:
     return [float(s) for s in in_str.split()]

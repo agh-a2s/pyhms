@@ -1,4 +1,5 @@
-from pymoo.core.callback import Callback   
+from pymoo.core.callback import Callback
+import numpy as np   
 
 
 class HistoryCallback(Callback):
@@ -8,4 +9,4 @@ class HistoryCallback(Callback):
         self.data["history"] = []
 
     def notify(self, algorithm):
-        self.data["history"].append(algorithm.pop.get("X", "F"))
+        self.data["history"].append(algorithm.pop)
