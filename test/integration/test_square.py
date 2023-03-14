@@ -11,7 +11,7 @@ class TestSquare(unittest.TestCase):
 
     @staticmethod
     def square(x) -> float:
-        return sum(x**2)
+        return sum([(dim-5)**2 for dim in x])
 
     def test_square_optimization_ea(self):
         function_problem = EvalCountingProblem(lambda x: self.square(x), 2, -20, 20)
@@ -21,18 +21,14 @@ class TestSquare(unittest.TestCase):
         config = [
         EALevelConfig(
             generations=2, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
+            problem=function_problem,
             pop_size=20,
-            mutation_std=1.0,
             lsc=dont_stop()
             ),
         EALevelConfig(
-            generations=4, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
-            pop_size=10,
-            mutation_std=0.25,
+            generations=50, 
+            problem=function_problem,
+            pop_size=20,
             sample_std_dev=1.0,
             lsc=dont_stop()
             )
@@ -45,8 +41,8 @@ class TestSquare(unittest.TestCase):
         for level, deme in tree.all_demes:
             print(f"Level {level}")
             print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
             print(f"Average fitness in first population {deme.avg_fitness(0)}")
+            print(f"Average fitness in last population {deme.avg_fitness()}")
 
         self.assertEqual(tree.height, 2, "Should be 2")
     
@@ -58,17 +54,14 @@ class TestSquare(unittest.TestCase):
         config = [
         EALevelConfig(
             generations=2, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
+            problem=function_problem,
             pop_size=20,
-            mutation_std=1.0,
             lsc=dont_stop()
             ),
         CMALevelConfig(
-            generations=4, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)],
-            sigma0=2.5,
+            generations=100, 
+            problem=function_problem,
+            sigma0=0.1,
             lsc=dont_stop()
             )
         ]
@@ -80,7 +73,7 @@ class TestSquare(unittest.TestCase):
         for level, deme in tree.all_demes:
             print(f"Level {level}")
             print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
             print(f"Average fitness in first population {deme.avg_fitness(0)}")
+            print(f"Average fitness in last population {deme.avg_fitness()}")
 
         self.assertEqual(tree.height, 2, "Should be 2")

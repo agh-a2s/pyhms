@@ -1,11 +1,10 @@
 import unittest
 
-from pymoo.problems.functional import FunctionalProblem
-
 from pyhms.demes.deme_config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
 from pyhms.core.sprout import deme_per_level_limit
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
+from pyhms.core.problem import EvalCountingProblem
 
 
 class TestOptions(unittest.TestCase):
@@ -14,26 +13,22 @@ class TestOptions(unittest.TestCase):
     def square(x) -> float:
         return sum(x**2)
 
-    def test_local_optimization_ea(self):
-        function_problem = FunctionalProblem(n_var=1, objs=lambda x: self.square(x))
+    def test_local_optimization(self):
+        function_problem = EvalCountingProblem(lambda x: self.square(x), 2, -20, 20)
         gsc = metaepoch_limit(limit=5)
         sprout_cond = deme_per_level_limit(1)
 
         config = [
         EALevelConfig(
             generations=2, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
+            problem=function_problem,
             pop_size=20,
-            mutation_std=1.0,
             lsc=dont_stop()
             ),
         EALevelConfig(
             generations=4, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
+            problem=function_problem,
             pop_size=10,
-            mutation_std=0.25,
             sample_std_dev=1.0,
             lsc=metaepoch_limit(4),
             run_minimize=True
@@ -43,88 +38,13 @@ class TestOptions(unittest.TestCase):
         tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond)
         child = tree.root.children[0]
 
-        print("\nLocal memetic optimization test for ea")
+        print("\nLocal optimization test")
         print("Deme info:")
-        print(f"One epoch before local optimization {max(child.history[-2])} and after {max(child.history[-1])}")
+        print(f'One epoch before local optimization {min(child.history[-2], key=lambda x: x.get("F")).get("F")} and after {child.best.get("F")}')
         for level, deme in tree.all_demes:
             print(f"Level {level}")
             print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
             print(f"Average fitness in first population {deme.avg_fitness(0)}")
+            print(f"Average fitness in last population {deme.avg_fitness()}")
  
-        self.assertGreaterEqual(max(child.history[-1]), max(child.history[-2]), "Quality after last metaepoch should be significantly better than before")
-
-    def test_local_optimization_cma(self):
-        function_problem = FunctionalProblem(n_var=1, objs=lambda x: self.square(x))
-        gsc = metaepoch_limit(limit=5)
-        sprout_cond = deme_per_level_limit(1)
-
-        config = [
-        EALevelConfig(
-            generations=2, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
-            pop_size=20,
-            mutation_std=1.0,
-            lsc=dont_stop()
-            ),
-        CMALevelConfig(
-            generations=4, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)],
-            sigma0=2.5,
-            lsc=metaepoch_limit(4),
-            run_minimize=True
-            )
-        ]
-
-        tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond)
-        child = tree.root.children[0]
-
-        print("\nLocal memetic optimization test for cma")
-        print("Deme info:")
-        print(f"One epoch before local optimization {max(child.history[-2])} and after {max(child.history[-1])}")
-        for level, deme in tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
-            print(f"Average fitness in first population {deme.avg_fitness(0)}")
- 
-        self.assertGreaterEqual(max(child.history[-1]), max(child.history[-2]), "Quality after last metaepoch should be significantly better than before")
-    
-    def test_hibernation(self):
-        function_problem = FunctionalProblem(n_var=1, objs=lambda x: self.square(x))
-        gsc = metaepoch_limit(limit=10)
-        sprout_cond = deme_per_level_limit(1)
-        options = {'hibernation': True}
-
-        config = [
-        EALevelConfig(
-            generations=2, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
-            pop_size=20,
-            mutation_std=1.0,
-            lsc=dont_stop()
-            ),
-        CMALevelConfig(
-            generations=4, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)],
-            sigma0=2.5,
-            lsc=dont_stop()
-            )
-        ]
-
-        tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond, options=options)
-
-        print("\nHibernation mechanism test")
-        print(f"Root metaepoch count {len(tree.root.history)} (First one for initialization and second one for singular run before sprouting)")
-        print("Deme info:")
-        for level, deme in tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
-            print(f"Average fitness in first population {deme.avg_fitness(0)}")
-
-        self.assertLess(len(tree.root.history), 3, "Root should hibernate while the other demes are still evolving")
+        self.assertGreaterEqual(min(child.history[-2], key=lambda x: x.get("F")).get("F"), child.best.get("F"), "Quality after last metaepoch should be significantly better than before")

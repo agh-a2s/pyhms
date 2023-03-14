@@ -1,6 +1,5 @@
 import numpy as np
 from pymoo.algorithms.soo.nonconvex.cmaes import CMAES
-from scipy import optimize as sopt
 
 from .abstract_deme import AbstractDeme
 from .deme_config import CMALevelConfig
@@ -10,16 +9,12 @@ from ..operators.callbacks import HistoryCallback
 
 class CMADeme(AbstractDeme):
 
-    def __init__(self, id: str, config: CMALevelConfig, x0, started_at=0) -> None:
+    def __init__(self, id: str, config: CMALevelConfig, x0, started_at: int = 0) -> None:
         super().__init__(id, config, started_at, False)
         self._x0 = x0
 
         self._cma_es = CMAES(x0.get("X"), config.sigma0)
         self._cma_es.setup(self._problem, callback=HistoryCallback())
-
-        self._centroid = None
-        self._active = True
-        self._children = []
 
     @property
     def algorithm(self):
@@ -32,12 +27,12 @@ class CMADeme(AbstractDeme):
     @property
     def centroid(self) -> np.array:
         if self._centroid is None:
-            self._centroid = compute_centroid(self.history()[-1])
+            self._centroid = compute_centroid(self._cma_es.pop)
         return self._centroid
 
     def run_metaepoch(self) -> None:
         epoch_counter = 0
-        while epoch_counter < self._config.generations:
+        while epoch_counter < self._config.generations and self._cma_es.has_next():
             self._cma_es.next()
             epoch_counter += 1
 

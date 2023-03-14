@@ -12,10 +12,6 @@ class AbstractDemeTree(ABC):
         self._metaepoch_count = metaepoch_count
         self.config = config
 
-        self.hibernation: bool = False
-        if 'hibernation' in config.options:
-            self.hibernation = config.options['hibernation']
-
     @property
     def metaepoch_count(self) -> int:
         return self._metaepoch_count
@@ -95,13 +91,6 @@ class DemeTree(AbstractDemeTree):
                     yield level_no, deme
 
     @property
-    def active_demes_reversed(self) -> Generator[Tuple[int, EADeme], None, None]:
-        for level_no in reversed(range(self.height)):
-            for deme in reversed(self.levels[level_no]):
-                if deme.active:
-                    yield level_no, deme
-
-    @property
     def active_non_leaves(self) -> Generator[Tuple[int, EADeme], None, None]:
         for level_no in range(self.height - 1):
             for deme in self.levels[level_no]:
@@ -116,8 +105,7 @@ class DemeTree(AbstractDemeTree):
                 self.run_sprout()
 
     def run_metaepoch(self):
-        for level, deme in self.active_demes_reversed:
-            if deme.is_leaf or (not self.hibernation or self._can_sprout(deme, level, self)):
+        for level, deme in self.active_demes:
                 deme.run_metaepoch()
 
     def run_sprout(self):

@@ -13,8 +13,9 @@ class AbstractDeme(ABC):
         self._config = config
         self._lsc = config.lsc
         self._problem = config.problem
-        self._bounds = config.bounds
         self._active = True
+        self._centroid = None
+        self._children = []
         self._leaf = leaf
 
     @property
