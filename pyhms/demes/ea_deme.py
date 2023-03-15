@@ -2,6 +2,7 @@ import numpy as np
 from scipy import optimize as sopt
 from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.algorithms.soo.nonconvex.ga import GA
+from pymoo.core.population import Population
 from pymoo.core.individual import Individual
 
 from .abstract_deme import AbstractDeme
@@ -55,6 +56,8 @@ class EADeme(AbstractDeme):
         self._centroid = None
 
         if self._lsc(self) or not self._ea.has_next():
+            if self._run_minimize:
+                self.run_local_optimization()
             self._active = False
 
     def run_local_optimization(self) -> None:
@@ -66,8 +69,8 @@ class EADeme(AbstractDeme):
         # deme_logger.debug(f"minimize() result: {res}")
 
         if res.success:
-            opt_ind = Individual(X=res.x, F=res.fun)
-            self._current_pop.append(opt_ind)
+            opt_ind = Individual(X=np.array(res.x), F=np.array([res.fun]))
+            self.history[-1] = Population.merge(self.history[-1], opt_ind)
 
     def add_child(self, deme):
         self._children.append(deme)
