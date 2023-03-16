@@ -1,6 +1,6 @@
 import unittest
 
-from pyhms.demes.deme_config import CMALevelConfig, EALevelConfig
+from pyhms.core.deme_config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
 from pyhms.core.sprout import deme_per_level_limit
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
@@ -39,11 +39,9 @@ class TestOptions(unittest.TestCase):
         child = tree.root.children[0]
 
         print("\nLocal optimization test")
-        print("Deme info:")
         print(f'One epoch before local optimization {min(child.history[-2], key=lambda x: x.get("F")).get("F")} and after {child.best.get("F")}')
         for level, deme in tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
+            print(f"Level {level}, {deme}")
             print(f"Average fitness in first population {deme.avg_fitness(0)}")
             print(f"Average fitness in last population {deme.avg_fitness()}")
  

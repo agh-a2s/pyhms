@@ -99,13 +99,9 @@ class fitness_treshold(gsc):
         self.treshold = treshold
 
     def satisfied(self, tree: DemeTree) -> bool:
-        for level_no in range(1, tree.height):
-            if len(tree.levels[level_no]) == 0:
-                return False
-
-            for deme in tree.levels[level_no]:
-                if deme.best.get("F") <= self.treshold:
-                    return True
+        for _, deme in tree.all_demes:
+            if len(deme.history) > 1 and deme.best.get("F") <= self.treshold:
+                return True
         return False
 
     def __str__(self) -> str:

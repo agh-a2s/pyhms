@@ -1,6 +1,6 @@
 from typing import List
 
-from .demes.deme_config import BaseLevelConfig, TreeConfig
+from .core.deme_config import BaseLevelConfig, TreeConfig
 from .core.tree import DemeTree
 
 def hms(level_config: List[BaseLevelConfig], gsc, sprout_cond, options={}):

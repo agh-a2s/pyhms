@@ -1,4 +1,4 @@
-from pyhms.demes.deme_config import TreeConfig
+from pyhms.core.deme_config import TreeConfig
 from pyhms import AbstractDemeTree
 
 

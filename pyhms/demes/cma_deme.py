@@ -2,7 +2,7 @@ import numpy as np
 from pymoo.algorithms.soo.nonconvex.cmaes import CMAES
 
 from .abstract_deme import AbstractDeme
-from .deme_config import CMALevelConfig
+from ..core.deme_config import CMALevelConfig
 from ..utils.misc_util import compute_centroid
 from ..operators.callbacks import HistoryCallback
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-from .deme_config import BaseLevelConfig
+from ..core.deme_config import BaseLevelConfig
 from ..utils.misc_util import compute_avg_fitness
 
 

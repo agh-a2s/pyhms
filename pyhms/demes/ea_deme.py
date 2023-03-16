@@ -1,12 +1,13 @@
 import numpy as np
 from scipy import optimize as sopt
 from pymoo.operators.sampling.rnd import FloatRandomSampling
+from pymoo.operators.mutation.pm import PolynomialMutation
 from pymoo.algorithms.soo.nonconvex.ga import GA
 from pymoo.core.population import Population
 from pymoo.core.individual import Individual
 
 from .abstract_deme import AbstractDeme
-from .deme_config import EALevelConfig
+from ..core.deme_config import EALevelConfig
 from ..operators.initializers import NormalSampling
 from ..operators.callbacks import HistoryCallback
 from ..utils.misc_util import compute_centroid
@@ -22,7 +23,10 @@ class EADeme(AbstractDeme):
         else:
             self._sampler = NormalSampling(center=self._seed.get("X"), std_dev=config.sample_std_dev)
         
-        self._ea = GA(pop_size=config.pop_size, sampling=self._sampler, eliminate_duplicates=True)
+        mutation = PolynomialMutation(eta = config.mutation_eta)
+        
+        #TODO add termination criteria and no stopping to root deme
+        self._ea = GA(pop_size=config.pop_size, sampling=self._sampler, mutation=mutation, eliminate_duplicates=True)
         self._ea.setup(self._problem, callback=HistoryCallback())
 
         self._run_minimize: bool = False

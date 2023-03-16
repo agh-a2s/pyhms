@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generator, List, Tuple
 
-from ..demes.deme_config import TreeConfig, EALevelConfig, CMALevelConfig
+from .deme_config import TreeConfig, EALevelConfig, CMALevelConfig
 from ..demes.abstract_deme import AbstractDeme
 from ..demes.ea_deme import EADeme
 from ..demes.cma_deme import CMADeme
@@ -79,6 +79,10 @@ class DemeTree(AbstractDemeTree):
         self._gsc = config.gsc
         self._can_sprout = config.sprout_cond
 
+        self._if_revive_root = True
+        if 'revive_root' in config.options:
+            self._if_revive_root = config.options['revive_root']
+
     @property
     def levels(self):
         return self._levels
@@ -105,8 +109,9 @@ class DemeTree(AbstractDemeTree):
                 self.run_sprout()
 
     def run_metaepoch(self):
-        for level, deme in self.active_demes:
-                deme.run_metaepoch()
+        for _, deme in self.active_demes:
+            deme.run_metaepoch()
+            self._revive_root()
 
     def run_sprout(self):
         for level, deme in self.active_non_leaves:
@@ -114,6 +119,25 @@ class DemeTree(AbstractDemeTree):
                 self._do_sprout(deme, level)
             else:
                 pass
+    
+    # def tree_best(self):
+    #     best = self.root.best
+    #     for _, deme in self.all_demes:
+            
+    #             deme_best = max(pop, key=lambda x: x.get("F"))
+    #             if deme_best > best.get("F"):
+    #                 best = deme_best
+    #     return best
+    
+    @property
+    def tree_bestever(self):
+        best = self.root.best
+        for _, deme in self.all_demes:
+            for pop in deme.history:
+                deme_best = min(pop, key=lambda x: x.get("F"))
+                if deme_best.get("F") < best.get("F"):
+                    best = deme_best
+        return best
 
     def _do_sprout(self, deme, level):
         new_id = self._next_child_id(deme, level)
@@ -139,6 +163,10 @@ class DemeTree(AbstractDemeTree):
         deme.add_child(child)
         self._levels[level + 1].append(child)
 
+    def _revive_root(self):
+        if self._if_revive_root == True and len(list(filter(lambda deme: deme.active, self.level(0)))) == 0:
+            root_deme = EADeme("root", self.config.levels[0], leaf=(self.config.levels == 1))
+            self._levels[0].append(root_deme)
 
     def _next_child_id(self, deme: EADeme, level: int) -> str:
         if level >= self.height - 1:
