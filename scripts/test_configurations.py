@@ -6,62 +6,57 @@ import pickle as pkl
 import random
 random.seed(1)
 np.random.seed(1)
+
 from pyhms.pyhms.hms import hms
-from pyhms.pyhms.config import EALevelConfig, CMALevelConfig
-from pyhms.pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.pyhms.problem import EvalCountingProblem, FunctionProblem
-from pyhms.pyhms.sprout import composite_condition, far_enough, deme_per_level_limit
+from pyhms.pyhms.core.deme_config import EALevelConfig, CMALevelConfig
+from pyhms.pyhms.core.problem import EvalCountingProblem
+from pyhms.pyhms.core.sprout import composite_condition, far_enough, deme_per_level_limit
 from pyhms.pyhms.stop_conditions.gsc import fitness_eval_limit_reached
 from pyhms.pyhms.stop_conditions.usc import metaepoch_limit, dont_stop
+
 from cma.bbobbenchmarks import instantiate
 from multiprocess import Pool
 
-def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
+def evaluator_sea_2(config, eval_limit, function_problem):
     gsc = fitness_eval_limit_reached(limit=eval_limit, weights=None)
     sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+    function_problem = copy.deepcopy(function_problem)
 
     config_sea2 = [
-    EALevelConfig(
-        ea_class=SEA, 
+    EALevelConfig( 
         generations=config["generations"],
-        problem=copy.deepcopy(function_problem), 
-        bounds=bounds*dim_number, 
+        problem=function_problem,
         pop_size=config["pop1"],
-        mutation_std=config["mutation1"],
+        mutation_eta=config["mutation1"],
         lsc=dont_stop()
         ),
     EALevelConfig(
-        ea_class=SEA, 
         generations=config["generations"], 
-        problem=copy.deepcopy(function_problem), 
-        bounds=bounds*dim_number, 
+        problem=function_problem,
         pop_size=config["pop2"],
-        mutation_std=config["mutation2"],
+        mutation_eta=config["mutation2"],
         sample_std_dev=config["sample_dev2"],
-        lsc=metaepoch_limit(config["meataepoch2"]),
-        run_minimize=True
+        lsc=metaepoch_limit(config["meataepoch2"])
         )
     ]
     tree = hms(level_config=config_sea2, gsc=gsc, sprout_cond=sprout_cond)
     return tree
 
-def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
+def evaluator_cma_2(config, eval_limit, function_problem):
     gsc = fitness_eval_limit_reached(limit=eval_limit, weights=None)
     sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+    function_problem = copy.deepcopy(function_problem)
 
     config_cma2 = [
     EALevelConfig(
-        ea_class=SEA, 
         generations=config["generations"], 
-        problem=copy.deepcopy(function_problem), 
-        bounds=bounds*dim_number, 
+        problem=function_problem,
         pop_size=config["pop1"],
-        mutation_std=config["mutation1"],
+        mutation_eta=config["mutation1"],
         lsc=dont_stop()
         ),
     CMALevelConfig(
-        problem=copy.deepcopy(function_problem), 
-        bounds=bounds*dim_number,
+        problem=function_problem,
         lsc=metaepoch_limit(config["meataepoch2"]),
         sigma0=config["sigma2"],
         generations=config["generations"]
@@ -70,33 +65,29 @@ def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
     tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond)
     return tree
 
-def evaluator_cma_3(config, eval_limit, dim_number, function_problem):
+def evaluator_cma_3(config, eval_limit, function_problem):
     gsc = fitness_eval_limit_reached(limit=eval_limit, weights=None)
     sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+    function_problem = copy.deepcopy(function_problem)
 
     config_cma2 = [
     EALevelConfig(
-        ea_class=SEA, 
         generations=config["generations"], 
-        problem=copy.deepcopy(function_problem), 
-        bounds=bounds*dim_number, 
+        problem=function_problem,
         pop_size=config["pop1"],
-        mutation_std=config["mutation1"],
+        mutation_eta=config["mutation1"],
         lsc=dont_stop()
         ),
     EALevelConfig(
-            ea_class=SEA, 
-            generations=config["generations"], 
-            problem=copy.deepcopy(function_problem), 
-            bounds=bounds*dim_number, 
-            pop_size=config["pop2"],
-            mutation_std=config["mutation2"],
-            sample_std_dev=config["sample_dev2"],
-            lsc=metaepoch_limit(config["meataepoch2"])
-            ),
+        generations=config["generations"], 
+        problem=function_problem,
+        pop_size=config["pop2"],
+        mutation_eta=config["mutation2"],
+        sample_std_dev=config["sample_dev2"],
+        lsc=metaepoch_limit(config["meataepoch2"])
+        ),
     CMALevelConfig(
-        problem=copy.deepcopy(function_problem), 
-        bounds=bounds*dim_number,
+        problem=function_problem,
         lsc=metaepoch_limit(config["meataepoch3"]),
         sigma0=config["sigma3"],
         generations=config["generations"]
@@ -142,12 +133,9 @@ if __name__ == '__main__':
             bbob_fun = instantiate(j)[0]
             result_tmp = []
             for _ in range(50):
-                test_problem = EvalCountingProblem(FunctionProblem(bbob_fun, maximize=False))
-                tree = evaluator(hms_config[4], (evaluation_factor-ela_evaluation_factor)*dim, dim, test_problem)
-                if len([o.fitness for o in tree.optima]) > 0:
-                    fit = min([o.fitness for o in tree.optima])
-                else:
-                    fit = 2147483647.0
+                test_problem = EvalCountingProblem(bbob_fun, 10, -5, 5)
+                tree = evaluator(hms_config[4], (evaluation_factor-ela_evaluation_factor)*dim, test_problem)
+                fit = tree.tree_bestever.get("F")
                 result_tmp.append(fit)
             result.append((result_tmp, j))
             with open('backup_results.csv', 'a') as f:

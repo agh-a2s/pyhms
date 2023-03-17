@@ -11,7 +11,7 @@ class TestOptions(unittest.TestCase):
 
     @staticmethod
     def square(x) -> float:
-        return sum(x**2)
+        return sum([(dim-5)**2 for dim in x])
 
     def test_local_optimization(self):
         function_problem = EvalCountingProblem(lambda x: self.square(x), 2, -20, 20)

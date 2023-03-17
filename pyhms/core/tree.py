@@ -64,6 +64,16 @@ class AbstractDemeTree(ABC):
     def optima(self):
         return [leaf.best for leaf in self.leaves]
 
+    @property
+    def tree_bestever(self):
+        best = self.root.best
+        for _, deme in self.all_demes:
+            for pop in deme.history:
+                deme_best = min(pop, key=lambda x: x.get("F"))
+                if deme_best.get("F") < best.get("F"):
+                    best = deme_best
+        return best
+
 class DemeTree(AbstractDemeTree):
     def __init__(self, config: TreeConfig) -> None:
     
@@ -119,25 +129,6 @@ class DemeTree(AbstractDemeTree):
                 self._do_sprout(deme, level)
             else:
                 pass
-    
-    # def tree_best(self):
-    #     best = self.root.best
-    #     for _, deme in self.all_demes:
-            
-    #             deme_best = max(pop, key=lambda x: x.get("F"))
-    #             if deme_best > best.get("F"):
-    #                 best = deme_best
-    #     return best
-    
-    @property
-    def tree_bestever(self):
-        best = self.root.best
-        for _, deme in self.all_demes:
-            for pop in deme.history:
-                deme_best = min(pop, key=lambda x: x.get("F"))
-                if deme_best.get("F") < best.get("F"):
-                    best = deme_best
-        return best
 
     def _do_sprout(self, deme, level):
         new_id = self._next_child_id(deme, level)

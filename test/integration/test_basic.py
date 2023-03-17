@@ -24,12 +24,14 @@ class TestBasic(unittest.TestCase):
             generations=2, 
             problem=function_problem,
             pop_size=20,
+            mutation_eta=40.0,
             lsc=dont_stop()
             ),
         EALevelConfig(
             generations=50, 
             problem=function_problem,
             pop_size=20,
+            mutation_eta=3.0,
             sample_std_dev=1.0,
             lsc=dont_stop()
             )
