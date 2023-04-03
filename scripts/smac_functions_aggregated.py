@@ -92,7 +92,7 @@ def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
             config_sea2 = [
             EALevelConfig(
                 ea_class=SEA, 
-                generations=config["generations"],
+                generations=config["generations1"],
                 problem=copy.deepcopy(test_problem), 
                 bounds=bounds*dim_number, 
                 pop_size=config["pop1"],
@@ -101,7 +101,7 @@ def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
                 ),
             EALevelConfig(
                 ea_class=SEA, 
-                generations=config["generations"], 
+                generations=config["generations2"], 
                 problem=copy.deepcopy(test_problem), 
                 bounds=bounds*dim_number, 
                 pop_size=config["pop2"],
@@ -130,7 +130,7 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
             config_cma2 = [
             EALevelConfig(
                 ea_class=SEA, 
-                generations=config["generations"], 
+                generations=config["generations1"], 
                 problem=copy.deepcopy(test_problem), 
                 bounds=bounds*dim_number, 
                 pop_size=config["pop1"],
@@ -142,7 +142,7 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
                 bounds=bounds*dim_number,
                 lsc=metaepoch_limit(config["meataepoch2"]),
                 sigma0=config["sigma2"],
-                generations=config["generations"]
+                generations=config["generations2"]
                 )
             ]
             tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond, options=options)
@@ -164,7 +164,7 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
             config_cma3 = [
             EALevelConfig(
                 ea_class=SEA, 
-                generations=config["generations"], 
+                generations=config["generations1"], 
                 problem=copy.deepcopy(test_problem), 
                 bounds=bounds*dim_number, 
                 pop_size=config["pop1"],
@@ -173,7 +173,7 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
                 ),
             EALevelConfig(
                 ea_class=SEA, 
-                generations=config["generations"], 
+                generations=config["generations2"], 
                 problem=copy.deepcopy(test_problem), 
                 bounds=bounds*dim_number, 
                 pop_size=config["pop2"],
@@ -186,7 +186,7 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
                 bounds=bounds*dim_number,
                 lsc=metaepoch_limit(config["meataepoch3"]),
                 sigma0=config["sigma3"],
-                generations=config["generations"]
+                generations=config["generations3"]
                 )
             ]
             tree = hms(level_config=config_cma3, gsc=gsc, sprout_cond=sprout_cond, options=options)
@@ -204,7 +204,8 @@ def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
     configspace.add_hyperparameter(UniformIntegerHyperparameter("level_limit", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 20, 300))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("pop2", 20, 300))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations1", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations2", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 5, 40))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation1", 0.25, 3.0))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation2", 0.01, 1.0))
@@ -231,7 +232,8 @@ def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("level_limit", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 20, 300))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations1", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations2", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 30, 300))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation1", 0.25, 3.0))
     configspace.add_hyperparameter(UniformFloatHyperparameter("sigma2", 0.1, 3.0))
@@ -258,7 +260,9 @@ def prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor):
     configspace.add_hyperparameter(UniformIntegerHyperparameter("level_limit", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("pop1", 20, 300))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("pop2", 20, 300))
-    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations1", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations2", 2, 10))
+    configspace.add_hyperparameter(UniformIntegerHyperparameter("generations3", 2, 10))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch2", 5, 20))
     configspace.add_hyperparameter(UniformIntegerHyperparameter("meataepoch3", 30, 300))
     configspace.add_hyperparameter(UniformFloatHyperparameter("mutation1", 0.25, 3.0))

@@ -15,6 +15,7 @@ class EADeme(AbstractDeme):
         super().__init__(id, started_at, config)
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
+        self._generations = config.generations
         self._ea = config.ea_class.create(**config.__dict__)
         self._seed = seed
 
@@ -74,8 +75,18 @@ class EADeme(AbstractDeme):
     def is_leaf(self) -> bool:
         return self._leaf
 
-    def run_metaepoch(self) -> None:
-        self._current_pop = self._ea.run(self._current_pop)
+    def run_metaepoch(self, tree) -> None:
+        epoch_counter = 0
+        while epoch_counter < self._generations:
+            self._current_pop = self._ea.run(self._current_pop)
+            epoch_counter += 1
+
+            if tree._gsc(tree):
+                self._active = False
+                self._centroid = None
+                self._history.append(self._current_pop)
+                return
+
         self._centroid = None
         self._history.append(self._current_pop)
 

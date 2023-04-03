@@ -118,7 +118,7 @@ class DemeTree(AbstractDemeTree):
     def run_metaepoch(self):
         for level, deme in self.active_demes_reversed:
             if deme.is_leaf or (not self.hibernation or self._can_sprout(deme, level, self)):
-                deme.run_metaepoch()
+                deme.run_metaepoch(self)
 
     def run_sprout(self):
         for level, deme in self.active_non_leaves:

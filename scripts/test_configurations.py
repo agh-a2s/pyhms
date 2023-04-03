@@ -23,7 +23,7 @@ def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
     config_sea2 = [
     EALevelConfig(
         ea_class=SEA, 
-        generations=config["generations"],
+        generations=config["generations1"],
         problem=copy.deepcopy(function_problem), 
         bounds=bounds*dim_number, 
         pop_size=config["pop1"],
@@ -32,7 +32,7 @@ def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
         ),
     EALevelConfig(
         ea_class=SEA, 
-        generations=config["generations"], 
+        generations=config["generations2"], 
         problem=copy.deepcopy(function_problem), 
         bounds=bounds*dim_number, 
         pop_size=config["pop2"],
@@ -52,7 +52,7 @@ def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
     config_cma2 = [
     EALevelConfig(
         ea_class=SEA, 
-        generations=config["generations"], 
+        generations=config["generations1"], 
         problem=copy.deepcopy(function_problem), 
         bounds=bounds*dim_number, 
         pop_size=config["pop1"],
@@ -64,7 +64,7 @@ def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
         bounds=bounds*dim_number,
         lsc=metaepoch_limit(config["meataepoch2"]),
         sigma0=config["sigma2"],
-        generations=config["generations"]
+        generations=config["generations2"]
         )
     ]
     tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond)
@@ -77,7 +77,7 @@ def evaluator_cma_3(config, eval_limit, dim_number, function_problem):
     config_cma2 = [
     EALevelConfig(
         ea_class=SEA, 
-        generations=config["generations"], 
+        generations=config["generations1"], 
         problem=copy.deepcopy(function_problem), 
         bounds=bounds*dim_number, 
         pop_size=config["pop1"],
@@ -86,7 +86,7 @@ def evaluator_cma_3(config, eval_limit, dim_number, function_problem):
         ),
     EALevelConfig(
             ea_class=SEA, 
-            generations=config["generations"], 
+            generations=config["generations2"], 
             problem=copy.deepcopy(function_problem), 
             bounds=bounds*dim_number, 
             pop_size=config["pop2"],
@@ -99,7 +99,7 @@ def evaluator_cma_3(config, eval_limit, dim_number, function_problem):
         bounds=bounds*dim_number,
         lsc=metaepoch_limit(config["meataepoch3"]),
         sigma0=config["sigma3"],
-        generations=config["generations"]
+        generations=config["generations3"]
         )
     ]
     tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond)

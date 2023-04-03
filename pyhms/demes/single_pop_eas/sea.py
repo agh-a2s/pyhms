@@ -43,14 +43,7 @@ class SimpleEA(AbstractEA):
         else:
             assert(self.pop_size == len(parents))
 
-        epoch_counter = 0
-        while epoch_counter < self.generations:
-            offspring = pipe(parents, *self.pipeline, 
-                lops.elitist_survival(parents=parents, k=self.k_elites))
-            epoch_counter += 1
-            parents = offspring
-
-        return parents
+        return pipe(parents, *self.pipeline, lops.elitist_survival(parents=parents, k=self.k_elites))
 
 class SEA(SimpleEA):
     """
