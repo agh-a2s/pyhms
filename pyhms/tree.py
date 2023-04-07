@@ -67,6 +67,16 @@ class AbstractDemeTree(ABC):
     @property
     def optima(self):
         return [leaf.best for leaf in self.leaves]
+    
+    @property
+    def historic_best(self):
+        best = self.root.best
+        for _, deme in self.all_demes:
+            for pop in deme.history:
+                for ind in pop:
+                    if ind.fitness < best.fitness:
+                        best = ind
+        return best
 
 class DemeTree(AbstractDemeTree):
     def __init__(self, config: TreeConfig) -> None:

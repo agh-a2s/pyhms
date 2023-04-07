@@ -68,6 +68,20 @@ class fitness_eval_limit_reached(gsc):
     def __str__(self) -> str:
         return f"fitness_eval_limit_reached(limit={self.limit}, weights={self.weights})"
 
+class singular_problem_eval_limit_reached(gsc):
+    def __init__(self, limit: int) -> None:
+        super().__init__()
+        self.limit = limit
+    
+    def satisfied(self, tree: DemeTree) -> bool:
+        problem = tree.root._problem
+        if not isinstance(problem, StatsGatheringProblem) and not isinstance(problem, EvalCountingProblem):
+            raise ValueError("Problem has to be an instance of EvalCountingProblem")
+        return problem.n_evaluations >= self.limit
+    
+    def __str__(self) -> str:
+        return f"singular_problem_eval_limit_reached(limit={self.limit})"
+
 
 class no_active_nonroot_demes(gsc):
     def __init__(self, n_metaepochs: int = 5) -> None:

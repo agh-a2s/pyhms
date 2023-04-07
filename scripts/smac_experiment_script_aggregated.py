@@ -10,7 +10,7 @@ if __name__ == '__main__':
     evaluation_limits = [9500]
     dimensions_list = [10]
     bounds=[(-5, 5)]
-    hms_level_configurations = ["sea_2", "cma_2", "cma_3"]
+    hms_level_configurations = ["sea_2", "cma_2"]
     func_sets = range(0, 5)
 
     parameters = []
