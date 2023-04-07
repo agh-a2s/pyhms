@@ -9,17 +9,17 @@ np.random.seed(1)
 from pyhms.pyhms.hms import hms
 from pyhms.pyhms.config import EALevelConfig, CMALevelConfig
 from pyhms.pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.pyhms.problem import EvalCutoffProblem, FunctionProblem
+from pyhms.pyhms.problem import PrecisionCutoffProblem, FunctionProblem
 from pyhms.pyhms.sprout import composite_condition, far_enough, deme_per_level_limit
-from pyhms.pyhms.stop_conditions.gsc import singular_problem_eval_limit_reached
+from pyhms.pyhms.stop_conditions.gsc import singular_problem_precision_reached
 from pyhms.pyhms.stop_conditions.usc import metaepoch_limit, dont_stop
 from cma.bbobbenchmarks import instantiate
 from multiprocess import Pool
 
-def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
-    gsc = singular_problem_eval_limit_reached(limit=eval_limit)
-    sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+def evaluator_sea_2(config, dim_number, function_problem):
     problem=copy.deepcopy(function_problem)
+    gsc = singular_problem_precision_reached(problem)
+    sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
 
     config_sea2 = [
     EALevelConfig(
@@ -46,10 +46,10 @@ def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
     tree = hms(level_config=config_sea2, gsc=gsc, sprout_cond=sprout_cond)
     return tree
 
-def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
-    gsc = singular_problem_eval_limit_reached(limit=eval_limit)
-    sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+def evaluator_cma_2(config, dim_number, function_problem):
     problem=copy.deepcopy(function_problem)
+    gsc = singular_problem_precision_reached(problem)
+    sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
 
     config_cma2 = [
     EALevelConfig(
@@ -72,10 +72,10 @@ def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
     tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond)
     return tree
 
-def evaluator_cma_3(config, eval_limit, dim_number, function_problem):
-    gsc = singular_problem_eval_limit_reached(limit=eval_limit)
-    sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+def evaluator_cma_3(config, dim_number, function_problem):
     problem=copy.deepcopy(function_problem)
+    gsc = singular_problem_precision_reached(problem)
+    sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
 
     config_cma2 = [
     EALevelConfig(
@@ -113,8 +113,6 @@ if __name__ == '__main__':
     benchmark = []
     dim_number = [10,20]
     bounds = [(-5,5)]
-    evaluation_factor = 1000
-    ela_evaluation_factor = 100
     variants = {'sea_2': evaluator_sea_2, 'cma_2': evaluator_cma_2, 'cma_3': evaluator_cma_3}
     test_sets = {0: [1,2,3,4,5], 1: [6,7,8,9], 2: [10,11,12,13,14], 3: [15,16,17,18,19], 4: [20,21,22,23,24]}
 
@@ -144,11 +142,11 @@ if __name__ == '__main__':
         for j in test_sets[hms_config[3]]:
             bbob_fun = instantiate(j)[0]
             result_tmp = []
-            for _ in range(50):
-                test_problem = EvalCutoffProblem(FunctionProblem(bbob_fun, maximize=False), (evaluation_factor-ela_evaluation_factor)*dim)
-                tree = evaluator(hms_config[4], (evaluation_factor-ela_evaluation_factor)*dim, dim, test_problem)
+            for _ in range(200):
+                test_problem = PrecisionCutoffProblem(FunctionProblem(bbob_fun, maximize=False), bbob_fun.getfopt(), 1.0e-4)
+                tree = evaluator(hms_config[4], dim, test_problem)
                 if len([o.fitness for o in tree.optima]) > 0:
-                    fit = tree.historic_best.fitness
+                    fit = tree.root._problem.ETA
                 else:
                     fit = 2147483647.0
                 result_tmp.append(fit)
