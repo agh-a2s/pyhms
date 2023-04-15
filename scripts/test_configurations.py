@@ -158,8 +158,32 @@ if __name__ == '__main__':
                 writer.writerow((result_tmp, dim, j, hms_config[4]))
         return (result, dim, hms_config[4])
     
+    def test_config_on_all(config):
+        dim = config[0]
+        test_problem = test_sets[config[1]]
+        hms_config = config[2]
+        evaluator = variants[hms_config[0]]
+        result = []
+        for j in range(1, 25):
+            bbob_fun = instantiate(j)[0]
+            result_tmp = []
+            for _ in range(50):
+                test_problem = EvalCutoffProblem(FunctionProblem(bbob_fun, maximize=False), (evaluation_factor-ela_evaluation_factor)*dim)
+                tree = evaluator(hms_config[4], (evaluation_factor-ela_evaluation_factor)*dim, dim, test_problem)
+                if len([o.fitness for o in tree.optima]) > 0:
+                    fit = tree.historic_best.fitness
+                else:
+                    fit = 2147483647.0
+                result_tmp.append(fit)
+            result.append((result_tmp, j))
+            with open('backup_results.csv', 'a') as f:
+                writer = csv.writer(f, delimiter=";")
+                writer.writerow((result_tmp, dim, j, hms_config[4]))
+        return (result, dim, hms_config[4])
+    
     with Pool(max_pool) as p:
-        hms_param_results = p.map(test_config, configs)
+        # hms_param_results = p.map(test_config, configs)
+        hms_param_results = p.map(test_config_on_all, configs)
 
     with open('hms_conf_evaluated.pickle', 'wb') as pickle_file:
         pkl.dump(hms_param_results, pickle_file)

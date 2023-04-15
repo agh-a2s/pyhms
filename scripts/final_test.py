@@ -10,20 +10,21 @@ from pyhms.pyhms.config import EALevelConfig, CMALevelConfig
 from pyhms.pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.pyhms.problem import EvalCutoffProblem, FunctionProblem
 from pyhms.pyhms.sprout import composite_condition, far_enough, deme_per_level_limit
-from pyhms.pyhms.stop_conditions.gsc import fitness_eval_limit_reached
+from pyhms.pyhms.stop_conditions.gsc import singular_problem_eval_limit_reached
 from pyhms.pyhms.stop_conditions.usc import metaepoch_limit, dont_stop
 from cma.bbobbenchmarks import instantiate
 from multiprocess import Pool
 
 def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
-    gsc = fitness_eval_limit_reached(limit=eval_limit, weights=None)
+    gsc = singular_problem_eval_limit_reached(limit=eval_limit, weights=None)
     sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+    problem=copy.deepcopy(function_problem)
 
     config_sea2 = [
     EALevelConfig(
         ea_class=SEA, 
         generations=config["generations1"],
-        problem=copy.deepcopy(function_problem), 
+        problem=problem, 
         bounds=bounds*dim_number, 
         pop_size=config["pop1"],
         mutation_std=config["mutation1"],
@@ -32,7 +33,7 @@ def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
     EALevelConfig(
         ea_class=SEA, 
         generations=config["generations2"], 
-        problem=copy.deepcopy(function_problem), 
+        problem=problem, 
         bounds=bounds*dim_number, 
         pop_size=config["pop2"],
         mutation_std=config["mutation2"],
@@ -45,21 +46,22 @@ def evaluator_sea_2(config, eval_limit, dim_number, function_problem):
     return tree
 
 def evaluator_cma_2(config, eval_limit, dim_number, function_problem):
-    gsc = fitness_eval_limit_reached(limit=eval_limit, weights=None)
+    gsc = singular_problem_eval_limit_reached(limit=eval_limit, weights=None)
     sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
+    problem=copy.deepcopy(function_problem)
 
     config_cma2 = [
     EALevelConfig(
         ea_class=SEA, 
         generations=config["generations1"], 
-        problem=copy.deepcopy(function_problem), 
+        problem=problem, 
         bounds=bounds*dim_number, 
         pop_size=config["pop1"],
         mutation_std=config["mutation1"],
         lsc=dont_stop()
         ),
     CMALevelConfig(
-        problem=copy.deepcopy(function_problem), 
+        problem=problem, 
         bounds=bounds*dim_number,
         lsc=metaepoch_limit(config["meataepoch2"]),
         sigma0=config["sigma2"],
@@ -142,14 +144,8 @@ if __name__ == '__main__':
                 tree = evaluator_cma_2(hms_config, (evaluation_factor-ela_evaluation_factor)*dim, dim, test_problem)
             else:
                 tree = evaluator_sea_2(hms_config, (evaluation_factor-ela_evaluation_factor)*dim, dim, test_problem)
-            fit = 2147483647.0
-            for level_no in range(tree.height):
-                for deme in tree.levels[level_no]:
-                    for pop in deme.history:
-                        for ind in pop:
-                            if ind.fitness < fit:
-                                fit = ind.fitness
-                result.append(fit)
+            fit = tree.historic_best.fitness
+            result.append(fit)
         with open('final_results_0.csv', 'a') as f:
             writer = csv.writer(f, delimiter=";")
             writer.writerow((result, dim, test_config[1], hms_config))
@@ -159,6 +155,6 @@ if __name__ == '__main__':
         hms_param_results = p.map(test_config, test_configs_unfolded)
 
     for result in hms_param_results:
-        with open('final_results_0.csv', 'a') as f:
+        with open('final_results_1.csv', 'a') as f:
             writer = csv.writer(f, delimiter=";")
             writer.writerow(result)
