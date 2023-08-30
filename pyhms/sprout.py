@@ -5,6 +5,9 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Union
 import numpy.linalg as nla
 
+from pyhms.demes.abstract_deme import AbstractDeme
+from pyhms.tree import DemeTree
+
 from .demes.abstract_deme import AbstractDeme
 from .tree import DemeTree
 
@@ -83,3 +86,10 @@ class deme_per_level_limit(sprout_condition):
 
     def __str__(self) -> str:
         return f"deme_per_level_limit({self.limit})"
+
+class nearest_better_clustering_sprout(sprout_condition):
+    def __init__(self) -> None:
+        super().__init__()
+    
+    def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
+        return super().sprout_possible(deme, level, tree)
