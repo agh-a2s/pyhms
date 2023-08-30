@@ -47,7 +47,7 @@ class CMADeme(AbstractDeme):
     def is_leaf(self) -> bool:
         return True
 
-    def run_metaepoch(self) -> None:
+    def run_metaepoch(self, tree) -> None:
         epoch_counter = 0
         individuals = []
         while epoch_counter < self.generations:
@@ -55,6 +55,12 @@ class CMADeme(AbstractDeme):
             individuals = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in solutions]
             self._cma_es.tell(solutions, [ind.evaluate() for ind in individuals])
             epoch_counter += 1
+
+            if tree._gsc(tree):
+                self._active = False
+                self._centroid = None
+                self._history.append(individuals)
+                return
 
         self._centroid = None
         self._history.append(individuals)

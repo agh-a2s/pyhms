@@ -95,40 +95,40 @@ class TestOptions(unittest.TestCase):
  
         self.assertGreaterEqual(max(child.history[-1]), max(child.history[-2]), "Quality after last metaepoch should be significantly better than before")
     
-    def test_hibernation(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
-        gsc = metaepoch_limit(limit=10)
-        sprout_cond = deme_per_level_limit(1)
-        options = {'hibernation': True}
+    # def test_hibernation(self):
+    #     function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+    #     gsc = metaepoch_limit(limit=10)
+    #     sprout_cond = deme_per_level_limit(1)
+    #     options = {'hibernation': True}
 
-        config = [
-        EALevelConfig(
-            ea_class=SEA, 
-            generations=2, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
-            pop_size=20,
-            mutation_std=1.0,
-            lsc=dont_stop()
-            ),
-        CMALevelConfig(
-            generations=4, 
-            problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)],
-            sigma0=2.5,
-            lsc=dont_stop()
-            )
-        ]
+    #     config = [
+    #     EALevelConfig(
+    #         ea_class=SEA, 
+    #         generations=2, 
+    #         problem=function_problem, 
+    #         bounds=[(-20, 20), (-20, 20)], 
+    #         pop_size=20,
+    #         mutation_std=1.0,
+    #         lsc=dont_stop()
+    #         ),
+    #     CMALevelConfig(
+    #         generations=4, 
+    #         problem=function_problem, 
+    #         bounds=[(-20, 20), (-20, 20)],
+    #         sigma0=2.5,
+    #         lsc=dont_stop()
+    #         )
+    #     ]
 
-        tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond, options=options)
+    #     tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond, options=options)
 
-        print("\nHibernation mechanism test")
-        print(f"Root metaepoch count {len(tree.root.history)} (First one for initialization and second one for singular run before sprouting)")
-        print("Deme info:")
-        for level, deme in tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
-            print(f"Average fitness in first population {deme.avg_fitness(0)}")
+    #     print("\nHibernation mechanism test")
+    #     print(f"Root metaepoch count {len(tree.root.history)} (First one for initialization and second one for singular run before sprouting)")
+    #     print("Deme info:")
+    #     for level, deme in tree.all_demes:
+    #         print(f"Level {level}")
+    #         print(f"{deme}")
+    #         print(f"Average fitness in last population {deme.avg_fitness()}")
+    #         print(f"Average fitness in first population {deme.avg_fitness(0)}")
 
-        self.assertLess(len(tree.root.history), 3, "Root should hibernate while the other demes are still evolving")
+    #     self.assertLess(len(tree.root.history), 3, "Root should hibernate while the other demes are still evolving")

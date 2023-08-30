@@ -30,6 +30,31 @@ class EvalCountingProblem(Problem):
             inner_str = str(self._inner)
         return f"EvalCountingProblem({inner_str})"
 
+class EvalCutoffProblem(EvalCountingProblem):
+    def __init__(self, decorated_problem: Problem, eval_cutoff: int):
+        super().__init__(decorated_problem)
+        self._eval_cutoff = eval_cutoff
+
+    def evaluate(self, phenome, *args, **kwargs):
+        if self._n_evals >= self._eval_cutoff:
+            return np.inf
+        return super().evaluate(phenome, *args, **kwargs)
+
+class PrecisionCutoffProblem(EvalCountingProblem):
+    def __init__(self, decorated_problem: Problem, global_optima: float, precision: float):
+        super().__init__(decorated_problem)
+        self._global_optima = global_optima
+        self.precision = precision
+        self.ETA = np.inf
+        self.hit_precision = False
+
+    def evaluate(self, phenome, *args, **kwargs):
+        fitness = self._inner.evaluate(phenome, *args, **kwargs)
+        if fitness -  - self._global_optima <= self.precision and not self.hit_precision:
+            self.ETA = self._n_evals
+            self.hit_precision = True
+        return fitness
+
 class StatsGatheringProblem(Problem):
     def __init__(self, decorated_problem: Problem):
         super().__init__()

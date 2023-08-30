@@ -6,9 +6,9 @@ from cma.bbobbenchmarks import instantiate
 from pyhms.pyhms.hms import hms
 from pyhms.pyhms.config import EALevelConfig, CMALevelConfig
 from pyhms.pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.pyhms.problem import EvalCutoffProblem, FunctionProblem
+from pyhms.pyhms.problem import PrecisionCutoffProblem, FunctionProblem
 from pyhms.pyhms.sprout import composite_condition, far_enough, deme_per_level_limit
-from pyhms.pyhms.stop_conditions.gsc import singular_problem_eval_limit_reached
+from pyhms.pyhms.stop_conditions.gsc import singular_problem_precision_reached
 from pyhms.pyhms.stop_conditions.usc import metaepoch_limit, dont_stop
 
 from ConfigSpace import ConfigurationSpace
@@ -17,79 +17,79 @@ from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.scenario.scenario import Scenario
 
 
-def set1_separable(dim):
+def set1_separable():
     sphere = instantiate(1)[0]
     ellipsoidal = instantiate(2)[0]
     rastrigin = instantiate(3)[0]
     other_rastrigin = instantiate(4)[0]
     linear_slope = instantiate(5)[0]
     
-    return [EvalCutoffProblem(FunctionProblem(lambda x: sphere(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: ellipsoidal(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: rastrigin(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: other_rastrigin(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: linear_slope(x), maximize=False), dim*950)]
+    return [PrecisionCutoffProblem(FunctionProblem(lambda x: sphere(x), maximize=False), sphere.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: ellipsoidal(x), maximize=False), ellipsoidal.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: rastrigin(x), maximize=False), rastrigin.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: other_rastrigin(x), maximize=False), other_rastrigin.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: linear_slope(x), maximize=False), linear_slope.getfopt(), 1.0e-4)]
 
-def set2_low_conditioning(dim):
+def set2_low_conditioning():
     attractive_sector = instantiate(6)[0]
     step_ellipsoidal = instantiate(7)[0]
     rosenbrock = instantiate(8)[0]
     rosenbrock_rotated = instantiate(9)[0]
     
-    return [EvalCutoffProblem(FunctionProblem(lambda x: attractive_sector(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: step_ellipsoidal(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: rosenbrock(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: rosenbrock_rotated(x), maximize=False), dim*950)]
+    return [PrecisionCutoffProblem(FunctionProblem(lambda x: attractive_sector(x), maximize=False), attractive_sector.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: step_ellipsoidal(x), maximize=False), step_ellipsoidal.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: rosenbrock(x), maximize=False), rosenbrock.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: rosenbrock_rotated(x), maximize=False), rosenbrock_rotated.getfopt(), 1.0e-4)]
 
-def set3_high_conditioning(dim):
+def set3_high_conditioning():
     other_ellipsoidal = instantiate(10)[0]
     discus = instantiate(11)[0]
     bent_cigar = instantiate(12)[0]
     sharp_ridge = instantiate(13)[0]
     diff_powers = instantiate(14)[0]
     
-    return [EvalCutoffProblem(FunctionProblem(lambda x: other_ellipsoidal(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: discus(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: bent_cigar(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: sharp_ridge(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: diff_powers(x), maximize=False), dim*950)]
+    return [PrecisionCutoffProblem(FunctionProblem(lambda x: other_ellipsoidal(x), maximize=False), other_ellipsoidal.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: discus(x), maximize=False), discus.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: bent_cigar(x), maximize=False), bent_cigar.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: sharp_ridge(x), maximize=False), sharp_ridge.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: diff_powers(x), maximize=False), diff_powers.getfopt(), 1.0e-4)]
 
-def set4_mmod_strong_struct(dim):
+def set4_mmod_strong_struct():
     rastrigin = instantiate(15)[0]
     weierstrass = instantiate(16)[0]
     schaffers_f7 = instantiate(17)[0]
     schaffers_f7_ill_cond = instantiate(18)[0]
     griewank_rosenbrock = instantiate(19)[0]
     
-    return [EvalCutoffProblem(FunctionProblem(lambda x: rastrigin(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: weierstrass(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: schaffers_f7(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: schaffers_f7_ill_cond(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: griewank_rosenbrock(x), maximize=False), dim*950)]
+    return [PrecisionCutoffProblem(FunctionProblem(lambda x: rastrigin(x), maximize=False), rastrigin.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: weierstrass(x), maximize=False), weierstrass.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: schaffers_f7(x), maximize=False), schaffers_f7.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: schaffers_f7_ill_cond(x), maximize=False), schaffers_f7_ill_cond.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: griewank_rosenbrock(x), maximize=False), griewank_rosenbrock.getfopt(), 1.0e-4)]
 
-def set5_mmod_weak_struct(dim):
+def set5_mmod_weak_struct():
     schwefel = instantiate(20)[0]
     gallaghers_101_peaks = instantiate(21)[0]
     gallaghers_21_peaks = instantiate(22)[0]
     katsuura = instantiate(23)[0]
     lunacek_bi_rastrigin = instantiate(24)[0]
     
-    return [EvalCutoffProblem(FunctionProblem(lambda x: schwefel(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: gallaghers_101_peaks(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: gallaghers_21_peaks(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: katsuura(x), maximize=False), dim*950),
-            EvalCutoffProblem(FunctionProblem(lambda x: lunacek_bi_rastrigin(x), maximize=False), dim*950)]
+    return [PrecisionCutoffProblem(FunctionProblem(lambda x: schwefel(x), maximize=False), schwefel.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: gallaghers_101_peaks(x), maximize=False), gallaghers_101_peaks.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: gallaghers_21_peaks(x), maximize=False), gallaghers_21_peaks.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: katsuura(x), maximize=False), katsuura.getfopt(), 1.0e-4),
+            PrecisionCutoffProblem(FunctionProblem(lambda x: lunacek_bi_rastrigin(x), maximize=False), lunacek_bi_rastrigin.getfopt(), 1.0e-4)]
 
 
-def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor):
+def prepare_evaluator_sea_2(function_set, dim_number, bounds):
     def evaluator_sea_2(config):
-        gsc = singular_problem_eval_limit_reached(limit=evaluation_factor)
         sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
         options = {'hibernation': False}
 
         minimas = []
         for test_problem in function_set:
             problem=copy.deepcopy(test_problem)
+            gsc = singular_problem_precision_reached(problem)
             config_sea2 = [
             EALevelConfig(
                 ea_class=SEA, 
@@ -114,21 +114,21 @@ def prepare_evaluator_sea_2(function_set, dim_number, bounds, evaluation_factor)
             ]
             tree = hms(level_config=config_sea2, gsc=gsc, sprout_cond=sprout_cond, options=options)
             if len(tree.optima) > 0:
-                minimas.append(tree.historic_best.fitness)
+                minimas.append(problem.ETA)
             else:
                 return 2147483647.0
         return sum(minimas)
     return evaluator_sea_2
 
-def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor):
+def prepare_evaluator_cma_2(function_set, dim_number, bounds):
     def evaluator_cma_2(config):
-        gsc = singular_problem_eval_limit_reached(limit=evaluation_factor)
         sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
         options = {'hibernation': False}
 
         minimas = []
         for test_problem in function_set:
             problem=copy.deepcopy(test_problem)
+            gsc = singular_problem_precision_reached(problem)
             config_cma2 = [
             EALevelConfig(
                 ea_class=SEA, 
@@ -149,21 +149,21 @@ def prepare_evaluator_cma_2(function_set, dim_number, bounds, evaluation_factor)
             ]
             tree = hms(level_config=config_cma2, gsc=gsc, sprout_cond=sprout_cond, options=options)
             if len(tree.optima) > 0:
-                minimas.append(tree.historic_best.fitness)
+                minimas.append(problem.ETA)
             else:
                 return 2147483647.0
         return sum(minimas)
     return evaluator_cma_2
 
-def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor):
+def prepare_evaluator_cma_3(function_set, dim_number, bounds):
     def evaluator_cma_3(config):
-        gsc = singular_problem_eval_limit_reached(limit=evaluation_factor)
         sprout_cond = composite_condition([far_enough(config["far_enough"]), deme_per_level_limit(config["level_limit"])])
         options = {'hibernation': False}
 
         minimas = []
         for test_problem in function_set:
             problem=copy.deepcopy(test_problem)
+            gsc = singular_problem_precision_reached(problem)
             config_cma3 = [
             EALevelConfig(
                 ea_class=SEA, 
@@ -194,13 +194,13 @@ def prepare_evaluator_cma_3(function_set, dim_number, bounds, evaluation_factor)
             ]
             tree = hms(level_config=config_cma3, gsc=gsc, sprout_cond=sprout_cond, options=options)
             if len(tree.optima) > 0:
-                minimas.append(tree.historic_best.fitness)
+                minimas.append(problem.ETA)
             else:
                 return 2147483647.0
         return sum(minimas)
     return evaluator_cma_3
     
-def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
+def prepare_sea_2(test_problem, dim_number, bounds):
     # Define hyperparameters
     configspace = ConfigurationSpace()
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
@@ -225,11 +225,11 @@ def prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor):
         "cs": configspace,
     })
     
-    evaluator = prepare_evaluator_sea_2(test_problem, dim_number, bounds, evaluation_factor)
+    evaluator = prepare_evaluator_sea_2(test_problem, dim_number, bounds)
 
     return SMAC4HPO(scenario=scenario, tae_runner=evaluator)
 
-def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
+def prepare_cma_2(test_problem, dim_number, bounds):
     # Define hyperparameters
     configspace = ConfigurationSpace()
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
@@ -252,11 +252,11 @@ def prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor):
         "cs": configspace,
     })
     
-    evaluator = prepare_evaluator_cma_2(test_problem, dim_number, bounds, evaluation_factor)
+    evaluator = prepare_evaluator_cma_2(test_problem, dim_number, bounds)
 
     return SMAC4HPO(scenario=scenario, tae_runner=evaluator)
 
-def prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor):
+def prepare_cma_3(test_problem, dim_number, bounds):
     # Define hyperparameters
     configspace = ConfigurationSpace()
     configspace.add_hyperparameter(UniformFloatHyperparameter("far_enough", 0.2, 20.0))
@@ -284,24 +284,24 @@ def prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor):
         "cs": configspace,
     })
     
-    evaluator = prepare_evaluator_cma_3(test_problem, dim_number, bounds, evaluation_factor)
+    evaluator = prepare_evaluator_cma_3(test_problem, dim_number, bounds)
 
     return SMAC4HPO(scenario=scenario, tae_runner=evaluator)
 
-def prepare_config(hms_variant, test_problem, dim_number, bounds, evaluation_factor):
+def prepare_config(hms_variant, test_problem, dim_number, bounds):
     if hms_variant == "sea_2":
-        return prepare_sea_2(test_problem, dim_number, bounds, evaluation_factor)
+        return prepare_sea_2(test_problem, dim_number, bounds)
     elif hms_variant == "cma_2":
-        return prepare_cma_2(test_problem, dim_number, bounds, evaluation_factor)
+        return prepare_cma_2(test_problem, dim_number, bounds)
     elif hms_variant == "cma_3":
-        return prepare_cma_3(test_problem, dim_number, bounds, evaluation_factor)
+        return prepare_cma_3(test_problem, dim_number, bounds)
 
 def run_smac_experiment(parameters):
     func_sets = [set1_separable, set2_low_conditioning, set3_high_conditioning, set4_mmod_strong_struct, set5_mmod_weak_struct]
     test_problem = func_sets[parameters['test_problem']]
-    experiment = prepare_config(parameters['config'], test_problem(parameters['dim']), parameters['dim'], parameters['bounds'], parameters['eval'])
+    experiment = prepare_config(parameters['config'], test_problem(), parameters['dim'], parameters['bounds'])
     best_found_config = experiment.optimize()
-    result = [parameters['config'], parameters['eval'], parameters['dim'], parameters['test_problem'], best_found_config.get_dictionary()]
+    result = [parameters['config'], 0, parameters['dim'], parameters['test_problem'], best_found_config.get_dictionary()]
     with open('backup_results.csv', 'a') as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerow(result)

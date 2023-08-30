@@ -6,7 +6,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Union, List
 
-from ..problem import StatsGatheringProblem, EvalCountingProblem
+from ..problem import StatsGatheringProblem, EvalCountingProblem, PrecisionCutoffProblem
 from ..tree import DemeTree
 
 logger = logging.getLogger(__name__)
@@ -67,6 +67,31 @@ class fitness_eval_limit_reached(gsc):
 
     def __str__(self) -> str:
         return f"fitness_eval_limit_reached(limit={self.limit}, weights={self.weights})"
+
+class singular_problem_eval_limit_reached(gsc):
+    def __init__(self, limit: int) -> None:
+        super().__init__()
+        self.limit = limit
+    
+    def satisfied(self, tree: DemeTree) -> bool:
+        problem = tree.root._problem
+        if not isinstance(problem, StatsGatheringProblem) and not isinstance(problem, EvalCountingProblem):
+            raise ValueError("Problem has to be an instance of EvalCountingProblem")
+        return problem.n_evaluations >= self.limit
+    
+    def __str__(self) -> str:
+        return f"singular_problem_eval_limit_reached(limit={self.limit})"
+    
+class singular_problem_precision_reached(gsc):
+    def __init__(self, problem: PrecisionCutoffProblem):
+        super().__init__()
+        self.problem = problem
+    
+    def satisfied(self, _: DemeTree) -> bool:
+        return self.problem.hit_precision
+    
+    def __str__(self) -> str:
+        return f"singular_problem_precision_reached(precision={self.problem.precision})"
 
 
 class no_active_nonroot_demes(gsc):

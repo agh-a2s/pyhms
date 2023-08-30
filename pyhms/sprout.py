@@ -51,10 +51,10 @@ class far_enough(sprout_condition):
         self.norm_ord = norm_ord
 
     def sprout_possible(self, deme: AbstractDeme, level: int, tree: DemeTree) -> bool:
-        child_siblings = tree.level(level)
+        child_siblings = list(filter(lambda deme: deme.active, tree.level(level + 1)))
         child_seed = deme.best
         if isinstance(self.min_distance, list):
-            min_dist = self.min_distance[level]
+            min_dist = self.min_distance[level+1]
         elif isinstance(self.min_distance, float):
             min_dist = self.min_distance
 

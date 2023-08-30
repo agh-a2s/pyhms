@@ -67,6 +67,16 @@ class AbstractDemeTree(ABC):
     @property
     def optima(self):
         return [leaf.best for leaf in self.leaves]
+    
+    @property
+    def historic_best(self):
+        best = self.root.best
+        for _, deme in self.all_demes:
+            for pop in deme.history:
+                for ind in pop:
+                    if ind.fitness < best.fitness:
+                        best = ind
+        return best
 
 class DemeTree(AbstractDemeTree):
     def __init__(self, config: TreeConfig) -> None:
@@ -118,7 +128,7 @@ class DemeTree(AbstractDemeTree):
     def run_metaepoch(self):
         for level, deme in self.active_demes_reversed:
             if deme.is_leaf or (not self.hibernation or self._can_sprout(deme, level, self)):
-                deme.run_metaepoch()
+                deme.run_metaepoch(self)
 
     def run_sprout(self):
         for level, deme in self.active_non_leaves:
