@@ -27,7 +27,7 @@ class Summary:
         s += "\nTree configuration:\n\n"
         s += f"Number of levels: {self.number_of_levels}\n"
         s += f"Global stop condition: {self.tree_config.gsc}\n"
-        s += f"Sprout condition: {self.tree_config.sprout_cond}\n"
+        s += f"Sprout condition: {self.tree_config.sprout_mechanism}\n"
         indent = " " * 2
         for i, level in enumerate(self.tree_config.levels):
             s += f"Level {i}\n"

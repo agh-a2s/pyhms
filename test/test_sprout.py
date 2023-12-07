@@ -1,11 +1,12 @@
 import unittest
+from leap_ec.problem import FunctionProblem
+import numpy as np
 
 from pyhms.config import CMALevelConfig, EALevelConfig
 from pyhms.hms import hms
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import deme_per_level_limit
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
-from leap_ec.problem import FunctionProblem
 
 
 class TestSprout(unittest.TestCase):
@@ -45,7 +46,7 @@ class TestSprout(unittest.TestCase):
         for level, deme in tree.all_demes:
             print(f"Level {level}")
             print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
-            print(f"Average fitness in first population {deme.avg_fitness(0)}")
+            print(f"Average fitness in last population {np.mean([ind.fitness for ind in deme.current_population])}")
+            print(f"Average fitness in first population {np.mean([ind.fitness for ind in deme.history[0]])}")
 
-        self.assertEqual(all([len(list(filter(lambda deme: deme.active, level))) <= 2 for level in tree.levels]), True, "Should be no more than 2 active demes on each level")
+        self.assertEqual(all([len(list(filter(lambda deme: deme.is_active, level))) <= 2 for level in tree.levels]), True, "Should be no more than 2 active demes on each level")

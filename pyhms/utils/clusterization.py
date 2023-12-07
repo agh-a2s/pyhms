@@ -5,25 +5,30 @@ from treelib import Tree
 # Implementation based on A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation
 class NearestBetterClustering():
 
-    # In our particular use case we do not need weigt factor as input.
-    def __init__(self, evaluated_individuals: list[Individual]) -> None:
+    def __init__(self, evaluated_individuals: list[Individual], distance_factor: float = 2.0, truncation_factor: float = 1.0) -> None:
         evaluated_individuals.sort(key=lambda ind: ind.fitness)
-        self.individuals = evaluated_individuals
+        self.individuals = evaluated_individuals[:int(len(evaluated_individuals)*truncation_factor)]
         self.tree = Tree()
         self.distances = []
+        self.distance_factor = distance_factor
 
-    def cluster(self) -> list[Tree]:
-        pass
+    def cluster(self) -> list[Individual]:
+        self._prepare_spanning_tree()
+        nodes = self.tree.all_nodes()
+        mean_distance = np.mean(self.distances)
+        root_nodes = filter(lambda x: x.data["distance"] > mean_distance*self.distance_factor, nodes)
+        root_individuals = [node.data["individual"] for node in root_nodes]
+        return root_individuals
 
-    def prepare_spanning_tree(self) -> None:
+    def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
-        self.tree.create_node(identifier=str(root.genome), data={"genome":root.genome, "fitness":root.fitness, "distance": 0.0})
+        self.tree.create_node(identifier=str(root.genome), data={"individual":root, "distance": 0.0})
         for ind in self.individuals[1:]:
-            distance, parent = self.find_nearest_better(ind, self.individuals[:self.individuals.index(ind)])
-            self.tree.create_node(identifier=str(ind.genome), data={"genome":ind.genome, "fitness":ind.fitness, "distance": distance}, parent=str(parent.genome))
+            distance, parent = self._find_nearest_better(ind, self.individuals[:self.individuals.index(ind)])
+            self.tree.create_node(identifier=str(ind.genome), data={"individual":ind, "distance": distance}, parent=str(parent.genome))
             self.distances.append(distance)
 
-    def find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
-        distances = [(np.linalg.norm(individual.genome-ind.genome), ind) for ind in better_individuals]
-        distances.sort(key=lambda pair: pair[0])
-        return distances[0]
+    def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
+        dist_ind = [(np.linalg.norm(individual.genome-ind.genome), ind) for ind in better_individuals]
+        dist_ind.sort(key=lambda pair: pair[0])
+        return dist_ind[0]

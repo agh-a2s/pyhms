@@ -23,7 +23,7 @@ class gsc(ABC):
 
 class root_stopped(gsc):
     def satisfied(self, tree: DemeTree) -> bool:
-        return not tree.root.active
+        return not tree.root.is_active
 
     def __str__(self) -> str:
         return "root_stopped"
@@ -108,7 +108,7 @@ class no_active_nonroot_demes(gsc):
 
             for deme in tree.levels[level_no]:
                 logger.debug(f"Deme {deme.id} st {deme.started_at} mc {deme.metaepoch_count}")
-                if deme.active or \
+                if deme.is_active or \
                         step <= deme.started_at + deme.metaepoch_count + self.n_metaepochs:
                     return False
 
