@@ -16,21 +16,20 @@ class EADeme(AbstractDeme):
         self._seed = seed
 
         if seed is None:
-            self._current_pop = self._ea.run()
+            starting_pop = self._ea.run()
         else:
             x = seed.genome
-            pop = Individual.create_population(
+            starting_pop = Individual.create_population(
                 self._pop_size - 1,
                 initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
                 decoder=IdentityDecoder(),
                 problem=self._problem
                 )
             seed_ind = Individual(x, problem=self._problem)
-            pop.append(seed_ind)
-            Individual.evaluate_population(pop)
-            self._current_pop = pop
+            starting_pop.append(seed_ind)
+            Individual.evaluate_population(starting_pop)
 
-        self._history = [self._current_pop]
+        self._history.append(starting_pop)
 
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0

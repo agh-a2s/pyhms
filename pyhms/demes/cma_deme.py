@@ -19,28 +19,31 @@ class CMADeme(AbstractDeme):
 
         self._active = True
         self._children = []
+        starting_pop = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()]
+        Individual.evaluate_population(starting_pop)
+        self._history.append(starting_pop)
 
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0
-        individuals = []
+        genomes = [ind.genome for ind in self.current_population]
+        values = [ind.fitness for ind in self.current_population]
         while epoch_counter < self.generations:
-            solutions = self._cma_es.ask()
-            individuals = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in solutions]
-            self._cma_es.tell(solutions, [ind.evaluate() for ind in individuals])
+            self._cma_es.tell(genomes, values)
+            offspring = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()]
+            Individual.evaluate_population(offspring)
+            genomes = [ind.genome for ind in offspring]
+            values = [ind.fitness for ind in offspring]
             epoch_counter += 1
 
             if tree._gsc(tree):
                 self._active = False
                 self._centroid = None
-                self._history.append(individuals)
+                self._history.append(offspring)
                 return
-
         self._centroid = None
-        self._history.append(individuals)
+        self._history.append(offspring)
 
         if self._lsc(self) or self._cma_es.stop():
-            if self._run_minimize:
-                self.run_local_optimization()
             self._active = False
 
     def __str__(self) -> str:

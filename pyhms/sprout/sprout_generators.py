@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Dict
 from leap_ec.individual import Individual
+import numpy as np
 
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.utils.clusterization import NearestBetterClustering
@@ -35,5 +36,5 @@ class NBC_Generator(SproutCandidatesGenerator):
                 if deme.is_active:
                     nbc = NearestBetterClustering(deme.current_population, self.distance_factor, self.truncation_factor)
                     deme_candidates = nbc.cluster()
-                    candidates[deme] = ({'NBC_mean_distance': nbc.distances}, deme_candidates)
+                    candidates[deme] = ({'NBC_mean_distance': np.mean(nbc.distances)}, deme_candidates)
         return candidates

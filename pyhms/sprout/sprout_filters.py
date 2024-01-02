@@ -62,7 +62,7 @@ class DemeLimit(DemeLevelCandidatesFilter):
         for deme in candidates.keys():
             candidates[deme][1].sort(key=lambda ind: ind.fitness)
             if len(candidates[deme][1]) > self.limit:
-                candidates[deme][1] = candidates[deme][1][:self.limit]
+                candidates[deme] = (candidates[deme][0], candidates[deme][1][:self.limit])
         return candidates
 
 
@@ -76,10 +76,10 @@ class LevelLimit(TreeLevelCandidatesFilter):
             level_demes = [deme for deme in candidates.keys() if deme.level == level]
             level_candidates = [candidate for deme in level_demes for candidate in candidates[deme][1]]
             level_candidates.sort(key=lambda ind: ind.fitness)
-            currently_active_level_below = len([deme for deme in tree.levels[level] if deme.is_active])
+            currently_active_level_below = len([deme for deme in tree.levels[level+1] if deme.is_active])
             if currently_active_level_below + len(level_candidates) > self.limit:
                 cutoff = self.limit - currently_active_level_below
                 fitness_cutoff = level_candidates[cutoff].fitness
                 for deme in level_demes:
-                    candidates[deme][1] = list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme][1]))
-        return {k: v for k, v in candidates.items() if len(candidates[k][1]) > 0}
+                    candidates[deme] = (candidates[deme][0], list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme][1])))
+        return candidates
