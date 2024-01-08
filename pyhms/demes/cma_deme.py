@@ -11,14 +11,12 @@ from ..utils.misc_util import compute_centroid
 class CMADeme(AbstractDeme):
 
     def __init__(self, id: str, level: int, config: CMALevelConfig, x0: Individual, started_at: int=0) -> None:
-        super().__init__(id, level, config, started_at)
+        super().__init__(id, level, config, started_at, x0)
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'bounds': [lb, ub], 'verbose': -9})
 
-        self._active = True
-        self._children = []
+        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'bounds': [lb, ub], 'verbose': -9})
         starting_pop = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()]
         Individual.evaluate_population(starting_pop)
         self._history.append(starting_pop)
@@ -45,7 +43,3 @@ class CMADeme(AbstractDeme):
 
         if self._lsc(self) or self._cma_es.stop():
             self._active = False
-
-    def __str__(self) -> str:
-        return f"Deme {self.id}, started at metaepoch {self.started_at} with best {self.best_current_individual.fitness}"
-

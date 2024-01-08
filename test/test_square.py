@@ -2,7 +2,7 @@ import unittest
 from leap_ec.problem import FunctionProblem
 import numpy as np
 
-from pyhms.config import TreeConfig, CMALevelConfig, EALevelConfig
+from pyhms.config import TreeConfig, CMALevelConfig, EALevelConfig, DELevelConfig
 from pyhms.tree import DemeTree
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_mechanisms import get_simple_sprout
@@ -93,6 +93,48 @@ class TestSquare(unittest.TestCase):
                 hms_tree.run_sprout()
 
         print("\nCMA square optimization test")
+        print("Deme info:")
+        for level, deme in hms_tree.all_demes:
+            print(f"Level {level}")
+            print(f"{deme}")
+            print(f"Average fitness in last population {np.mean([ind.fitness for ind in deme.current_population])}")
+            print(f"Average fitness in first population {np.mean([ind.fitness for ind in deme.history[0]])}")
+
+        self.assertEqual(hms_tree.height, 2, "Should be 2")
+
+    def test_square_optimization_de(self):
+        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
+        gsc = metaepoch_limit(limit=2)
+        sprout_cond = get_simple_sprout(1.0)
+
+        config = [
+        DELevelConfig(
+            generations=2, 
+            problem=function_problem, 
+            bounds=[(-20, 20), (-20, 20)], 
+            pop_size=20,
+            dither=True,
+            crossover=0.9,
+            lsc=dont_stop()
+            ),
+        CMALevelConfig(
+            generations=4, 
+            problem=function_problem, 
+            bounds=[(-20, 20), (-20, 20)],
+            sigma0=2.5,
+            lsc=dont_stop()
+            )
+        ]
+
+        config = TreeConfig(config, gsc, sprout_cond)
+        hms_tree = DemeTree(config)
+        while not hms_tree._gsc(hms_tree):
+            hms_tree.metaepoch_count += 1
+            hms_tree.run_metaepoch()
+            if not hms_tree._gsc(hms_tree):
+                hms_tree.run_sprout()
+
+        print("\nDE square optimization test")
         print("Deme info:")
         for level, deme in hms_tree.all_demes:
             print(f"Level {level}")

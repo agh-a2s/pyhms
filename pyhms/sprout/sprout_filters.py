@@ -50,6 +50,7 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
             child_seeds = candidates[deme][1]
             for sibling in child_siblings:
                 child_seeds = list(filter(lambda ind: nla.norm(ind.genome - sibling.centroid, ord=self.norm_ord) > self.min_distance_factor*candidates[deme][0]['NBC_mean_distance'], child_seeds))
+                candidates[deme] = (candidates[deme][0], child_seeds)
         return candidates
 
 

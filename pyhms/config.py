@@ -15,6 +15,15 @@ class EALevelConfig(BaseLevelConfig):
         self.sample_std_dev = sample_std_dev
         self.__dict__.update(kwargs)
 
+class DELevelConfig(BaseLevelConfig):
+    def __init__(self, pop_size, problem, bounds, lsc, generations, dither=False, scaling=0.8, crossover=0.9):
+        super().__init__(problem, bounds, lsc)
+        self.pop_size = pop_size
+        self.generations = generations
+        self.dither = dither
+        self.scaling = scaling
+        self.crossover = crossover
+
 class CMALevelConfig(BaseLevelConfig):
     def __init__(self, problem, bounds, lsc, sigma0, generations, **kwargs) -> None:
         super().__init__(problem, bounds, lsc)

@@ -1,6 +1,7 @@
 import numpy as np
 from leap_ec.individual import Individual
 from treelib import Tree
+from treelib.exceptions import DuplicatedNodeIdError
 
 # Implementation based on A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation
 class NearestBetterClustering():
@@ -22,11 +23,19 @@ class NearestBetterClustering():
 
     def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
-        self.tree.create_node(identifier=str(root.genome), data={"individual":root, "distance": 0.0})
+        self.tree.create_node(identifier=str(root.genome), data={"individual":root, "distance": np.inf})
         for ind in self.individuals[1:]:
-            distance, parent = self._find_nearest_better(ind, self.individuals[:self.individuals.index(ind)])
-            self.tree.create_node(identifier=str(ind.genome), data={"individual":ind, "distance": distance}, parent=str(parent.genome))
-            self.distances.append(distance)
+            # Safecheck for the case, when the individual is tied for the best fitness with root
+            if ind == root:
+                better_individuals = [root]
+            else:
+                better_individuals = self.individuals[:self.individuals.index(ind)]
+            distance, parent = self._find_nearest_better(ind, better_individuals)
+            try:
+                self.tree.create_node(identifier=str(ind.genome), data={"individual":ind, "distance": distance}, parent=str(parent.genome))
+                self.distances.append(distance)
+            except DuplicatedNodeIdError:
+                pass
 
     def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
         dist_ind = [(np.linalg.norm(individual.genome-ind.genome), ind) for ind in better_individuals]

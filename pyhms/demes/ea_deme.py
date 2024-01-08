@@ -8,12 +8,11 @@ from pyhms.initializers import sample_normal
 
 class EADeme(AbstractDeme):
     def __init__(self, id: str, level: int, config: EALevelConfig, started_at: int =0, seed: Individual =None) -> None:
-        super().__init__(id, level, config, started_at)
+        super().__init__(id, level, config, started_at, seed)
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._ea = config.ea_class.create(**config.__dict__)
-        self._seed = seed
 
         if seed is None:
             starting_pop = self._ea.run()

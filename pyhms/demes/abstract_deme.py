@@ -6,10 +6,11 @@ from pyhms.utils.misc_util import compute_centroid
 
 
 class AbstractDeme(ABC):
-    def __init__(self, id: str, level: int, config: BaseLevelConfig, started_at: int = 0) -> None:
+    def __init__(self, id: str, level: int, config: BaseLevelConfig, started_at: int = 0, seed: Individual =None) -> None:
         super().__init__()
         self._id = id
         self._started_at = started_at
+        self._seed = seed
         self._level = level
         self._config = config
         self._lsc = config.lsc
@@ -76,3 +77,9 @@ class AbstractDeme(ABC):
     @abstractmethod
     def run_metaepoch(self, tree):
         raise NotImplementedError()
+
+    def __str__(self) -> str:
+        if self._seed is None:
+            return f"Root deme {self.id} with best achieved fitness {self.best_current_individual.fitness}"
+        else:
+            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {self.best_current_individual.fitness}"

@@ -6,6 +6,7 @@ from .demes.abstract_deme import AbstractDeme
 from .demes.ea_deme import EADeme
 from .demes.cma_deme import CMADeme
 from .demes.local_deme import LocalDeme
+from .demes.initialize import init_from_config, init_root
 from .sprout.sprout_mechanisms import SproutMechanism
 
 
@@ -21,7 +22,7 @@ class DemeTree():
             raise ValueError("Level number must be positive")
 
         self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
-        root_deme = EADeme("root", 0, config.levels[0])
+        root_deme = init_root(config.levels[0])
         self._levels[0].append(root_deme)
     
     @property
@@ -77,25 +78,9 @@ class DemeTree():
 
             for ind in info[1]:
                 new_id = self._next_child_id(deme)
-
                 config = self.config.levels[target_level]
-                if isinstance(config, EALevelConfig):
-                    child = EADeme(
-                        id=new_id,
-                        level=target_level,
-                        config=config,
-                        started_at=self.metaepoch_count,
-                        seed=ind
-                    )
-                elif isinstance(config, CMALevelConfig):
-                    child = CMADeme(
-                        id=new_id,
-                        level=target_level,
-                        config=config,
-                        started_at=self.metaepoch_count,
-                        x0=ind
-                    )
 
+                child = init_from_config(config, new_id, target_level, self.metaepoch_count, seed=ind)
                 deme.add_child(child)
                 self._levels[target_level].append(child)
 
