@@ -111,7 +111,7 @@ class TestSquare(unittest.TestCase):
         DELevelConfig(
             generations=2, 
             problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)], 
+            bounds=np.array([(-20, 20), (-20, 20)]), 
             pop_size=20,
             dither=True,
             crossover=0.9,
@@ -120,7 +120,7 @@ class TestSquare(unittest.TestCase):
         CMALevelConfig(
             generations=4, 
             problem=function_problem, 
-            bounds=[(-20, 20), (-20, 20)],
+            bounds=np.array([(-20, 20), (-20, 20)]),
             sigma0=2.5,
             lsc=dont_stop()
             )

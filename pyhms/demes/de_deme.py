@@ -63,9 +63,15 @@ class DEDeme(AbstractDeme):
         if self._dither:
             scaling = np.random.uniform(0.5, 1, size=len(parents))
             scaling = np.repeat(scaling[:, np.newaxis], len(self._bounds), axis=1)
-            return parents + scaling * (randoms[:,0] - randoms[:,1])
+            donor = parents + scaling * (randoms[:,0] - randoms[:,1])
         else:
-            return parents + self._scaling * (randoms[:,0] - randoms[:,1])
+            donor = parents + self._scaling * (randoms[:,0] - randoms[:,1])
+        
+        # Apply mirror method for correction of boundary violations
+        donor = np.where(donor < self._bounds[:,0], 2*self._bounds[:,0] - donor, donor)
+        donor = np.where(donor > self._bounds[:,1], 2*self._bounds[:,1] - donor, donor)
+
+        return donor
 
     def _crossover(self, parent: Individual, donor: Individual) -> Individual:
         if parent > donor:

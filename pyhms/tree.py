@@ -66,11 +66,20 @@ class DemeTree():
 
     def run_metaepoch(self):
         for _, deme in reversed(self.active_demes):
+                if 'hibernation' in self.config.options and self.config.options['hibernation'] and deme._hibernating: continue
+
                 deme.run_metaepoch(self)
 
     def run_sprout(self):
         deme_seeds = self._sprout_mechanism.get_seeds(self)
         self._do_sprout(deme_seeds)
+
+        if 'hibernation' in self.config.options and self.config.options['hibernation']:
+            for _, deme in reversed(self.active_non_leaves):
+                if deme in deme_seeds:
+                    deme._hibernating = False
+                else:
+                    deme._hibernating = True
 
     def _do_sprout(self, deme_seeds: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]):
         for deme, info in deme_seeds.items():

@@ -21,6 +21,9 @@ class AbstractDeme(ABC):
         self._history = []
         self._children = []
 
+        # Additional low-level options
+        self._hibernating = False
+
     @property
     def id(self) -> str:
         return self._id

@@ -1,7 +1,9 @@
 from typing import List
+import numpy as np
+import numpy.typing as npt
 
 class BaseLevelConfig():
-    def __init__(self, problem, bounds, lsc):
+    def __init__(self, problem, bounds: npt.NDArray[np.float64], lsc):
         self.problem = problem
         self.bounds = bounds
         self.lsc = lsc
