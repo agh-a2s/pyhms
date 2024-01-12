@@ -28,8 +28,8 @@ class fitness_steadiness(lsc):
         if self.n_metaepochs > deme.metaepoch_count:
             return False
         
-        avg_fits = [deme.avg_fitness(n) for n in range(-self.n_metaepochs, 0)]
-        return max(abs(avg_fits - np.mean(avg_fits))) <= self.max_deviation
+        avg_fits = [np.mean([ind.fitness for ind in deme.history[n]]) for n in range(-self.n_metaepochs, 0)]
+        return np.mean(avg_fits) - np.min(avg_fits) <= self.max_deviation
 
     def __str__(self) -> str:
         return f"fitness_steadiness(max_dev={self.max_deviation}, n={self.n_metaepochs})"

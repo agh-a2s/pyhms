@@ -22,8 +22,7 @@ class SimpleEA(AbstractEA):
     """
     A simple single population EA (SEA skeleton).
     """
-    def __init__(self, generations, problem, bounds, pop_size, pipeline, 
-        k_elites=1, representation=None) -> None:
+    def __init__(self, generations, problem, bounds, pop_size, pipeline, k_elites=1, representation=None) -> None:
         super().__init__(problem, bounds, pop_size)
         self.generations = generations
         self.pipeline = pipeline
@@ -49,8 +48,7 @@ class SEA(SimpleEA):
     """
     An implementation of SEA using LEAP.
     """
-    def __init__(self, generations, problem, bounds, pop_size, mutation_std=1.0, 
-        k_elites=1, representation=None) -> None:
+    def __init__(self, generations, problem, bounds, pop_size, mutation_std=1.0, k_elites=1, representation=None) -> None:
 
         super().__init__(
             generations, 

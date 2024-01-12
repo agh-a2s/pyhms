@@ -1,39 +1,33 @@
-from abc import ABC, abstractmethod
-from typing import Generator, List, Tuple
+from typing import List, Tuple, Dict
+from leap_ec.individual import Individual
 
-from .config import TreeConfig, EALevelConfig, CMALevelConfig
+from .config import TreeConfig, EALevelConfig, CMALevelConfig, LocalOptimizationConfig
 from .demes.abstract_deme import AbstractDeme
 from .demes.ea_deme import EADeme
 from .demes.cma_deme import CMADeme
+from .demes.local_deme import LocalDeme
+from .demes.initialize import init_from_config, init_root
+from .sprout.sprout_mechanisms import SproutMechanism
 
-class AbstractDemeTree(ABC):
-    def __init__(self, metaepoch_count: int, config: TreeConfig) -> None:
-        super().__init__()
-        self._metaepoch_count = metaepoch_count
-        self.config = config
 
-        self.hibernation: bool = False
-        if 'hibernation' in config.options:
-            self.hibernation = config.options['hibernation']
+class DemeTree():
+    def __init__(self, config: TreeConfig) -> None:
+        self.metaepoch_count: int = 0
+        self.config: TreeConfig = config
+        self._gsc = config.gsc
+        self._sprout_mechanism: SproutMechanism = config.sprout_mechanism
 
+        nlevels = len(config.levels)
+        if nlevels < 1:
+            raise ValueError("Level number must be positive")
+
+        self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
+        root_deme = init_root(config.levels[0])
+        self._levels[0].append(root_deme)
+    
     @property
-    def metaepoch_count(self) -> int:
-        return self._metaepoch_count
-
-    @property
-    @abstractmethod
-    def levels(self) -> List[List[AbstractDeme]]:
-        raise NotImplementedError()
-
-    def level(self, no: int) -> List[AbstractDeme]:
-        return self.levels[no]
-
-    def level_individuals(self, level_no: int) -> list:
-        inds = []
-        for deme in self.level(level_no):
-            inds += deme.all_individuals
-
-        return inds
+    def levels(self):
+        return self._levels
 
     @property
     def height(self) -> int:
@@ -44,129 +38,67 @@ class AbstractDemeTree(ABC):
         return self.levels[0][0]
 
     @property
+    def all_demes(self) -> List[Tuple[int, AbstractDeme]]:
+        return [(level_no, deme) for level_no in range(self.height) for deme in self.levels[level_no]]
+
+    @property
     def leaves(self) -> List[AbstractDeme]:
         return self.levels[-1]
 
     @property
-    def non_leaves(self) -> Generator[Tuple[int, AbstractDeme], None, None]:
-        for level_no in range(self.height - 1):
-            for deme in self.levels[level_no]:
-                yield level_no, deme
+    def active_demes(self) -> List[Tuple[int, AbstractDeme]]:
+        return [(level_no, deme) for level_no in range(self.height) for deme in self.levels[level_no] if deme.is_active]
 
     @property
-    def all_demes(self) -> Generator[Tuple[int, AbstractDeme], None, None]:
-        for level_no in range(self.height):
-            for deme in self.levels[level_no]:
-                yield level_no, deme
-
-    def demes(self, level_numbers) -> Generator[Tuple[int, AbstractDeme], None, None]:
-        for level_no in level_numbers:
-            for deme in self.levels[level_no]:
-                yield level_no, deme
+    def active_non_leaves(self) -> List[Tuple[int, AbstractDeme]]:
+        return [(level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active]
 
     @property
     def optima(self):
-        return [leaf.best for leaf in self.leaves]
-    
-    @property
-    def historic_best(self):
-        best = self.root.best
-        for _, deme in self.all_demes:
-            for pop in deme.history:
-                for ind in pop:
-                    if ind.fitness < best.fitness:
-                        best = ind
-        return best
-
-class DemeTree(AbstractDemeTree):
-    def __init__(self, config: TreeConfig) -> None:
-    
-        super().__init__(0, config)
-        nlevels = len(config.levels)
-        if nlevels < 1:
-            raise ValueError("Level number must be positive")
-
-        self._levels: List[List[EADeme]] = [[] for _ in range(nlevels)]
-        root_deme = EADeme("root", config.levels[0], leaf=(nlevels == 1))
-        self._levels[0].append(root_deme)
-
-        self._gsc = config.gsc
-        self._can_sprout = config.sprout_cond
-
-    @property
-    def levels(self):
-        return self._levels
-
-    @property
-    def active_demes(self) -> Generator[Tuple[int, EADeme], None, None]:
-        for level_no in range(self.height):
-            for deme in self.levels[level_no]:
-                if deme.active:
-                    yield level_no, deme
-
-    @property
-    def active_demes_reversed(self) -> Generator[Tuple[int, EADeme], None, None]:
-        for level_no in reversed(range(self.height)):
-            for deme in reversed(self.levels[level_no]):
-                if deme.active:
-                    yield level_no, deme
-
-    @property
-    def active_non_leaves(self) -> Generator[Tuple[int, EADeme], None, None]:
-        for level_no in range(self.height - 1):
-            for deme in self.levels[level_no]:
-                if deme.active:
-                    yield level_no, deme
+        return [leaf.best_current_individual for leaf in self.leaves]
 
     def run(self):
         while not self._gsc(self):
-            self._metaepoch_count += 1
+            self.metaepoch_count += 1
             self.run_metaepoch()
             if not self._gsc(self):
                 self.run_sprout()
 
     def run_metaepoch(self):
-        for level, deme in self.active_demes_reversed:
-            if deme.is_leaf or (not self.hibernation or self._can_sprout(deme, level, self)):
+        for _, deme in reversed(self.active_demes):
+                if 'hibernation' in self.config.options and self.config.options['hibernation'] and deme._hibernating: continue
+
                 deme.run_metaepoch(self)
 
     def run_sprout(self):
-        for level, deme in self.active_non_leaves:
-            if self._can_sprout(deme, level, self):
-                self._do_sprout(deme, level)
-            else:
-                pass
+        deme_seeds = self._sprout_mechanism.get_seeds(self)
+        self._do_sprout(deme_seeds)
 
-    def _do_sprout(self, deme, level):
-        new_id = self._next_child_id(deme, level)
-        is_leaf = (level == self.height - 1)
+        if 'hibernation' in self.config.options and self.config.options['hibernation']:
+            for _, deme in reversed(self.active_non_leaves):
+                if deme in deme_seeds:
+                    deme._hibernating = False
+                else:
+                    deme._hibernating = True
 
-        config = self.config.levels[level + 1]
-        if isinstance(config, EALevelConfig):
-            child = EADeme(
-                id=new_id,
-                config=config,
-                started_at=self.metaepoch_count,
-                leaf=is_leaf,
-                seed=max(deme.population)
-            )
-        elif isinstance(config, CMALevelConfig):
-            child = CMADeme(
-                id=new_id,
-                config=config,
-                x0=deme.best,
-                started_at=self.metaepoch_count
-            )
+    def _do_sprout(self, deme_seeds: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]):
+        for deme, info in deme_seeds.items():
+            target_level = deme.level + 1
 
-        deme.add_child(child)
-        self._levels[level + 1].append(child)
+            for ind in info[1]:
+                new_id = self._next_child_id(deme)
+                config = self.config.levels[target_level]
+
+                child = init_from_config(config, new_id, target_level, self.metaepoch_count, seed=ind)
+                deme.add_child(child)
+                self._levels[target_level].append(child)
 
 
-    def _next_child_id(self, deme: EADeme, level: int) -> str:
-        if level >= self.height - 1:
+    def _next_child_id(self, deme: EADeme) -> str:
+        if deme.level >= self.height - 1:
             raise ValueError("Only non-leaf levels are admissible")
 
-        id_suffix = len(self._levels[level + 1])
+        id_suffix = len(self._levels[deme.level + 1])
         if deme.id == "root":
             return str(id_suffix)
         else:
