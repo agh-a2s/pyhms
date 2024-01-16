@@ -1,8 +1,8 @@
 import numpy as np
 import numpy.random as nrand
 
-def sample_normal(center: np.array, std_dev: float, bounds=None):
 
+def sample_normal(center: np.array, std_dev: float, bounds=None):
     def in_bounds(x: np.array) -> bool:
         if bounds is None:
             return True

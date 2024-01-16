@@ -5,8 +5,9 @@ import numpy as np
 
 from ..demes.abstract_deme import AbstractDeme
 from ..demes.ea_deme import EADeme
-from .pers_solution import Solution
 from ..utils.misc_util import compute_centroid
+from .pers_solution import Solution
+
 
 class DemeData(AbstractDeme):
     def __init__(self, deme: EADeme) -> None:

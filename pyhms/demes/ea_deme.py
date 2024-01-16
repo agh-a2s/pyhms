@@ -1,13 +1,14 @@
 from leap_ec import Individual
 from leap_ec.decoder import IdentityDecoder
-
-from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.config import EALevelConfig
+from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.initializers import sample_normal
 
 
 class EADeme(AbstractDeme):
-    def __init__(self, id: str, level: int, config: EALevelConfig, started_at: int =0, seed: Individual =None) -> None:
+    def __init__(
+        self, id: str, level: int, config: EALevelConfig, started_at: int = 0, seed: Individual = None
+    ) -> None:
         super().__init__(id, level, config, started_at, seed)
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
@@ -22,8 +23,8 @@ class EADeme(AbstractDeme):
                 self._pop_size - 1,
                 initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
                 decoder=IdentityDecoder(),
-                problem=self._problem
-                )
+                problem=self._problem,
+            )
             seed_ind = Individual(x, problem=self._problem)
             starting_pop.append(seed_ind)
             Individual.evaluate_population(starting_pop)
@@ -42,7 +43,8 @@ class EADeme(AbstractDeme):
                 return
 
         self._history.append(offspring)
-        if self._lsc(self): self._active = False
+        if self._lsc(self):
+            self._active = False
 
     def __str__(self) -> str:
         if self._seed is None:

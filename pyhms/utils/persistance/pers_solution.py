@@ -1,10 +1,12 @@
 """
     Representation of a solution (point and value).
 """
-import numpy as np
 from typing import List
+
+import numpy as np
 from leap_ec.individual import Individual
 from leap_ec.problem import Problem
+
 
 class Solution:
     def __init__(self, point, value: float, problem: Problem) -> None:

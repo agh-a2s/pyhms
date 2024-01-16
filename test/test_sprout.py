@@ -1,23 +1,28 @@
 import unittest
-from leap_ec.problem import FunctionProblem
-import numpy as np
 
-from pyhms.config import TreeConfig, CMALevelConfig, EALevelConfig
-from pyhms.tree import DemeTree
+import numpy as np
+from leap_ec.problem import FunctionProblem
+from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.sprout.sprout_mechanisms import get_simple_sprout, get_NBC_sprout, SproutMechanism
-from pyhms.sprout.sprout_filters import NBC_FarEnough, DemeLimit, LevelLimit
+from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
 from pyhms.sprout.sprout_generators import NBC_Generator
+from pyhms.sprout.sprout_mechanisms import SproutMechanism, get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
+from pyhms.tree import DemeTree
 from pyhms.utils.misc_util import compute_centroid
 
 
 class TestSprout(unittest.TestCase):
-
     @staticmethod
     def egg_holder(x) -> float:
-        return sum([-x[i]*np.sin(np.sqrt(np.abs(x[i]-x[i+1]-47))) - (x[i]-47)*np.sin(np.sqrt(np.abs(0.5*x[i]+x[i+1]+47)))  for i in range(len(x)-2)])
-    
+        return sum(
+            [
+                -x[i] * np.sin(np.sqrt(np.abs(x[i] - x[i + 1] - 47)))
+                - (x[i] - 47) * np.sin(np.sqrt(np.abs(0.5 * x[i] + x[i + 1] + 47)))
+                for i in range(len(x) - 2)
+            ]
+        )
+
     def test_simple_sprout(self):
         for limit in [2, 4, 8]:
             correct_sprout = True
@@ -26,22 +31,22 @@ class TestSprout(unittest.TestCase):
             sprout_cond = get_simple_sprout(10.0, limit)
 
             config = [
-            EALevelConfig(
-                ea_class=SEA, 
-                generations=2, 
-                problem=function_problem, 
-                bounds=[(-512, 512), (-512, 512), (-512, 512)], 
-                pop_size=20,
-                mutation_std=50.0,
-                lsc=dont_stop()
+                EALevelConfig(
+                    ea_class=SEA,
+                    generations=2,
+                    problem=function_problem,
+                    bounds=[(-512, 512), (-512, 512), (-512, 512)],
+                    pop_size=20,
+                    mutation_std=50.0,
+                    lsc=dont_stop(),
                 ),
-            CMALevelConfig(
-                generations=2,
-                problem=function_problem, 
-                bounds=[(-512, 512), (-512, 512), (-512, 512)],
-                sigma0=2.5,
-                lsc=metaepoch_limit(limit=8)
-                )
+                CMALevelConfig(
+                    generations=2,
+                    problem=function_problem,
+                    bounds=[(-512, 512), (-512, 512), (-512, 512)],
+                    sigma0=2.5,
+                    lsc=metaepoch_limit(limit=8),
+                ),
             ]
 
             config = TreeConfig(config, gsc, sprout_cond)
@@ -51,8 +56,10 @@ class TestSprout(unittest.TestCase):
                 hms_tree.run_metaepoch()
                 if not hms_tree._gsc(hms_tree):
                     hms_tree.run_sprout()
-                
-                if not all([len(list(filter(lambda deme: deme.is_active, level))) <= limit for level in hms_tree.levels]):
+
+                if not all(
+                    [len(list(filter(lambda deme: deme.is_active, level))) <= limit for level in hms_tree.levels]
+                ):
                     correct_sprout = False
                     print(f"\nFailed level limit sprout test. Limit: {limit}")
                     print("Deme info:")
@@ -74,7 +81,6 @@ class TestSprout(unittest.TestCase):
 
             self.assertEqual(correct_sprout, True, "Should be no more than 2 active demes on each level")
 
-
     def test_default_nbc_sprout(self):
         correct_sprout = True
         function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
@@ -83,22 +89,22 @@ class TestSprout(unittest.TestCase):
         limit = 4
 
         config = [
-        EALevelConfig(
-            ea_class=SEA, 
-            generations=2, 
-            problem=function_problem, 
-            bounds=[(-512, 512), (-512, 512), (-512, 512)], 
-            pop_size=20,
-            mutation_std=50.0,
-            lsc=dont_stop()
+            EALevelConfig(
+                ea_class=SEA,
+                generations=2,
+                problem=function_problem,
+                bounds=[(-512, 512), (-512, 512), (-512, 512)],
+                pop_size=20,
+                mutation_std=50.0,
+                lsc=dont_stop(),
             ),
-        CMALevelConfig(
-            generations=2,
-            problem=function_problem, 
-            bounds=[(-512, 512), (-512, 512), (-512, 512)],
-            sigma0=2.5,
-            lsc=metaepoch_limit(limit=8)
-            )
+            CMALevelConfig(
+                generations=2,
+                problem=function_problem,
+                bounds=[(-512, 512), (-512, 512), (-512, 512)],
+                sigma0=2.5,
+                lsc=metaepoch_limit(limit=8),
+            ),
         ]
 
         config = TreeConfig(config, gsc, sprout_cond)
@@ -108,7 +114,7 @@ class TestSprout(unittest.TestCase):
             hms_tree.run_metaepoch()
             if not hms_tree._gsc(hms_tree):
                 hms_tree.run_sprout()
-            
+
             if not all([len(list(filter(lambda deme: deme.is_active, level))) <= limit for level in hms_tree.levels]):
                 correct_sprout = False
                 print(f"\nFailed default NBC sprout test. Limit: {limit}")
@@ -131,7 +137,6 @@ class TestSprout(unittest.TestCase):
 
             self.assertEqual(correct_sprout, True, "Should be no more than 2 active demes on each level")
 
-
     def test_nbc_sprout_with_truncation(self):
         correct_sprout = True
         function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
@@ -140,22 +145,22 @@ class TestSprout(unittest.TestCase):
         limit = 4
 
         config = [
-        EALevelConfig(
-            ea_class=SEA, 
-            generations=2, 
-            problem=function_problem, 
-            bounds=[(-512, 512), (-512, 512), (-512, 512)], 
-            pop_size=20,
-            mutation_std=50.0,
-            lsc=dont_stop()
+            EALevelConfig(
+                ea_class=SEA,
+                generations=2,
+                problem=function_problem,
+                bounds=[(-512, 512), (-512, 512), (-512, 512)],
+                pop_size=20,
+                mutation_std=50.0,
+                lsc=dont_stop(),
             ),
-        CMALevelConfig(
-            generations=2,
-            problem=function_problem, 
-            bounds=[(-512, 512), (-512, 512), (-512, 512)],
-            sigma0=2.5,
-            lsc=metaepoch_limit(limit=8)
-            )
+            CMALevelConfig(
+                generations=2,
+                problem=function_problem,
+                bounds=[(-512, 512), (-512, 512), (-512, 512)],
+                sigma0=2.5,
+                lsc=metaepoch_limit(limit=8),
+            ),
         ]
 
         config = TreeConfig(config, gsc, sprout_cond)
@@ -165,7 +170,7 @@ class TestSprout(unittest.TestCase):
             hms_tree.run_metaepoch()
             if not hms_tree._gsc(hms_tree):
                 hms_tree.run_sprout()
-            
+
             if not all([len(list(filter(lambda deme: deme.is_active, level))) <= limit for level in hms_tree.levels]):
                 correct_sprout = False
                 print(f"\nFailed truncation NBC sprout test. Limit: {limit}")

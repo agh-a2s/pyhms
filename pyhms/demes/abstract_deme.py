@@ -1,12 +1,19 @@
 from abc import ABC, abstractmethod
-from leap_ec.individual import Individual
 
+from leap_ec.individual import Individual
 from pyhms.config import BaseLevelConfig
 from pyhms.utils.misc_util import compute_centroid
 
 
 class AbstractDeme(ABC):
-    def __init__(self, id: str, level: int, config: BaseLevelConfig, started_at: int = 0, seed: Individual =None) -> None:
+    def __init__(
+        self,
+        id: str,
+        level: int,
+        config: BaseLevelConfig,
+        started_at: int = 0,
+        seed: Individual = None,
+    ) -> None:
         super().__init__()
         self._id = id
         self._started_at = started_at
