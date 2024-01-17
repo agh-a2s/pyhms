@@ -3,13 +3,13 @@
 """
 import pickle
 from typing import List
-from datetime import datetime
 
-from .pers_deme import DemeData
 from ..tree import AbstractDemeTree, DemeTree
 from ..utils.misc_util import unique_file_name
+from .pers_deme import DemeData
 
 FILE_NAME_EXT = ".dat"
+
 
 class DemeTreeData(AbstractDemeTree):
     def __init__(self, tree: DemeTree) -> None:

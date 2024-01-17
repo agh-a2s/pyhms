@@ -3,6 +3,7 @@
 """
 from abc import ABC, abstractmethod
 from typing import Any
+
 import numpy as np
 
 from ..demes.abstract_deme import AbstractDeme
@@ -27,7 +28,7 @@ class fitness_steadiness(lsc):
     def satisfied(self, deme: EADeme) -> bool:
         if self.n_metaepochs > deme.metaepoch_count:
             return False
-        
+
         avg_fits = [np.mean([ind.fitness for ind in deme.history[n]]) for n in range(-self.n_metaepochs, 0)]
         return np.mean(avg_fits) - np.min(avg_fits) <= self.max_deviation
 

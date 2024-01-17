@@ -1,12 +1,12 @@
 import unittest
 
 from pyhms.config import CMALevelConfig, EALevelConfig
-from pyhms.hms import hms
 from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.hms import hms
+from pyhms.problem import EvalCountingProblem, FunctionProblem
 from pyhms.sprout import get_simple_sprout
 from pyhms.stop_conditions.gsc import fitness_eval_limit_reached
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
-from pyhms.problem import EvalCountingProblem, FunctionProblem
 
 
 class TestIntegration(unittest.TestCase):

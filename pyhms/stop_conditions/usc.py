@@ -7,6 +7,7 @@ from typing import Any, Union
 from ..demes.abstract_deme import AbstractDeme
 from ..tree import DemeTree
 
+
 class usc(ABC):
     @abstractmethod
     def satisfied(self, obj: Union[DemeTree, AbstractDeme]) -> bool:
@@ -14,7 +15,8 @@ class usc(ABC):
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.satisfied(*args, **kwds)
-        
+
+
 class metaepoch_limit(usc):
     def __init__(self, limit: int) -> None:
         super().__init__()
@@ -26,12 +28,14 @@ class metaepoch_limit(usc):
     def __str__(self) -> str:
         return f"metaepoch_limit({self.limit})"
 
+
 class dont_stop(usc):
     def satisfied(self, _: Union[DemeTree, AbstractDeme]) -> bool:
         return False
 
     def __str__(self) -> str:
         return "dont_stop"
+
 
 class dont_run(usc):
     def satisfied(self, _: Union[DemeTree, AbstractDeme]) -> bool:
