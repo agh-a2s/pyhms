@@ -7,7 +7,12 @@ from pyhms.initializers import sample_normal
 
 class EADeme(AbstractDeme):
     def __init__(
-        self, id: str, level: int, config: EALevelConfig, started_at: int = 0, seed: Individual = None
+        self,
+        id: str,
+        level: int,
+        config: EALevelConfig,
+        started_at: int = 0,
+        seed: Individual = None,
     ) -> None:
         super().__init__(id, level, config, started_at, seed)
         self._sample_std_dev = config.sample_std_dev
@@ -47,7 +52,8 @@ class EADeme(AbstractDeme):
             self._active = False
 
     def __str__(self) -> str:
+        best_fitness = self.best_current_individual.fitness
         if self._seed is None:
-            return f"Root deme {self.id} with best achieved fitness {self.best_current_individual.fitness}"
+            return f"Root deme {self.id} with best achieved fitness {best_fitness}"
         else:
-            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {self.best_current_individual.fitness}"
+            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {best_fitness}"

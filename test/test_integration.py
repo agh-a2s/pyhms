@@ -15,9 +15,7 @@ class TestIntegration(unittest.TestCase):
         return sum(x**2)
 
     def test_hibernation_resume(self):
-        function_problem = EvalCountingProblem(
-            FunctionProblem(lambda x: self.square(x), maximize=False)
-        )
+        function_problem = EvalCountingProblem(FunctionProblem(lambda x: self.square(x), maximize=False))
         gsc = fitness_eval_limit_reached(limit=1000)
         sprout_cond = get_simple_sprout(1.0)
         options = {"hibernation": True}
@@ -42,9 +40,7 @@ class TestIntegration(unittest.TestCase):
             ),
         ]
 
-        tree = hms(
-            level_config=config, gsc=gsc, sprout_cond=sprout_cond, options=options
-        )
+        tree = hms(level_config=config, gsc=gsc, sprout_cond=sprout_cond, options=options)
 
         print("\nHibernating deme resume test")
         print(f"Root metaepoch count {len(tree.root.history)}")
