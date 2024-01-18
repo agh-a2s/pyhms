@@ -1,15 +1,16 @@
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import sys
 import argparse
+import sys
 from typing import List, Union
-from leap_ec.individual import Individual
 
-from pyhms.persist import Solution, DemeTreeData
-from pyhms.visualisation.grid import Grid2DEvaluation
+import matplotlib.pyplot as plt
+from leap_ec.individual import Individual
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from pyhms.persist import DemeTreeData, Solution
 from pyhms.util import bounds_to_extent
+from pyhms.visualisation.grid import Grid2DEvaluation
 
 DEFAULT_CMAP = "gnuplot"
+
 
 def scatterplot(population: Union[List[Solution], List[Individual]]):
     x = []
@@ -23,17 +24,19 @@ def scatterplot(population: Union[List[Solution], List[Individual]]):
     ax = plt.subplot()
     sct = ax.scatter(x, y, c=z, cmap=DEFAULT_CMAP)
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad=0.05)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(sct, cax=cax)
     return ax
+
 
 def imageplot(grid: Grid2DEvaluation):
     ax = plt.subplot()
     ims = ax.imshow(grid.imshow_view, cmap=DEFAULT_CMAP, extent=bounds_to_extent(grid.bounds))
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad=0.05)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(ims, cax=cax)
     return ax
+
 
 def main():
     args = parse_args()
@@ -48,11 +51,13 @@ def main():
 
     plt.show()
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Plotting contents of data file")
     parser.add_argument("file", help="data file")
     parser.add_argument("-l", "--level", help="tree level", type=int, default=0)
     return parser.parse_args()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

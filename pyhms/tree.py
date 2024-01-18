@@ -1,16 +1,15 @@
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
+
 from leap_ec.individual import Individual
 
-from .config import TreeConfig, EALevelConfig, CMALevelConfig, LocalOptimizationConfig
+from .config import TreeConfig
 from .demes.abstract_deme import AbstractDeme
 from .demes.ea_deme import EADeme
-from .demes.cma_deme import CMADeme
-from .demes.local_deme import LocalDeme
 from .demes.initialize import init_from_config, init_root
 from .sprout.sprout_mechanisms import SproutMechanism
 
 
-class DemeTree():
+class DemeTree:
     def __init__(self, config: TreeConfig) -> None:
         self.metaepoch_count: int = 0
         self.config: TreeConfig = config
@@ -24,7 +23,7 @@ class DemeTree():
         self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
         root_deme = init_root(config.levels[0])
         self._levels[0].append(root_deme)
-    
+
     @property
     def levels(self):
         return self._levels
@@ -51,7 +50,9 @@ class DemeTree():
 
     @property
     def active_non_leaves(self) -> List[Tuple[int, AbstractDeme]]:
-        return [(level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active]
+        return [
+            (level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active
+        ]
 
     @property
     def optima(self):
@@ -66,15 +67,16 @@ class DemeTree():
 
     def run_metaepoch(self):
         for _, deme in reversed(self.active_demes):
-                if 'hibernation' in self.config.options and self.config.options['hibernation'] and deme._hibernating: continue
+            if "hibernation" in self.config.options and self.config.options["hibernation"] and deme._hibernating:
+                continue
 
-                deme.run_metaepoch(self)
+            deme.run_metaepoch(self)
 
     def run_sprout(self):
         deme_seeds = self._sprout_mechanism.get_seeds(self)
         self._do_sprout(deme_seeds)
 
-        if 'hibernation' in self.config.options and self.config.options['hibernation']:
+        if "hibernation" in self.config.options and self.config.options["hibernation"]:
             for _, deme in reversed(self.active_non_leaves):
                 if deme in deme_seeds:
                     deme._hibernating = False
@@ -92,7 +94,6 @@ class DemeTree():
                 child = init_from_config(config, new_id, target_level, self.metaepoch_count, seed=ind)
                 deme.add_child(child)
                 self._levels[target_level].append(child)
-
 
     def _next_child_id(self, deme: EADeme) -> str:
         if deme.level >= self.height - 1:

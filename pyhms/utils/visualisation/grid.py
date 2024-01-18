@@ -1,9 +1,10 @@
-import numpy as np
 import pickle
 
+import numpy as np
 from pyhms.util import unique_file_name
 
 FILE_NAME_EXT = ".gdat"
+
 
 class Grid2DEvaluation(object):
     def __init__(self, problem, bounds, granularity=0.1) -> None:
@@ -26,16 +27,8 @@ class Grid2DEvaluation(object):
         return grid
 
     def evaluate(self):
-        xs = np.arange(
-            self.bounds[0][0], 
-            self.bounds[0][1] + self.granularity, 
-            self.granularity
-            )
-        ys = np.arange(
-            self.bounds[1][0], 
-            self.bounds[1][1] + self.granularity, 
-            self.granularity
-            )
+        xs = np.arange(self.bounds[0][0], self.bounds[0][1] + self.granularity, self.granularity)
+        ys = np.arange(self.bounds[1][0], self.bounds[1][1] + self.granularity, self.granularity)
         self.z = np.zeros((len(xs), len(ys)))
         for i, x in enumerate(xs):
             for j, y in enumerate(ys):

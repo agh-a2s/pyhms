@@ -1,5 +1,5 @@
-from pyhms.config import TreeConfig
 from pyhms import AbstractDemeTree
+from pyhms.config import TreeConfig
 
 
 class Summary:
@@ -38,7 +38,7 @@ class Summary:
             s += indent + f"Population size: {level.pop_size}\n"
             s += indent + f"Local stop condition: {level.lsc}\n"
             s += indent + f"Sample std. dev. {level.sample_std_dev}\n"
-            std_keys = {'problem', 'bounds', 'ea_class', 'generations', 'pop_size', 'lsc', 'sample_std_dev'}
+            std_keys = {"problem", "bounds", "ea_class", "generations", "pop_size", "lsc", "sample_std_dev"}
             other_pars = {k: v for k, v in level.__dict__.items() if k not in std_keys}
             s += indent + f"Other params: {other_pars}\n"
             s += indent + f"Problem evaluations: {level.problem.n_evaluations}\n"
