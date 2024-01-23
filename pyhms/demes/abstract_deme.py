@@ -91,6 +91,15 @@ class AbstractDeme(ABC):
     def run_metaepoch(self, tree):
         raise NotImplementedError()
 
+    def log(self, message: str) -> None:
+        self._logger.info(
+            message,
+            id=self._id,
+            best_fitness=self.best_current_individual.fitness,
+            best_individual=self.best_current_individual.genome,
+            centroid=self.centroid,
+        )
+
     def __str__(self) -> str:
         if self._seed is None:
             return f"Root deme {self.id} with best achieved fitness {self.best_current_individual.fitness}"

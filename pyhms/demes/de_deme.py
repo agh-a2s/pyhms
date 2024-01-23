@@ -60,10 +60,12 @@ class DEDeme(AbstractDeme):
             if tree._gsc(tree):
                 self._active = False
                 self._history.append(offspring)
+                self.log("DE Deme finished due to GSC")
                 return
 
         self._history.append(offspring)
         if self._lsc(self):
+            self.log("DE Deme finished due to LSC")
             self._active = False
 
     def _create_donor_vectors(self, parents: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:

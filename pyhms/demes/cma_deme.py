@@ -48,9 +48,11 @@ class CMADeme(AbstractDeme):
                 self._active = False
                 self._centroid = None
                 self._history.append(offspring)
+                self.log("CMA Deme finished due to GSC")
                 return
         self._centroid = None
         self._history.append(offspring)
 
         if self._lsc(self) or self._cma_es.stop():
+            self.log("CMA Deme finished due to LSC")
             self._active = False

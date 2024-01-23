@@ -47,10 +47,12 @@ class EADeme(AbstractDeme):
             if tree._gsc(tree):
                 self._active = False
                 self._history.append(offspring)
+                self.log("EA Deme finished due to GSC")
                 return
 
         self._history.append(offspring)
         if self._lsc(self):
+            self.log("EA Deme finished due to LSC")
             self._active = False
 
     def __str__(self) -> str:
