@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from leap_ec.individual import Individual
 from pyhms.config import BaseLevelConfig
 from pyhms.utils.misc_util import compute_centroid
+from structlog.typing import FilteringBoundLogger
 
 
 class AbstractDeme(ABC):
@@ -11,6 +12,7 @@ class AbstractDeme(ABC):
         id: str,
         level: int,
         config: BaseLevelConfig,
+        logger: FilteringBoundLogger,
         started_at: int = 0,
         seed: Individual = None,
     ) -> None:
@@ -27,6 +29,7 @@ class AbstractDeme(ABC):
         self._centroid = None
         self._history = []
         self._children = []
+        self._logger = logger
 
         # Additional low-level options
         self._hibernating = False

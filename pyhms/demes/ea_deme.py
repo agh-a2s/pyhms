@@ -3,13 +3,20 @@ from leap_ec.decoder import IdentityDecoder
 from pyhms.config import EALevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.initializers import sample_normal
+from structlog.typing import FilteringBoundLogger
 
 
 class EADeme(AbstractDeme):
     def __init__(
-        self, id: str, level: int, config: EALevelConfig, started_at: int = 0, seed: Individual = None
+        self,
+        id: str,
+        level: int,
+        config: EALevelConfig,
+        logger: FilteringBoundLogger,
+        started_at: int = 0,
+        seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, started_at, seed)
+        super().__init__(id, level, config, logger, started_at, seed)
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
         self._generations = config.generations

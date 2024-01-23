@@ -1,13 +1,22 @@
 from leap_ec import Individual
 from scipy import optimize as sopt
+from structlog.typing import FilteringBoundLogger
 
 from ..config import LocalOptimizationConfig
 from .abstract_deme import AbstractDeme
 
 
 class LocalDeme(AbstractDeme):
-    def __init__(self, id: str, level: int, config: LocalOptimizationConfig, x0: Individual, started_at=0) -> None:
-        super().__init__(id, level, config, started_at)
+    def __init__(
+        self,
+        id: str,
+        level: int,
+        config: LocalOptimizationConfig,
+        logger: FilteringBoundLogger,
+        x0: Individual,
+        started_at=0,
+    ) -> None:
+        super().__init__(id, level, config, logger, started_at)
         self._method = config.method
         self._maxfun = config.maxfun
         self._x0 = x0

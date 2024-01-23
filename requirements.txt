@@ -5,3 +5,4 @@ scipy>=1.8.0
 toolz>=0.11.2
 matplotlib>=3.5.1
 treelib>=1.7.0
+structlog>=24.1.0

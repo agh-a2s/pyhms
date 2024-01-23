@@ -6,13 +6,20 @@ from leap_ec.real_rep.initializers import create_real_vector
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.initializers import sample_normal
+from structlog.typing import FilteringBoundLogger
 
 
 class DEDeme(AbstractDeme):
     def __init__(
-        self, id: str, level: int, config: DELevelConfig, started_at: int = 0, seed: Individual = None
+        self,
+        id: str,
+        level: int,
+        config: DELevelConfig,
+        logger: FilteringBoundLogger,
+        started_at: int = 0,
+        seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, started_at, seed)
+        super().__init__(id, level, config, logger, started_at, seed)
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._dither = config.dither
