@@ -2,7 +2,11 @@
 name = "pyhms"
 version = "0.1.0"
 description = "The HMS (Hierarchic Memetic Strategy) is a composite global optimization strategy consisting of a multi-population evolutionary strategy and some auxiliary methods. The HMS makes use of a dynamically-evolving data structure that provides an organization among the component populations. It is a tree with a fixed maximal height and variable internal node degree. Each component population is governed by a particular evolutionary engine. This package provides a simple python implementation with examples of using different population engines."
-authors = []
+authors = [
+    "Maciej Smołka <smolka@agh.edu.pl>",
+    "Hubert Guzowski <guzowski@agh.edu.pl>",
+    "Wojciech Achtelik <wachtelik@agh.edu.pl>",
+]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/maciejsmolka/pyhms"
