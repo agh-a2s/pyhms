@@ -1,18 +1,34 @@
 import unittest
 
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
-from pyhms.tree import DemeTree
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.sprout import get_simple_sprout
-from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
-from leap_ec.problem import FunctionProblem
-from .config import DEFAULT_LEVELS_CONFIG, DEFAULT_GSC, DEFAULT_SPROUT_COND
+from pyhms.stop_conditions.usc import dont_stop
+from pyhms.tree import DemeTree
+
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM
 
 
 class TestHibernation(unittest.TestCase):
     def test_deme_tree(self):
         options = {"hibernation": True}
-        levels = DEFAULT_LEVELS_CONFIG
+        levels = [
+            EALevelConfig(
+                ea_class=SEA,
+                generations=2,
+                problem=SQUARE_PROBLEM,
+                bounds=[(-20, 20), (-20, 20)],
+                pop_size=20,
+                mutation_std=1.0,
+                lsc=dont_stop(),
+            ),
+            CMALevelConfig(
+                generations=4,
+                problem=SQUARE_PROBLEM,
+                bounds=[(-20, 20), (-20, 20)],
+                sigma0=2.5,
+                lsc=dont_stop(),
+            ),
+        ]
         tree_config = TreeConfig(
             levels=levels,
             gsc=DEFAULT_GSC,
