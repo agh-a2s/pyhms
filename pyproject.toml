@@ -7,7 +7,21 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/maciejsmolka/pyhms"
 keywords = ["optimization", "HMS"]
-
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Intended Audience :: Other Audience",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Framework :: IPython",
+    "Framework :: Jupyter",
+    "License :: OSI Approved :: MIT License",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
