@@ -1,7 +1,8 @@
-from structlog import make_filtering_bound_logger, wrap_logger
-from structlog.typing import FilteringBoundLogger
-from structlog._log_levels import NAME_TO_LEVEL
 from enum import Enum
+
+from structlog import make_filtering_bound_logger, wrap_logger
+from structlog._log_levels import NAME_TO_LEVEL
+from structlog.typing import FilteringBoundLogger
 
 
 class LoggingLevel(str, Enum):

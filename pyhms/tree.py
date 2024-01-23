@@ -62,6 +62,13 @@ class DemeTree:
         return [leaf.best_current_individual for leaf in self.leaves]
 
     def run(self):
+        self._logger.debug(
+            "Starting HMS",
+            height=self.height,
+            options=self.config.options,
+            levels=self.config.levels,
+            gsc=str(self.config.gsc),
+        )
         while not self._gsc(self):
             self.metaepoch_count += 1
             self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
