@@ -1,11 +1,13 @@
 from typing import Dict, List, Tuple
 
 from leap_ec.individual import Individual
+from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
 from .demes.abstract_deme import AbstractDeme
 from .demes.ea_deme import EADeme
 from .demes.initialize import init_from_config, init_root
+from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_mechanisms import SproutMechanism
 
 
@@ -15,13 +17,14 @@ class DemeTree:
         self.config: TreeConfig = config
         self._gsc = config.gsc
         self._sprout_mechanism: SproutMechanism = config.sprout_mechanism
+        self._logger: FilteringBoundLogger = get_logger(config.options.get("log_level", DEFAULT_LOGGING_LEVEL))
 
         nlevels = len(config.levels)
         if nlevels < 1:
             raise ValueError("Level number must be positive")
 
         self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
-        root_deme = init_root(config.levels[0])
+        root_deme = init_root(config.levels[0], self._logger)
         self._levels[0].append(root_deme)
 
     @property
@@ -59,11 +62,24 @@ class DemeTree:
         return [leaf.best_current_individual for leaf in self.leaves]
 
     def run(self):
+        self._logger.debug(
+            "Starting HMS",
+            height=self.height,
+            options=self.config.options,
+            levels=self.config.levels,
+            gsc=str(self.config.gsc),
+        )
         while not self._gsc(self):
             self.metaepoch_count += 1
+            self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
             self.run_metaepoch()
             if not self._gsc(self):
                 self.run_sprout()
+            self._logger.info(
+                "Metaepoch finished",
+                best_fitness=max(self.optima).fitness,
+                best_individual=max(self.optima).genome,
+            )
 
     def run_metaepoch(self):
         for _, deme in reversed(self.active_demes):
@@ -79,8 +95,12 @@ class DemeTree:
         if "hibernation" in self.config.options and self.config.options["hibernation"]:
             for _, deme in reversed(self.active_non_leaves):
                 if deme in deme_seeds:
+                    if deme._hibernating:
+                        self._logger.debug("Deme stopped hibernating", deme=deme.id)
                     deme._hibernating = False
                 else:
+                    if not deme._hibernating:
+                        self._logger.debug("Deme started hibernating", deme=deme.id)
                     deme._hibernating = True
 
     def _do_sprout(self, deme_seeds: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]):
@@ -91,9 +111,17 @@ class DemeTree:
                 new_id = self._next_child_id(deme)
                 config = self.config.levels[target_level]
 
-                child = init_from_config(config, new_id, target_level, self.metaepoch_count, seed=ind)
+                child = init_from_config(
+                    config,
+                    new_id,
+                    target_level,
+                    self.metaepoch_count,
+                    seed=ind,
+                    logger=self._logger,
+                )
                 deme.add_child(child)
                 self._levels[target_level].append(child)
+                self._logger.debug("Sprouted new child", seed=child._seed.genome)
 
     def _next_child_id(self, deme: EADeme) -> str:
         if deme.level >= self.height - 1:

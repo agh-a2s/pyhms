@@ -1,6 +1,7 @@
 from cma import CMAEvolutionStrategy
 from leap_ec import Individual
 from leap_ec.decoder import IdentityDecoder
+from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
 from .abstract_deme import AbstractDeme
@@ -12,10 +13,11 @@ class CMADeme(AbstractDeme):
         id: str,
         level: int,
         config: CMALevelConfig,
+        logger: FilteringBoundLogger,
         x0: Individual,
         started_at: int = 0,
     ) -> None:
-        super().__init__(id, level, config, started_at, x0)
+        super().__init__(id, level, config, logger, started_at, x0)
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
@@ -46,9 +48,11 @@ class CMADeme(AbstractDeme):
                 self._active = False
                 self._centroid = None
                 self._history.append(offspring)
+                self.log("CMA Deme finished due to GSC")
                 return
         self._centroid = None
         self._history.append(offspring)
 
         if self._lsc(self) or self._cma_es.stop():
+            self.log("CMA Deme finished due to LSC")
             self._active = False

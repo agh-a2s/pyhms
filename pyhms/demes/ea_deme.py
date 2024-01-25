@@ -3,6 +3,7 @@ from leap_ec.decoder import IdentityDecoder
 from pyhms.config import EALevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.initializers import sample_normal
+from structlog.typing import FilteringBoundLogger
 
 
 class EADeme(AbstractDeme):
@@ -11,10 +12,11 @@ class EADeme(AbstractDeme):
         id: str,
         level: int,
         config: EALevelConfig,
+        logger: FilteringBoundLogger,
         started_at: int = 0,
         seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, started_at, seed)
+        super().__init__(id, level, config, logger, started_at, seed)
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
         self._generations = config.generations
@@ -45,10 +47,12 @@ class EADeme(AbstractDeme):
             if tree._gsc(tree):
                 self._active = False
                 self._history.append(offspring)
+                self.log("EA Deme finished due to GSC")
                 return
 
         self._history.append(offspring)
         if self._lsc(self):
+            self.log("EA Deme finished due to LSC")
             self._active = False
 
     def __str__(self) -> str:

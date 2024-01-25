@@ -10,7 +10,7 @@ from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM
 
 class TestHibernation(unittest.TestCase):
     def test_deme_tree(self):
-        options = {"hibernation": True}
+        options = {"hibernation": True, "log_level": "debug"}
         levels = [
             EALevelConfig(
                 ea_class=SEA,
