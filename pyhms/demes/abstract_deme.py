@@ -89,7 +89,8 @@ class AbstractDeme(ABC):
         raise NotImplementedError()
 
     def __str__(self) -> str:
+        best_fitness = self.best_current_individual.fitness
         if self._seed is None:
-            return f"Root deme {self.id} with best achieved fitness {self.best_current_individual.fitness}"
+            return f"Root deme {self.id} with best achieved fitness {best_fitness}"
         else:
-            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {self.best_current_individual.fitness}"
+            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {best_fitness}"

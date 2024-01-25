@@ -4,7 +4,7 @@ from pyhms.config import CMALevelConfig, EALevelConfig
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.hms import hms
 from pyhms.problem import EvalCountingProblem, FunctionProblem
-from pyhms.sprout import composite_condition, deme_per_level_limit, far_enough
+from pyhms.sprout import get_simple_sprout
 from pyhms.stop_conditions.gsc import fitness_eval_limit_reached
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
 
@@ -17,7 +17,7 @@ class TestIntegration(unittest.TestCase):
     def test_hibernation_resume(self):
         function_problem = EvalCountingProblem(FunctionProblem(lambda x: self.square(x), maximize=False))
         gsc = fitness_eval_limit_reached(limit=1000)
-        sprout_cond = composite_condition([deme_per_level_limit(2), far_enough(0.1)])
+        sprout_cond = get_simple_sprout(1.0)
         options = {"hibernation": True}
 
         config = [
@@ -48,7 +48,9 @@ class TestIntegration(unittest.TestCase):
         for level, deme in tree.all_demes:
             print(f"Level {level}")
             print(f"{deme}")
-            print(f"Average fitness in last population {deme.avg_fitness()}")
-            print(f"Average fitness in first population {deme.avg_fitness(0)}")
 
-        self.assertGreater(len(tree.root.history), 2, "Root deme should resume when it is possible to sprout")
+        self.assertGreater(
+            len(tree.root.history),
+            2,
+            "Root deme should resume when it is possible to sprout",
+        )
