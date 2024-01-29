@@ -15,7 +15,7 @@ class BaseLevelConfig:
 
 
 class EALevelConfig(BaseLevelConfig):
-    def __init__(self, ea_class, pop_size, problem, bounds, lsc, generations, sample_std_dev=1.0, **kwargs) -> None:
+    def __init__(self, ea_class, pop_size, problem, bounds: np.ndarray, lsc, generations, sample_std_dev=1.0, **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.ea_class = ea_class
         self.pop_size = pop_size
@@ -25,7 +25,7 @@ class EALevelConfig(BaseLevelConfig):
 
 
 class DELevelConfig(BaseLevelConfig):
-    def __init__(self, pop_size, problem, bounds, lsc, generations, dither=False, scaling=0.8, crossover=0.9):
+    def __init__(self, pop_size, problem, bounds: np.ndarray, lsc, generations, dither=False, scaling=0.8, crossover=0.9):
         super().__init__(problem, bounds, lsc)
         self.pop_size = pop_size
         self.generations = generations
@@ -35,7 +35,7 @@ class DELevelConfig(BaseLevelConfig):
 
 
 class CMALevelConfig(BaseLevelConfig):
-    def __init__(self, problem, bounds, lsc, sigma0, generations, **kwargs) -> None:
+    def __init__(self, problem, bounds: np.ndarray, lsc, sigma0, generations, **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.sigma0 = sigma0
         self.generations = generations
@@ -43,7 +43,7 @@ class CMALevelConfig(BaseLevelConfig):
 
 
 class LocalOptimizationConfig(BaseLevelConfig):
-    def __init__(self, problem, bounds, lsc, method="L-BFGS-B", **kwargs) -> None:
+    def __init__(self, problem, bounds: np.ndarray, lsc, method="L-BFGS-B", **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.method = method
         self.__dict__.update(kwargs)
