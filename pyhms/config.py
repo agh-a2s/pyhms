@@ -43,7 +43,7 @@ class CMALevelConfig(BaseLevelConfig):
 
 
 class LocalOptimizationConfig(BaseLevelConfig):
-    def __init__(self, problem, bounds, lsc, method="L-BFGS-B", **kwargs) -> None:
+    def __init__(self, problem, bounds, lsc=None, method="L-BFGS-B", **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.method = method
         self.__dict__.update(kwargs)

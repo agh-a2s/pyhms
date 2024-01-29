@@ -63,6 +63,10 @@ class AbstractDeme(ABC):
     @property
     def all_individuals(self) -> list:
         return [ind for pop in self.history for ind in pop]
+    
+    @property
+    def number_of_f_evals(self) -> int:
+        return len(self.all_individuals)
 
     @property
     def current_population(self) -> list:
@@ -97,6 +101,7 @@ class AbstractDeme(ABC):
             id=self._id,
             best_fitness=self.best_current_individual.fitness,
             best_individual=self.best_current_individual.genome,
+            n_evals=self.number_of_f_evals,
             centroid=self.centroid,
         )
 
