@@ -61,6 +61,10 @@ class DemeTree:
     def optima(self):
         return [leaf.best_current_individual for leaf in self.leaves]
 
+    @property
+    def best_individual(self) -> float:
+        return max(deme.best_individual for level in self.levels for deme in level)
+
     def run(self):
         self._logger.debug(
             "Starting HMS",

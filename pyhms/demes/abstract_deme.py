@@ -73,6 +73,10 @@ class AbstractDeme(ABC):
         return max(self.current_population)
 
     @property
+    def best_individual(self) -> Individual:
+        return max(self.all_individuals)
+
+    @property
     def metaepoch_count(self) -> int:
         return len(self._history) - 1
 
