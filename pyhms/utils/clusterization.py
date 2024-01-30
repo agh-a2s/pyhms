@@ -47,15 +47,8 @@ class NearestBetterClustering:
             except DuplicatedNodeIdError:
                 pass
 
-    def _find_nearest_better_more_efficient(
-        self, individual: Individual, better_individuals: list[Individual]
-    ) -> (float, Individual):
+    def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
         better_genomes = np.array([ind.genome for ind in better_individuals])
         distances = np.linalg.norm(individual.genome - better_genomes, axis=1)
         nearest_better_index = np.argmin(distances)
         return distances[nearest_better_index], better_individuals[nearest_better_index]
-
-    def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
-        dist_ind = [(np.linalg.norm(individual.genome - ind.genome), ind) for ind in better_individuals]
-        dist_ind.sort(key=lambda pair: pair[0])
-        return dist_ind[0]

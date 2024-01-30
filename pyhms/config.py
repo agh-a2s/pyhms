@@ -9,7 +9,7 @@ class BaseLevelConfig:
         self.problem = problem
         self.bounds = bounds
         self.lsc = lsc
-    
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__dict__})"
 
