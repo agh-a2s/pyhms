@@ -7,8 +7,12 @@ from treelib.exceptions import DuplicatedNodeIdError
 # Implementation based on A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation
 class NearestBetterClustering:
     def __init__(
-        self, evaluated_individuals: list[Individual], distance_factor: float = 2.0, truncation_factor: float = 1.0
+        self,
+        evaluated_individuals: list[Individual],
+        distance_factor: float = 2.0,
+        truncation_factor: float = 1.0,
     ) -> None:
+        # TODO: it fails for maximization
         evaluated_individuals.sort(key=lambda ind: ind.fitness)
         self.individuals = evaluated_individuals[: int(len(evaluated_individuals) * truncation_factor)]
         self.tree = Tree()
@@ -42,6 +46,14 @@ class NearestBetterClustering:
                 self.distances.append(distance)
             except DuplicatedNodeIdError:
                 pass
+
+    def _find_nearest_better_more_efficient(
+        self, individual: Individual, better_individuals: list[Individual]
+    ) -> (float, Individual):
+        better_genomes = np.array([ind.genome for ind in better_individuals])
+        distances = np.linalg.norm(individual.genome - better_genomes, axis=1)
+        nearest_better_index = np.argmin(distances)
+        return distances[nearest_better_index], better_individuals[nearest_better_index]
 
     def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
         dist_ind = [(np.linalg.norm(individual.genome - ind.genome), ind) for ind in better_individuals]
