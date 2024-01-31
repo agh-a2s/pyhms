@@ -46,9 +46,9 @@ class SproutMechanism:
         return candidates
 
 
-def get_NBC_sprout() -> SproutMechanism:
-    return SproutMechanism(NBC_Generator(2.0, 1.0), [NBC_FarEnough(2.0, 2), DemeLimit(1)], [LevelLimit(4)])
+def get_NBC_sprout(gen_dist_factor: float = 3.0, trunc_factor: float = 0.7, fil_dist_factor: float = 3.0, level_limit: int = 4) -> SproutMechanism:
+    return SproutMechanism(NBC_Generator(gen_dist_factor, trunc_factor), [NBC_FarEnough(fil_dist_factor, 2), DemeLimit(1)], [LevelLimit(level_limit)])
 
 
-def get_simple_sprout(far_enough: float, level_limit: float = 4) -> SproutMechanism:
+def get_simple_sprout(far_enough: float, level_limit: int = 4) -> SproutMechanism:
     return SproutMechanism(BestPerDeme(), [FarEnough(far_enough, 2)], [LevelLimit(level_limit)])
