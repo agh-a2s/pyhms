@@ -7,7 +7,7 @@ from leap_ec.real_rep import create_real_vector
 from leap_ec.representation import Representation
 from pyhms.utils.clusterization import NearestBetterClustering, get_individual_id
 
-from .config import SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
+from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
 
 
 class TestClustering(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestClustering(unittest.TestCase):
         population = representation.create_population(pop_size=population_size, problem=SQUARE_PROBLEM)
         Individual.evaluate_population(population)
 
-        clustering = NearestBetterClustering(population, 2.0, truncation_factor)
+        clustering = NearestBetterClustering(population, truncation_factor=truncation_factor)
         clustering._prepare_spanning_tree()
         self.assertEqual(clustering.tree.size(), int(len(population) * truncation_factor))
 
@@ -46,7 +46,7 @@ class TestClustering(unittest.TestCase):
         Individual.evaluate_population(population)
         population_copy = population.copy()
 
-        clustering = NearestBetterClustering(population, 2.0, 0.5)
+        clustering = NearestBetterClustering(population, truncation_factor=0.5)
         clustering._prepare_spanning_tree()
 
         root_node = clustering.tree.get_node(clustering.tree.root)
@@ -93,3 +93,28 @@ class TestClustering(unittest.TestCase):
                 np.linalg.norm(population_copy[child_idx].genome - population_copy[parent_idx].genome),
             )
         self.assertEqual(len(tree_nodes), len(genomes_used_in_tree))
+
+    def test_nbc_works_for_min_and_max(self):
+        population_size = 40
+        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
+        min_population = representation.create_population(pop_size=population_size, problem=SQUARE_PROBLEM)
+        max_population = [
+            Individual(
+                genome=ind.genome,
+                decoder=IdentityDecoder(),
+                problem=NEGATIVE_SQUARE_PROBLEM,
+            )
+            for ind in min_population
+        ]
+        Individual.evaluate_population(min_population)
+        Individual.evaluate_population(max_population)
+
+        min_clustering = NearestBetterClustering(min_population)
+        min_root_nodes = min_clustering.cluster()
+        max_clustering = NearestBetterClustering(max_population)
+        max_root_nodes = max_clustering.cluster()
+
+        self.assertEqual(
+            [ind.genome for ind in min_root_nodes],
+            [ind.genome for ind in max_root_nodes],
+        )

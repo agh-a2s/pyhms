@@ -20,9 +20,8 @@ class NearestBetterClustering:
         distance_factor: float = 2.0,
         truncation_factor: float = 1.0,
     ) -> None:
-        # TODO: it fails for maximization
-        evaluated_individuals.sort(key=lambda ind: ind.fitness)
-        self.individuals = evaluated_individuals[: int(len(evaluated_individuals) * truncation_factor)]
+        sorted_individuals = sorted(evaluated_individuals, reverse=True)
+        self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
         self.distances = []
         self.distance_factor = distance_factor
