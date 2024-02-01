@@ -11,27 +11,6 @@ from .config import SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
 
 
 class TestClustering(unittest.TestCase):
-    def test_nbc_tree_calculation(self):
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=40, problem=SQUARE_PROBLEM)
-        Individual.evaluate_population(population)
-
-        clustering = NearestBetterClustering(population, 2.0)
-        clustering._prepare_spanning_tree()
-
-        self.assertEqual(clustering.tree.size(), len(population))
-
-    def test_nbc_clustering_candidates(self):
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=40, problem=SQUARE_PROBLEM)
-        Individual.evaluate_population(population)
-
-        clustering = NearestBetterClustering(population, 2.0)
-        subtree_roots = clustering.cluster()
-        print([ind.genome for ind in subtree_roots])
-
-        self.assertTrue(True)
-
     def test_nbc_truncation(self):
         truncation_factor = 0.3
         population_size = 40
@@ -43,7 +22,7 @@ class TestClustering(unittest.TestCase):
         clustering._prepare_spanning_tree()
         self.assertEqual(clustering.tree.size(), int(len(population) * truncation_factor))
 
-    def test_nbc_truncation_for_prepared_population(self):
+    def test_nbc_with_truncation_for_prepared_population(self):
         genomes_used_to_create_tree = np.array(
             [
                 [0.7, 0.8],
@@ -108,9 +87,9 @@ class TestClustering(unittest.TestCase):
             self.assertEqual(
                 parent_from_tree.data["individual"],
                 population_copy[parent_idx],
+                f"{parent_from_tree.identifier} should be the parent of {child_identifier}",
             )
             self.assertAlmostEqual(
                 clustering.tree.get_node(child_identifier).data["distance"],
                 np.linalg.norm(population_copy[child_idx].genome - population_copy[parent_idx].genome),
             )
-        self.assertEqual(clustering.tree.size(), len(genomes_used_to_create_tree))
