@@ -49,8 +49,7 @@ class TestClustering(unittest.TestCase):
         clustering = NearestBetterClustering(population, 2.0, 0.5)
         clustering._prepare_spanning_tree()
 
-        root_id = clustering.tree.root
-        root_node = clustering.tree.get_node(root_id)
+        root_node = clustering.tree.get_node(clustering.tree.root)
         tree_nodes = clustering.tree.all_nodes()
         genomes_used_in_tree = [node.data["individual"].genome for node in tree_nodes]
 
@@ -93,3 +92,4 @@ class TestClustering(unittest.TestCase):
                 clustering.tree.get_node(child_identifier).data["distance"],
                 np.linalg.norm(population_copy[child_idx].genome - population_copy[parent_idx].genome),
             )
+        self.assertEqual(len(tree_nodes), len(genomes_used_in_tree))
