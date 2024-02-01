@@ -4,6 +4,14 @@ from treelib import Tree
 from treelib.exceptions import DuplicatedNodeIdError
 
 
+def get_individual_id(individual: Individual) -> str:
+    """
+    Tree structure in `treelib` requires identifiers for nodes. This function returns
+    a string representation of the individual's genome, which usually is unique for each individual.
+    """
+    return str(individual.genome)
+
+
 # Implementation based on A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation
 class NearestBetterClustering:
     def __init__(
@@ -29,7 +37,10 @@ class NearestBetterClustering:
 
     def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
-        self.tree.create_node(identifier=str(root.genome), data={"individual": root, "distance": np.inf})
+        self.tree.create_node(
+            identifier=get_individual_id(root),
+            data={"individual": root, "distance": np.inf},
+        )
         for ind in self.individuals[1:]:
             # Safecheck for the case, when the individual is tied for the best fitness with root
             if ind == root:
@@ -39,9 +50,9 @@ class NearestBetterClustering:
             distance, parent = self._find_nearest_better(ind, better_individuals)
             try:
                 self.tree.create_node(
-                    identifier=str(ind.genome),
+                    identifier=get_individual_id(ind),
                     data={"individual": ind, "distance": distance},
-                    parent=str(parent.genome),
+                    parent=get_individual_id(parent),
                 )
                 self.distances.append(distance)
             except DuplicatedNodeIdError:
