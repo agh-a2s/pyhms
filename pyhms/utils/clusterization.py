@@ -12,13 +12,27 @@ def get_individual_id(individual: Individual) -> str:
     return str(individual.genome)
 
 
-# Implementation based on A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation
 class NearestBetterClustering:
+    """
+    Args:
+        evaluated_individuals: List of individuals, which have been evaluated.
+        distance_factor: A threshold multiplier. It is a predefined constant,
+            that is used to scale the mean of all the distances. Default: 2.0
+        truncation_factor: The proportion of the top-performing individuals to use.
+            A floating-point number between 0 and 1, where 1 would mean using
+            the entire population, and a smaller value like 0.5 would mean keeping only the top 50%.
+            Default: 1.0
+
+    Implementation based on a following paper:
+    Luo, Wenjian & Lin, Xin & Zhang, Jiajia & Preuss, Mike. (2021).
+    A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation. 10.1109/CEC45853.2021.9505008.
+    """
+
     def __init__(
         self,
         evaluated_individuals: list[Individual],
-        distance_factor: float = 2.0,
-        truncation_factor: float = 1.0,
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
     ) -> None:
         sorted_individuals = sorted(evaluated_individuals, reverse=True)
         self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
