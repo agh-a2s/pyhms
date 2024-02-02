@@ -63,7 +63,7 @@ class DemeTree:
 
     @property
     def best_individual(self) -> float:
-        return max(deme.best_individual for level in self.levels for deme in level)
+        return max(deme.best_individual for deme in self.leaves)
 
     def run(self):
         self._logger.debug(
