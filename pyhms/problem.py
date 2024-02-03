@@ -67,7 +67,7 @@ class StatsGatheringProblem(Problem):
         self._n_evals = 0
         self._durations = []
 
-    def evaluate(self, phenome, *args, **kwargs):
+    def evaluate(self, phenome, *args, **kwargs) -> float:
         start_time = time.perf_counter()
         ret_val = self._inner.evaluate(phenome, *args, **kwargs)
         end_time = time.perf_counter()
@@ -82,18 +82,16 @@ class StatsGatheringProblem(Problem):
         return self._inner.equivalent(first_fitness, second_fitness)
 
     @property
-    def n_evaluations(self):
+    def n_evaluations(self) -> int:
         return self._n_evals
 
     @property
-    def durations(self):
+    def durations(self) -> list[float]:
         return self._durations
 
     @property
-    def duration_stats(self):
-        m = np.mean(self._durations)
-        s = np.sqrt(np.mean((self._durations - m) ** 2))
-        return m, s
+    def duration_stats(self) -> tuple[float, float]:
+        return np.mean(self._durations), np.std(self._durations)
 
     def __str__(self) -> str:
         if isinstance(self._inner, FunctionProblem):
