@@ -1,6 +1,7 @@
-from pyhms.initializers import sample_normal
 import unittest
+
 import numpy as np
+from pyhms.initializers import sample_normal
 
 
 class TestInitializers(unittest.TestCase):

@@ -5,6 +5,22 @@ from leap_ec.problem import FunctionProblem, Problem
 
 
 class EvalCountingProblem(Problem):
+    """
+    A decorator for a leap_ec.Problem instance that counts the number of evaluations performed.
+
+    This class wraps around any instance of `Problem` and counts how many times the
+    `evaluate` method is called. This is useful for monitoring and limiting the computational
+    cost of optimization processes.
+
+    Example:
+        >>> from leap_ec.problem import FunctionProblem
+        >>> from pyhms.problem import EvalCountingProblem
+        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> counting_problem = EvalCountingProblem(problem)
+        >>> counting_problem.evaluate(np.array([2]))
+        >>> print(counting_problem.n_evaluations)
+    """
+
     def __init__(self, decorated_problem: Problem):
         super().__init__()
         self._inner: Problem = decorated_problem
@@ -45,7 +61,9 @@ class EvalCutoffProblem(EvalCountingProblem):
 
 
 class PrecisionCutoffProblem(EvalCountingProblem):
-    def __init__(self, decorated_problem: Problem, global_optima: float, precision: float):
+    def __init__(
+        self, decorated_problem: Problem, global_optima: float, precision: float
+    ):
         super().__init__(decorated_problem)
         self._global_optima = global_optima
         self.precision = precision
