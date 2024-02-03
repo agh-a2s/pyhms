@@ -15,13 +15,13 @@ def get_individual_id(individual: Individual) -> str:
 class NearestBetterClustering:
     """
     Args:
-        evaluated_individuals: List of individuals, which have been evaluated.
-        distance_factor: A threshold multiplier. It is a predefined constant,
-            that is used to scale the mean of all the distances. Default: 2.0
-        truncation_factor: The proportion of the top-performing individuals to use.
-            A floating-point number between 0 and 1, where 1 would mean using
-            the entire population, and a smaller value like 0.5 would mean keeping only the top 50%.
-            Default: 1.0
+    - evaluated_individuals: List of individuals, which have been evaluated.
+    - distance_factor: A threshold multiplier. It is a predefined constant,
+        that is used to scale the mean of all the distances. Default: 2.0
+    - truncation_factor: The proportion of the top-performing individuals to use.
+        A floating-point number between 0 and 1, where 1 would mean using
+        the entire population, and a smaller value like 0.5 would mean keeping only the top 50%.
+        Default: 1.0
 
     Implementation based on a following paper:
     Luo, Wenjian & Lin, Xin & Zhang, Jiajia & Preuss, Mike. (2021).

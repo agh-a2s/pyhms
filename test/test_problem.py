@@ -12,6 +12,32 @@ POPULATION_SIZE = 50
 
 
 class TestProblemDecorator(unittest.TestCase):
+    def test_eval_counting_problem_for_one_individual(self):
+        eval_counting_problem = EvalCountingProblem(SQUARE_PROBLEM)
+        individual = Individual(
+            genome=np.array([1.0, 1.0]),
+            problem=eval_counting_problem,
+        )
+        self.assertIsNone(
+            individual.fitness,
+            "Fitness should be None before evaluation",
+        )
+        self.assertEqual(
+            eval_counting_problem.n_evaluations,
+            0,
+        )
+        individual.evaluate()
+        self.assertEqual(
+            individual.fitness,
+            2.0,
+            "Fitness should be set after evaluation",
+        )
+        self.assertEqual(
+            eval_counting_problem.n_evaluations,
+            1,
+            "Problem should count evaluations",
+        )
+
     def test_eval_counting_problem(self):
         eval_counting_problem = EvalCountingProblem(SQUARE_PROBLEM)
         representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
@@ -37,7 +63,7 @@ class TestProblemDecorator(unittest.TestCase):
         )
 
         individual = Individual(
-            genome=np.array([0.5, 0.5]),
+            genome=np.array([1.0, 1.0]),
             problem=eval_cutoff_problem,
         )
         individual.evaluate()
