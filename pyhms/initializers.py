@@ -12,13 +12,24 @@ def sample_normal(
 
     Args:
     - center (np.array): The mean of the distribution.
-    - std_dev (float): the standard deviation for each dimension of the distribution.
+    - std_dev (float): The standard deviation for each dimension of the distribution;
         The covariance matrix is assumed to be diagonal, with each diagonal
         element being std_dev**2, indicating identical variance for each dimension
         and no covariance between dimensions.
     - bounds (list of tuples or np.array or None): Min and max bounds for each dimension.
 
     Returns a function that creates a sample from the distribution.
+
+    Example:
+        >>> from pyhms.initializers import sample_normal
+        >>> import numpy as np
+        >>> bounds = [(-1, 1), (-1, 1)]
+        >>> center = np.array([0, 0])
+        >>> std_dev = 1.0
+        >>> create_sample = sample_normal(center, std_dev, bounds)
+        >>> sample = create_sample()
+        >>> print(sample)
+        [0.1 0.2]
     """
 
     def in_bounds(x: np.array) -> bool:

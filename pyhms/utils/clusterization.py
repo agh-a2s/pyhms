@@ -14,6 +14,10 @@ def get_individual_id(individual: Individual) -> str:
 
 class NearestBetterClustering:
     """
+    NearestBetterClustering is a class that clusters individuals based on their fitness values.
+    It uses the nearest-better clustering algorithm, which is a clustering algorithm that
+    groups individuals based on their fitness values and the distance between them.
+
     Args:
     - evaluated_individuals: List of individuals, which have been evaluated.
     - distance_factor: A threshold multiplier. It is a predefined constant,
