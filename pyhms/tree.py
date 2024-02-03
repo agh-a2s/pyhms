@@ -58,14 +58,14 @@ class DemeTree:
         ]
 
     @property
-    def optima(self):
+    def optima(self) -> List[Individual]:
         return [leaf.best_current_individual for leaf in self.leaves]
 
     @property
     def best_individual(self) -> float:
         return max(deme.best_individual for deme in self.leaves)
 
-    def run(self):
+    def run(self) -> None:
         self._logger.debug(
             "Starting HMS",
             height=self.height,
@@ -85,14 +85,14 @@ class DemeTree:
                 best_individual=max(self.optima).genome,
             )
 
-    def run_metaepoch(self):
+    def run_metaepoch(self) -> None:
         for _, deme in reversed(self.active_demes):
             if "hibernation" in self.config.options and self.config.options["hibernation"] and deme._hibernating:
                 continue
 
             deme.run_metaepoch(self)
 
-    def run_sprout(self):
+    def run_sprout(self) -> None:
         deme_seeds = self._sprout_mechanism.get_seeds(self)
         self._do_sprout(deme_seeds)
 
@@ -107,7 +107,7 @@ class DemeTree:
                         self._logger.debug("Deme started hibernating", deme=deme.id)
                     deme._hibernating = True
 
-    def _do_sprout(self, deme_seeds: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]):
+    def _do_sprout(self, deme_seeds: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]) -> None:
         for deme, info in deme_seeds.items():
             target_level = deme.level + 1
 
