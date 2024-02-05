@@ -150,7 +150,7 @@ class StatsGatheringProblem(Problem):
         super().__init__()
         self._inner: Problem = decorated_problem
         self._n_evals = 0
-        self._durations = []
+        self._durations: list[float] = []
 
     def evaluate(self, phenome, *args, **kwargs):
         start_time = time.perf_counter()

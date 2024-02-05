@@ -41,7 +41,7 @@ class NearestBetterClustering:
         sorted_individuals = sorted(evaluated_individuals, reverse=True)
         self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
-        self.distances = []
+        self.distances: list[float] = []
         self.distance_factor = distance_factor
 
     def cluster(self) -> list[Individual]:
@@ -75,7 +75,9 @@ class NearestBetterClustering:
             except DuplicatedNodeIdError:
                 pass
 
-    def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
+    def _find_nearest_better(
+        self, individual: Individual, better_individuals: list[Individual]
+    ) -> tuple[float, Individual]:
         better_genomes = np.array([ind.genome for ind in better_individuals])
         distances = np.linalg.norm(individual.genome - better_genomes, axis=1)
         nearest_better_index = np.argmin(distances)

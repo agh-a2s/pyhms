@@ -1,9 +1,9 @@
-from pyhms import AbstractDemeTree
 from pyhms.config import TreeConfig
+from pyhms.tree import DemeTree
 
 
 class Summary:
-    def __init__(self, tree: AbstractDemeTree):
+    def __init__(self, tree: DemeTree):
         self._tree = tree
 
     @property

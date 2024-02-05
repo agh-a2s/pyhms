@@ -23,7 +23,7 @@ class Solution:
         return [Solution.simplify(ind) for ind in population]
 
     @property
-    def genome(self) -> np.array:
+    def genome(self) -> np.ndarray:
         return np.asarray(self.point)
 
     @property

@@ -10,7 +10,7 @@ def print_pop(population):
         print(ind)
 
 
-def compute_centroid(population: List[Individual]) -> np.array:
+def compute_centroid(population: List[Individual]) -> np.ndarray:
     return np.mean([ind.genome for ind in population], axis=0)
 
 
@@ -35,5 +35,5 @@ def unique_file_name(prefix, ext):
     return prefix + dt_part + ext
 
 
-def bounds_to_extent(bounds: List[Tuple[float]]) -> Tuple[float]:
+def bounds_to_extent(bounds: List[Tuple[float, float]]) -> Tuple[float, float, float, float]:
     return bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]

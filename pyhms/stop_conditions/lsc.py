@@ -1,13 +1,13 @@
 """
     Local stopping conditions.
 """
+
 from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
 
 from ..demes.abstract_deme import AbstractDeme
-from ..demes.ea_deme import EADeme
 
 
 class lsc(ABC):
@@ -25,7 +25,7 @@ class fitness_steadiness(lsc):
         self.max_deviation = max_deviation
         self.n_metaepochs = n_metaepochs
 
-    def satisfied(self, deme: EADeme) -> bool:
+    def satisfied(self, deme: AbstractDeme) -> bool:
         if self.n_metaepochs > deme.metaepoch_count:
             return False
 
@@ -37,7 +37,7 @@ class fitness_steadiness(lsc):
 
 
 class all_children_stopped(lsc):
-    def satisfied(self, deme: EADeme) -> bool:
+    def satisfied(self, deme: AbstractDeme) -> bool:
         ch = deme.children
         return not (ch == []) and np.all([not c.active for c in ch])
 

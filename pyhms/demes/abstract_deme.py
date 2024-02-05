@@ -27,8 +27,8 @@ class AbstractDeme(ABC):
         self._bounds = config.bounds
         self._active = True
         self._centroid = None
-        self._history = []
-        self._children = []
+        self._history: list[Individual] = []
+        self._children: list[AbstractDeme] = []
         self._logger = logger
 
         # Additional low-level options
