@@ -65,6 +65,10 @@ class DemeTree:
     def best_individual(self) -> float:
         return max(deme.best_individual for deme in self.leaves)
 
+    @property
+    def best_global_individual(self) -> float:
+        return max(deme.best_individual for level in self._levels for deme in level)
+
     def run(self) -> None:
         self._logger.debug(
             "Starting HMS",
