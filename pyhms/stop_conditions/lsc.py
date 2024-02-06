@@ -39,7 +39,7 @@ class fitness_steadiness(lsc):
 class all_children_stopped(lsc):
     def satisfied(self, deme: AbstractDeme) -> bool:
         ch = deme.children
-        return not (ch == []) and np.all([not c.active for c in ch])
+        return not (ch == []) and np.all([not c.active for c in ch])  # type: ignore[return-value]
 
     def __str__(self) -> str:
         return "all_children_stopped"

@@ -11,7 +11,7 @@ from .pers_solution import Solution
 
 class DemeData(AbstractDeme):
     def __init__(self, deme: AbstractDeme) -> None:
-        super().__init__(deme.id, deme.started_at, deme.config)
+        super().__init__(deme.id, deme.started_at, deme.config, logger=deme._logger)
         self._history = [Solution.simplify_population(pop) for pop in deme.history]
 
     @property
@@ -19,5 +19,5 @@ class DemeData(AbstractDeme):
         return self._history
 
     @property
-    def centroid(self) -> np.array:
+    def centroid(self) -> np.ndarray:
         return compute_centroid(self._history[-1])

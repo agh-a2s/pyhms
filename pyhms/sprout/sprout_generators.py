@@ -34,7 +34,14 @@ class NBC_Generator(SproutCandidatesGenerator):
         for level in tree.levels[:-1]:
             for deme in level:
                 if deme.is_active:
-                    nbc = NearestBetterClustering(deme.current_population, self.distance_factor, self.truncation_factor)
+                    nbc = NearestBetterClustering(
+                        deme.current_population,
+                        self.distance_factor,
+                        self.truncation_factor,
+                    )
                     deme_candidates = nbc.cluster()
-                    candidates[deme] = ({"NBC_mean_distance": np.mean(nbc.distances)}, deme_candidates)
-        return candidates
+                    candidates[deme] = (
+                        {"NBC_mean_distance": np.mean(nbc.distances)},
+                        deme_candidates,
+                    )
+        return candidates  # type: ignore[return-value]
