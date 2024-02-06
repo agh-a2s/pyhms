@@ -27,9 +27,11 @@ class NearestBetterClustering:
         the entire population, and a smaller value like 0.5 would mean keeping only the top 50%.
         Default: 1.0
 
-    Implementation based on a following paper:
-    Luo, Wenjian & Lin, Xin & Zhang, Jiajia & Preuss, Mike. (2021).
-    A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation. 10.1109/CEC45853.2021.9505008.
+    For more details, please refer to these papers:
+    1. Luo, Wenjian, et al. "A survey of nearest-better clustering in swarm and evolutionary computation."
+    2. Agrawal, Suchitra, et al. "Differential evolution with nearest better clustering for multimodal
+    multiobjective optimization."
+    3. Kerschke, Pascal, et al. "Detecting funnel structures by means of exploratory landscape analysis."
     """
 
     def __init__(

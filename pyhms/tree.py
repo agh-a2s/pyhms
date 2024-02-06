@@ -57,10 +57,6 @@ class DemeTree:
         ]
 
     @property
-    def optima(self) -> List[Individual]:
-        return [leaf.best_current_individual for leaf in self.leaves]
-
-    @property
     def best_individual(self) -> Individual:
         return max(deme.best_individual for deme in self.leaves)
 
@@ -82,11 +78,11 @@ class DemeTree:
             self.run_metaepoch()
             if not self._gsc(self):
                 self.run_sprout()
-            if len(self.optima) > 0:
+            if len(self.leaves) > 0:
                 self._logger.info(
                     "Metaepoch finished",
-                    best_fitness=max(self.optima).fitness,
-                    best_individual=max(self.optima).genome,
+                    best_fitness=self.best_leaf_individual.fitness,
+                    best_individual=self.best_leaf_individual.genome,
                 )
             else:
                 self._logger.info("Metaepoch finished. No leaf demes yet.")
