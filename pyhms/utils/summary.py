@@ -21,7 +21,7 @@ class Summary:
 
     @property
     def local_optima(self) -> list:
-        return self._tree.optima
+        return [leaf.best_individual for leaf in self._tree.leaves]
 
     def __str__(self) -> str:
         s = f"Metaepoch count: {self.metaepoch_count}\n"

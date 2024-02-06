@@ -57,11 +57,11 @@ class DemeTree:
         ]
 
     @property
-    def best_individual(self) -> Individual:
+    def best_leaf_individual(self) -> Individual:
         return max(deme.best_individual for deme in self.leaves)
 
     @property
-    def best_global_individual(self) -> Individual:
+    def best_individual(self) -> Individual:
         return max(deme.best_individual for level in self._levels for deme in level)
 
     def run(self) -> None:
