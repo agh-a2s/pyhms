@@ -12,7 +12,7 @@ class Grid2DEvaluation(object):
         self.problem = problem
         self.bounds = bounds
         self.granularity = granularity
-        self.z = None
+        self.z: np.ndarray
 
     def save_binary(self, file_name_prefix="grid"):
         file_name = unique_file_name(file_name_prefix, FILE_NAME_EXT)
@@ -35,7 +35,7 @@ class Grid2DEvaluation(object):
                 self.z[i, j] = self.problem.evaluate(phenome=np.asarray([x, y]))
 
     @property
-    def imshow_view(self) -> np.array:
+    def imshow_view(self) -> np.ndarray:
         return np.flipud(self.z.T)
 
     def __str__(self) -> str:

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
 from leap_ec.individual import Individual
 from pyhms.config import BaseLevelConfig
 from pyhms.utils.misc_util import compute_centroid
@@ -26,9 +27,9 @@ class AbstractDeme(ABC):
         self._problem = config.problem
         self._bounds = config.bounds
         self._active = True
-        self._centroid = None
-        self._history = []
-        self._children = []
+        self._centroid: np.ndarray | None = None
+        self._history: list[Individual] = []
+        self._children: list[AbstractDeme] = []
         self._logger = logger
 
         # Additional low-level options
@@ -51,7 +52,7 @@ class AbstractDeme(ABC):
         return self._active
 
     @property
-    def centroid(self) -> Individual:
+    def centroid(self) -> np.ndarray:
         if self._centroid is None:
             self._centroid = compute_centroid(self.current_population)
         return self._centroid

@@ -5,7 +5,6 @@ from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
 from .demes.abstract_deme import AbstractDeme
-from .demes.ea_deme import EADeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_mechanisms import SproutMechanism
@@ -58,11 +57,11 @@ class DemeTree:
         ]
 
     @property
-    def best_leaf_individual(self) -> float:
+    def best_leaf_individual(self) -> Individual:
         return max(deme.best_individual for deme in self.leaves)
 
     @property
-    def best_individual(self) -> float:
+    def best_individual(self) -> Individual:
         return max(deme.best_individual for level in self._levels for deme in level)
 
     def run(self) -> None:
@@ -130,7 +129,7 @@ class DemeTree:
                 self._levels[target_level].append(child)
                 self._logger.debug("Sprouted new child", seed=child._seed.genome, id=new_id, tree_level=target_level)
 
-    def _next_child_id(self, deme: EADeme) -> str:
+    def _next_child_id(self, deme: AbstractDeme) -> str:
         if deme.level >= self.height - 1:
             raise ValueError("Only non-leaf levels are admissible")
 

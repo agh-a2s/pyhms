@@ -28,7 +28,16 @@ class EALevelConfig(BaseLevelConfig):
 
 class DELevelConfig(BaseLevelConfig):
     def __init__(
-        self, pop_size, problem, bounds: np.ndarray, lsc, generations, dither=False, scaling=0.8, crossover=0.9
+        self,
+        pop_size,
+        problem,
+        bounds: np.ndarray,
+        lsc,
+        generations,
+        sample_std_dev=1.0,
+        dither=False,
+        scaling=0.8,
+        crossover=0.9,
     ):
         super().__init__(problem, bounds, lsc)
         self.pop_size = pop_size
@@ -36,6 +45,7 @@ class DELevelConfig(BaseLevelConfig):
         self.dither = dither
         self.scaling = scaling
         self.crossover = crossover
+        self.sample_std_dev = sample_std_dev
 
 
 class CMALevelConfig(BaseLevelConfig):

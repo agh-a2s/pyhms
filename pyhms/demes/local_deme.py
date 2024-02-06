@@ -22,7 +22,7 @@ class LocalDeme(AbstractDeme):
         self._n_evals = 0
 
         self._history.append([self._seed])
-        self._run_history = []
+        self._run_history: list[Individual] = []
 
         self._options = {}
         if "maxiter" in config.__dict__:

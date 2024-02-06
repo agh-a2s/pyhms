@@ -3,7 +3,7 @@ import numpy.random as nrand
 
 
 def sample_normal(
-    center: np.array,
+    center: np.ndarray,
     std_dev: float,
     bounds: np.ndarray | None = None,
 ):
@@ -32,16 +32,16 @@ def sample_normal(
         [0.1 0.2]
     """
 
-    def in_bounds(x: np.array) -> bool:
+    def in_bounds(x: np.ndarray) -> np.bool_ | bool:
         if bounds is None:
             return True
         else:
             return np.all(x >= bounds[:, 0]) and np.all(x <= bounds[:, 1])
 
-    def sample() -> np.array:
+    def sample() -> np.ndarray:
         return nrand.multivariate_normal(center, std_dev**2 * np.eye(len(center)))
 
-    def create() -> np.array:
+    def create() -> np.ndarray:
         x = sample()
         while not in_bounds(x):
             x = sample()

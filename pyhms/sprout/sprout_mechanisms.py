@@ -32,14 +32,18 @@ class SproutMechanism:
         return {k: v for k, v in candidates.items() if len(candidates[k][1]) > 0}
 
     def apply_deme_filters(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         for filter in self.deme_filter_chain:
             candidates = filter(candidates, tree)
         return candidates
 
     def apply_tree_filters(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         for filter in self.tree_filter_chain:
             candidates = filter(candidates, tree)

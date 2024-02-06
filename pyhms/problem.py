@@ -150,7 +150,7 @@ class StatsGatheringProblem(Problem):
         super().__init__()
         self._inner: Problem = decorated_problem
         self._n_evals = 0
-        self._durations = []
+        self._durations: list[float] = []
 
     def evaluate(self, phenome, *args, **kwargs):
         start_time = time.perf_counter()
@@ -175,7 +175,7 @@ class StatsGatheringProblem(Problem):
         return self._durations
 
     @property
-    def duration_stats(self) -> tuple[float, float]:
+    def duration_stats(self) -> tuple[np.float_, np.float_]:
         return np.mean(self._durations), np.std(self._durations)
 
     def __str__(self) -> str:
