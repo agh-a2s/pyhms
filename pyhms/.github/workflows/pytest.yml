@@ -1,0 +1,54 @@
+name: Test
+on:
+  workflow_dispatch:
+  workflow_call:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - pyproject.toml
+      - poetry.lock
+      - "pyhms/**"
+      - "test/**"
+      - .github/workflows/pytest.yml
+
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      #----------------------------------------------
+      #       Set up
+      #----------------------------------------------
+
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: |
+          pip install -U pip
+          pip install requests --upgrade
+          pip install poetry
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "poetry"
+
+      - name: Install dependencies
+        if: steps.setup-python-dev.outputs.cache-hit != 'true'
+        run: |
+          poetry install --no-interaction --with dev
+
+      - name: Cache pre-commit
+        id: cache-pre-commit
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit|${{ env.PYTHON_VERSION }}|${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: pre-commit|${{ env.PYTHON_VERSION }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run tests
+        run: pytest
