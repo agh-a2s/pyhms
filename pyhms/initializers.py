@@ -5,7 +5,7 @@ import numpy.random as nrand
 def sample_normal(
     center: np.array,
     std_dev: float,
-    bounds: list[tuple[float, float]] | np.ndarray | None = None,
+    bounds: np.ndarray | None = None,
 ):
     """
     Sample points from a multivariate normal distribution.
@@ -36,8 +36,7 @@ def sample_normal(
         if bounds is None:
             return True
         else:
-            bnd_arr = np.array(bounds)
-            return np.all(x >= bnd_arr[:, 0]) and np.all(x <= bnd_arr[:, 1])
+            return np.all(x >= bounds[:, 0]) and np.all(x <= bounds[:, 1])
 
     def sample() -> np.array:
         return nrand.multivariate_normal(center, std_dev**2 * np.eye(len(center)))

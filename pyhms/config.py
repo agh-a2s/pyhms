@@ -15,7 +15,9 @@ class BaseLevelConfig:
 
 
 class EALevelConfig(BaseLevelConfig):
-    def __init__(self, ea_class, pop_size, problem, bounds: np.ndarray, lsc, generations, sample_std_dev=1.0, **kwargs) -> None:
+    def __init__(
+        self, ea_class, pop_size, problem, bounds: np.ndarray, lsc, generations, sample_std_dev=1.0, **kwargs
+    ) -> None:
         super().__init__(problem, bounds, lsc)
         self.ea_class = ea_class
         self.pop_size = pop_size
@@ -25,7 +27,9 @@ class EALevelConfig(BaseLevelConfig):
 
 
 class DELevelConfig(BaseLevelConfig):
-    def __init__(self, pop_size, problem, bounds: np.ndarray, lsc, generations, dither=False, scaling=0.8, crossover=0.9):
+    def __init__(
+        self, pop_size, problem, bounds: np.ndarray, lsc, generations, dither=False, scaling=0.8, crossover=0.9
+    ):
         super().__init__(problem, bounds, lsc)
         self.pop_size = pop_size
         self.generations = generations

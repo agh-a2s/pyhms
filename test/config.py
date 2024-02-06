@@ -1,7 +1,6 @@
 import numpy as np
 from leap_ec.problem import FunctionProblem
-import numpy as np
-from pyhms.sprout import get_simple_sprout, get_NBC_sprout
+from pyhms.sprout import get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions.usc import metaepoch_limit
 
 SQUARE_PROBLEM = FunctionProblem(lambda x: sum(x**2), maximize=False)

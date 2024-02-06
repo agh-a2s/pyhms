@@ -10,7 +10,7 @@ class TestInitializers(unittest.TestCase):
         N = 10
         x = np.zeros(N)
         std_dev = 1.0
-        bounds = [(-5, 5)] * N
+        bounds = np.array([(-5, 5)] * N)
         create = sample_normal(x, std_dev, bounds)
         population = np.array([create() for _ in range(10000)])
         population_mean = np.mean(population, axis=0)

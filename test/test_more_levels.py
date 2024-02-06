@@ -1,11 +1,12 @@
 import unittest
 
-from pyhms.config import DELevelConfig, CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions.usc import dont_stop
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, DEFAULT_NBC_SPROUT_COND, SQUARE_PROBLEM, SQUARE_BOUNDS, LEVEL_LIMIT
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, LEVEL_LIMIT, SQUARE_BOUNDS, SQUARE_PROBLEM
+
 
 class Test3Levels(unittest.TestCase):
     def test_with_simple_sprout(self):
@@ -48,7 +49,6 @@ class Test3Levels(unittest.TestCase):
         deme_tree.run()
         for level in deme_tree.levels:
             self.assertTrue(len([deme for deme in level if deme.is_active]) <= LEVEL_LIMIT)
-
 
     def test_with_NBC_sprout(self):
         options = {"log_level": "debug"}
