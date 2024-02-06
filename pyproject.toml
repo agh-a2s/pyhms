@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "pyhms"
+version = "0.1.0"
+description = "The HMS (Hierarchic Memetic Strategy) is a composite global optimization strategy consisting of a multi-population evolutionary strategy and some auxiliary methods. The HMS makes use of a dynamically-evolving data structure that provides an organization among the component populations. It is a tree with a fixed maximal height and variable internal node degree. Each component population is governed by a particular evolutionary engine. This package provides a simple python implementation with examples of using different population engines."
+authors = [
+    "Maciej Smołka <smolka@agh.edu.pl>",
+    "Hubert Guzowski <guzowski@agh.edu.pl>",
+    "Wojciech Achtelik <wachtelik@agh.edu.pl>",
+]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/maciejsmolka/pyhms"
+keywords = ["optimization", "HMS"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Intended Audience :: Other Audience",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Framework :: IPython",
+    "Framework :: Jupyter",
+    "License :: OSI Approved :: MIT License",
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+cma = ">=3.2.2"
+leap-ec = ">=0.7.0"
+numpy = ">=1.22.2"
+scipy = ">=1.8.0"
+toolz = ">=0.11.2"
+matplotlib = ">=3.5.1"
+treelib = ">=1.7.0"
+setuptools = ">=63.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
