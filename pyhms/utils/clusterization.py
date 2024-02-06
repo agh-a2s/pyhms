@@ -4,13 +4,44 @@ from treelib import Tree
 from treelib.exceptions import DuplicatedNodeIdError
 
 
-# Implementation based on A Survey of Nearest-Better Clustering in Swarm and Evolutionary Computation
+def get_individual_id(individual: Individual) -> str:
+    """
+    Tree structure in `treelib` requires identifiers for nodes. This function returns
+    a string representation of the individual's genome, which usually is unique for each individual.
+    """
+    return str(individual.genome)
+
+
 class NearestBetterClustering:
+    """
+    NearestBetterClustering is a class that clusters individuals based on their fitness values.
+    It uses the nearest-better clustering algorithm, which is a clustering algorithm that
+    groups individuals based on their fitness values and the distance between them.
+
+    Args:
+    - evaluated_individuals: List of individuals, which have been evaluated.
+    - distance_factor: A threshold multiplier. It is a predefined constant,
+        that is used to scale the mean of all the distances. Default: 2.0
+    - truncation_factor: The proportion of the top-performing individuals to use.
+        A floating-point number between 0 and 1, where 1 would mean using
+        the entire population, and a smaller value like 0.5 would mean keeping only the top 50%.
+        Default: 1.0
+
+    For more details, please refer to these papers:
+    1. Luo, Wenjian, et al. "A survey of nearest-better clustering in swarm and evolutionary computation."
+    2. Agrawal, Suchitra, et al. "Differential evolution with nearest better clustering for multimodal
+    multiobjective optimization."
+    3. Kerschke, Pascal, et al. "Detecting funnel structures by means of exploratory landscape analysis."
+    """
+
     def __init__(
-        self, evaluated_individuals: list[Individual], distance_factor: float = 2.0, truncation_factor: float = 1.0
+        self,
+        evaluated_individuals: list[Individual],
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
     ) -> None:
-        evaluated_individuals.sort(key=lambda ind: ind.fitness)
-        self.individuals = evaluated_individuals[: int(len(evaluated_individuals) * truncation_factor)]
+        sorted_individuals = sorted(evaluated_individuals, reverse=True)
+        self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
         self.distances = []
         self.distance_factor = distance_factor
@@ -25,7 +56,10 @@ class NearestBetterClustering:
 
     def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
-        self.tree.create_node(identifier=str(root.genome), data={"individual": root, "distance": np.inf})
+        self.tree.create_node(
+            identifier=get_individual_id(root),
+            data={"individual": root, "distance": np.inf},
+        )
         for ind in self.individuals[1:]:
             # Safecheck for the case, when the individual is tied for the best fitness with root
             if ind == root:
@@ -35,15 +69,16 @@ class NearestBetterClustering:
             distance, parent = self._find_nearest_better(ind, better_individuals)
             try:
                 self.tree.create_node(
-                    identifier=str(ind.genome),
+                    identifier=get_individual_id(ind),
                     data={"individual": ind, "distance": distance},
-                    parent=str(parent.genome),
+                    parent=get_individual_id(parent),
                 )
                 self.distances.append(distance)
             except DuplicatedNodeIdError:
                 pass
 
     def _find_nearest_better(self, individual: Individual, better_individuals: list[Individual]) -> (float, Individual):
-        dist_ind = [(np.linalg.norm(individual.genome - ind.genome), ind) for ind in better_individuals]
-        dist_ind.sort(key=lambda pair: pair[0])
-        return dist_ind[0]
+        better_genomes = np.array([ind.genome for ind in better_individuals])
+        distances = np.linalg.norm(individual.genome - better_genomes, axis=1)
+        nearest_better_index = np.argmin(distances)
+        return distances[nearest_better_index], better_individuals[nearest_better_index]

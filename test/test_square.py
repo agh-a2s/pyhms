@@ -1,30 +1,27 @@
+import random
 import unittest
 
 import numpy as np
-from leap_ec.problem import FunctionProblem
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.sprout.sprout_mechanisms import get_simple_sprout
-from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
+from pyhms.stop_conditions.usc import dont_stop
 from pyhms.tree import DemeTree
+
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
 
 
 class TestSquare(unittest.TestCase):
-    @staticmethod
-    def square(x) -> float:
-        return sum(x**2)
+    def setUp(self):
+        random.seed(0)
+        np.random.seed(0)
 
     def test_square_optimization_ea(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
-        gsc = metaepoch_limit(limit=2)
-        sprout_cond = get_simple_sprout(1.0)
-
         config = [
             EALevelConfig(
                 ea_class=SEA,
                 generations=2,
-                problem=function_problem,
-                bounds=[(-20, 20), (-20, 20)],
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=dont_stop(),
@@ -32,8 +29,8 @@ class TestSquare(unittest.TestCase):
             EALevelConfig(
                 ea_class=SEA,
                 generations=4,
-                problem=function_problem,
-                bounds=[(-20, 20), (-20, 20)],
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=10,
                 mutation_std=0.25,
                 sample_std_dev=1.0,
@@ -41,72 +38,44 @@ class TestSquare(unittest.TestCase):
             ),
         ]
 
-        config = TreeConfig(config, gsc, sprout_cond)
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND)
         hms_tree = DemeTree(config)
-        while not hms_tree._gsc(hms_tree):
-            hms_tree.metaepoch_count += 1
-            hms_tree.run_metaepoch()
-            if not hms_tree._gsc(hms_tree):
-                hms_tree.run_sprout()
-
-        print("\nES square optimization test")
-        print("Deme info:")
-        for level, deme in hms_tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
-            print(f"Average fitness in last population {np.mean([ind.fitness for ind in deme.current_population])}")
-            print(f"Average fitness in first population {np.mean([ind.fitness for ind in deme.history[0]])}")
-
-        self.assertEqual(hms_tree.height, 2, "Should be 2")
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
 
     def test_square_optimization_cma(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
-        gsc = metaepoch_limit(limit=2)
-        sprout_cond = get_simple_sprout(1.0)
-
         config = [
             EALevelConfig(
                 ea_class=SEA,
                 generations=2,
-                problem=function_problem,
-                bounds=[(-20, 20), (-20, 20)],
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=dont_stop(),
             ),
             CMALevelConfig(
-                generations=4, problem=function_problem, bounds=[(-20, 20), (-20, 20)], sigma0=2.5, lsc=dont_stop()
+                generations=4,
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
+                sigma0=2.5,
+                lsc=dont_stop(),
             ),
         ]
 
-        config = TreeConfig(config, gsc, sprout_cond)
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND)
         hms_tree = DemeTree(config)
-        while not hms_tree._gsc(hms_tree):
-            hms_tree.metaepoch_count += 1
-            hms_tree.run_metaepoch()
-            if not hms_tree._gsc(hms_tree):
-                hms_tree.run_sprout()
-
-        print("\nCMA square optimization test")
-        print("Deme info:")
-        for level, deme in hms_tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
-            print(f"Average fitness in last population {np.mean([ind.fitness for ind in deme.current_population])}")
-            print(f"Average fitness in first population {np.mean([ind.fitness for ind in deme.history[0]])}")
-
-        self.assertEqual(hms_tree.height, 2, "Should be 2")
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
 
     def test_square_optimization_de(self):
-        function_problem = FunctionProblem(lambda x: self.square(x), maximize=False)
-        gsc = metaepoch_limit(limit=2)
-        sprout_cond = get_simple_sprout(1.0)
-
         config = [
             DELevelConfig(
                 generations=2,
-                problem=function_problem,
-                bounds=np.array([(-20, 20), (-20, 20)]),
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 dither=True,
                 crossover=0.9,
@@ -114,27 +83,15 @@ class TestSquare(unittest.TestCase):
             ),
             CMALevelConfig(
                 generations=4,
-                problem=function_problem,
-                bounds=np.array([(-20, 20), (-20, 20)]),
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=dont_stop(),
             ),
         ]
 
-        config = TreeConfig(config, gsc, sprout_cond)
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND)
         hms_tree = DemeTree(config)
-        while not hms_tree._gsc(hms_tree):
-            hms_tree.metaepoch_count += 1
-            hms_tree.run_metaepoch()
-            if not hms_tree._gsc(hms_tree):
-                hms_tree.run_sprout()
-
-        print("\nDE square optimization test")
-        print("Deme info:")
-        for level, deme in hms_tree.all_demes:
-            print(f"Level {level}")
-            print(f"{deme}")
-            print(f"Average fitness in last population {np.mean([ind.fitness for ind in deme.current_population])}")
-            print(f"Average fitness in first population {np.mean([ind.fitness for ind in deme.history[0]])}")
-
-        self.assertEqual(hms_tree.height, 2, "Should be 2")
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")

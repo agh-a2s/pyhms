@@ -24,6 +24,7 @@ class TestLocalOptimization(unittest.TestCase):
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
                 bounds=[(-20, 20), (-20, 20)],
+                lsc=dont_stop(),
             ),
         ]
         tree_config = TreeConfig(
@@ -35,4 +36,4 @@ class TestLocalOptimization(unittest.TestCase):
 
         deme_tree = DemeTree(tree_config)
         deme_tree.run()
-        self.assertTrue(deme_tree.root.best_current_individual.fitness > max(deme_tree.optima).fitness)
+        self.assertTrue(deme_tree.root.best_current_individual.fitness > deme_tree.best_leaf_individual.fitness)
