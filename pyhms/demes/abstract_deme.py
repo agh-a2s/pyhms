@@ -63,9 +63,9 @@ class AbstractDeme(ABC):
     @property
     def all_individuals(self) -> list:
         return [ind for pop in self.history for ind in pop]
-    
+
     @property
-    def number_of_f_evals(self) -> int:
+    def n_evaluations(self) -> int:
         return len(self.all_individuals)
 
     @property
