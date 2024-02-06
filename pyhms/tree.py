@@ -58,15 +58,11 @@ class DemeTree:
         ]
 
     @property
-    def optima(self) -> List[Individual]:
-        return [leaf.best_current_individual for leaf in self.leaves]
-
-    @property
-    def best_individual(self) -> float:
+    def best_leaf_individual(self) -> float:
         return max(deme.best_individual for deme in self.leaves)
 
     @property
-    def best_global_individual(self) -> float:
+    def best_individual(self) -> float:
         return max(deme.best_individual for level in self._levels for deme in level)
 
     def run(self) -> None:
