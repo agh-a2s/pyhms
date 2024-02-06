@@ -79,11 +79,11 @@ class DemeTree:
             self.run_metaepoch()
             if not self._gsc(self):
                 self.run_sprout()
-            if len(self.optima) > 0:
+            if len(self.leaves) > 0:
                 self._logger.info(
                     "Metaepoch finished",
-                    best_fitness=max(self.optima).fitness,
-                    best_individual=max(self.optima).genome,
+                    best_fitness=self.best_leaf_individual.fitness,
+                    best_individual=self.best_leaf_individual.genome,
                 )
             else:
                 self._logger.info("Metaepoch finished. No leaf demes yet.")
