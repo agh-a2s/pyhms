@@ -82,11 +82,14 @@ class DemeTree:
             self.run_metaepoch()
             if not self._gsc(self):
                 self.run_sprout()
-            self._logger.info(
-                "Metaepoch finished",
-                best_fitness=max(self.optima).fitness,
-                best_individual=max(self.optima).genome,
-            )
+            if len(self.optima) > 0:
+                self._logger.info(
+                    "Metaepoch finished",
+                    best_fitness=max(self.optima).fitness,
+                    best_individual=max(self.optima).genome,
+                )
+            else:
+                self._logger.info("Metaepoch finished. No leaf demes yet.")
 
     def run_metaepoch(self) -> None:
         for _, deme in reversed(self.active_demes):
@@ -128,7 +131,7 @@ class DemeTree:
                 )
                 deme.add_child(child)
                 self._levels[target_level].append(child)
-                self._logger.debug("Sprouted new child", seed=child._seed.genome)
+                self._logger.debug("Sprouted new child", seed=child._seed.genome, id=new_id, tree_level=target_level)
 
     def _next_child_id(self, deme: AbstractDeme) -> str:
         if deme.level >= self.height - 1:

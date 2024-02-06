@@ -16,15 +16,7 @@ class BaseLevelConfig:
 
 class EALevelConfig(BaseLevelConfig):
     def __init__(
-        self,
-        ea_class,
-        pop_size,
-        problem,
-        bounds,
-        lsc,
-        generations,
-        sample_std_dev=1.0,
-        **kwargs,
+        self, ea_class, pop_size, problem, bounds: np.ndarray, lsc, generations, sample_std_dev=1.0, **kwargs
     ) -> None:
         super().__init__(problem, bounds, lsc)
         self.ea_class = ea_class
@@ -39,7 +31,7 @@ class DELevelConfig(BaseLevelConfig):
         self,
         pop_size,
         problem,
-        bounds,
+        bounds: np.ndarray,
         lsc,
         generations,
         sample_std_dev=1.0,
@@ -57,7 +49,7 @@ class DELevelConfig(BaseLevelConfig):
 
 
 class CMALevelConfig(BaseLevelConfig):
-    def __init__(self, problem, bounds, lsc, sigma0, generations, **kwargs) -> None:
+    def __init__(self, problem, bounds: np.ndarray, lsc, sigma0, generations, **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.sigma0 = sigma0
         self.generations = generations
@@ -65,10 +57,9 @@ class CMALevelConfig(BaseLevelConfig):
 
 
 class LocalOptimizationConfig(BaseLevelConfig):
-    def __init__(self, problem, bounds, lsc, maxfun, method="L-BFGS-B", **kwargs) -> None:
+    def __init__(self, problem, bounds: np.ndarray, lsc, method="L-BFGS-B", **kwargs) -> None:
         super().__init__(problem, bounds, lsc)
         self.method = method
-        self.maxfun = maxfun
         self.__dict__.update(kwargs)
 
 
