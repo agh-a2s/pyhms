@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 from leap_ec.individual import Individual
@@ -33,7 +33,3 @@ def unique_file_name(prefix, ext):
     dt_now = datetime.now()
     dt_part = dt_now.strftime("-%Y%m%d-%H%M%S")
     return prefix + dt_part + ext
-
-
-def bounds_to_extent(bounds: List[Tuple[float, float]]) -> Tuple[float, float, float, float]:
-    return bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]

@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from leap_ec.individual import Individual
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from pyhms.persist import DemeTreeData, Solution
-from pyhms.util import bounds_to_extent
 from pyhms.visualisation.grid import Grid2DEvaluation
 
 DEFAULT_CMAP = "gnuplot"
@@ -31,7 +30,8 @@ def scatterplot(population: Union[List[Solution], List[Individual]]):
 
 def imageplot(grid: Grid2DEvaluation):
     ax = plt.subplot()
-    ims = ax.imshow(grid.imshow_view, cmap=DEFAULT_CMAP, extent=bounds_to_extent(grid.bounds))
+    extent = grid.bounds[0][0], grid.bounds[0][1], grid.bounds[1][0], grid.bounds[1][1]
+    ims = ax.imshow(grid.imshow_view, cmap=DEFAULT_CMAP, extent=extent)
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(ims, cax=cax)
