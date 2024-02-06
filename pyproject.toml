@@ -37,9 +37,11 @@ toolz = ">=0.11.2"
 matplotlib = ">=3.5.1"
 treelib = ">=1.7.0"
 setuptools = ">=63.2.0"
+structlog = "^24.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
+pytest-cov = "^4.1.0"
 
 [build-system]
 requires = ["poetry-core"]

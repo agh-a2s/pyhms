@@ -51,4 +51,4 @@ jobs:
           restore-keys: pre-commit|${{ env.PYTHON_VERSION }}|${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Run tests
-        run: pytest
+        run: poetry run pytest test/ --cov
