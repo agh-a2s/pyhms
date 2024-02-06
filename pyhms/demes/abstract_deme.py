@@ -105,7 +105,7 @@ class AbstractDeme(ABC):
             id=self._id,
             best_fitness=self.best_current_individual.fitness,
             best_individual=self.best_current_individual.genome,
-            n_evals=self.number_of_f_evals,
+            n_evals=self.n_evaluations,
             centroid=self.centroid,
         )
 
