@@ -1,5 +1,7 @@
+from copy import deepcopy
 from typing import Dict, List, Tuple
 
+import dill as pkl
 from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
@@ -138,3 +140,18 @@ class DemeTree:
             return str(id_suffix)
         else:
             return f"{deme.id}/{id_suffix}"
+
+    def pickle_dump(self, filepath: str = "hms_snapshot.pkl") -> None:
+        self._logger.info("Dumping tree snapshot", filepath=filepath)
+        snapshot = deepcopy(self.__dict__)
+        with open(filepath, "wb") as f:
+            pkl.dump(snapshot, f)
+
+    @staticmethod
+    def pickle_load(filepath: str):
+        with open(filepath, "rb") as f:
+            snapshot = pkl.load(f)
+        tree = DemeTree(snapshot["config"])
+        tree.__dict__.update(snapshot)
+        tree._logger.info("Tree loaded from snapshot", filepath=filepath)
+        return tree
