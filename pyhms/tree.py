@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import Dict, List, Tuple
 
 import dill as pkl
@@ -57,7 +56,7 @@ class DemeTree:
         return [
             (level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active
         ]
-    
+
     @property
     def n_evaluations(self) -> int:
         return sum(deme.n_evaluations for _, deme in self.all_demes)
@@ -133,7 +132,12 @@ class DemeTree:
                 )
                 deme.add_child(child)
                 self._levels[target_level].append(child)
-                self._logger.debug("Sprouted new child", seed=child._seed.genome, id=new_id, tree_level=target_level)
+                self._logger.debug(
+                    "Sprouted new child",
+                    seed=child._seed.genome,
+                    id=new_id,
+                    tree_level=target_level,
+                )
 
     def _next_child_id(self, deme: AbstractDeme) -> str:
         if deme.level >= self.height - 1:
