@@ -56,6 +56,10 @@ class DemeTree:
         return [
             (level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active
         ]
+    
+    @property
+    def n_evaluations(self) -> int:
+        return sum(deme.n_evaluations for _, deme in self.all_demes)
 
     @property
     def optima(self):
