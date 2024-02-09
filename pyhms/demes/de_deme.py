@@ -25,6 +25,7 @@ class DEDeme(AbstractDeme):
         self._dither = config.dither
         self._scaling = config.scaling
         self._crossover_prob = config.crossover
+        self._sample_std_dev = config.sample_std_dev
 
         if seed is None:
             starting_pop = Individual.create_population(

@@ -29,6 +29,7 @@ def init_from_config(
         "seed": seed,
         "logger": logger,
     }
+    child: AbstractDeme
     if isinstance(config, DELevelConfig):
         child = DEDeme(**args)
     elif isinstance(config, EALevelConfig):

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
 from leap_ec.individual import Individual
 from pyhms.config import BaseLevelConfig
 from pyhms.utils.misc_util import compute_centroid
@@ -26,9 +27,9 @@ class AbstractDeme(ABC):
         self._problem = config.problem
         self._bounds = config.bounds
         self._active = True
-        self._centroid = None
-        self._history = []
-        self._children = []
+        self._centroid: np.ndarray | None = None
+        self._history: list[Individual] = []
+        self._children: list[AbstractDeme] = []
         self._logger = logger
 
         # Additional low-level options
@@ -51,7 +52,7 @@ class AbstractDeme(ABC):
         return self._active
 
     @property
-    def centroid(self) -> Individual:
+    def centroid(self) -> np.ndarray:
         if self._centroid is None:
             self._centroid = compute_centroid(self.current_population)
         return self._centroid
@@ -63,9 +64,9 @@ class AbstractDeme(ABC):
     @property
     def all_individuals(self) -> list:
         return [ind for pop in self.history for ind in pop]
-    
+
     @property
-    def number_of_f_evals(self) -> int:
+    def n_evaluations(self) -> int:
         return len(self.all_individuals)
 
     @property
@@ -75,6 +76,10 @@ class AbstractDeme(ABC):
     @property
     def best_current_individual(self) -> Individual:
         return max(self.current_population)
+
+    @property
+    def best_individual(self) -> Individual:
+        return max(self.all_individuals)
 
     @property
     def metaepoch_count(self) -> int:
@@ -101,7 +106,7 @@ class AbstractDeme(ABC):
             id=self._id,
             best_fitness=self.best_current_individual.fitness,
             best_individual=self.best_current_individual.genome,
-            n_evals=self.number_of_f_evals,
+            n_evals=self.n_evaluations,
             centroid=self.centroid,
         )
 
