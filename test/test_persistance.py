@@ -1,11 +1,10 @@
-import pathlib as pl
 import os
+import pathlib as pl
 import random
 import unittest
 
 import numpy as np
-from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
-from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.config import CMALevelConfig, DELevelConfig, TreeConfig
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
 from pyhms.tree import DemeTree
 
@@ -16,7 +15,7 @@ class TestPersistance(unittest.TestCase):
     def setUp(self):
         random.seed(0)
         np.random.seed(0)
-        self.dump_file = os.path.join(TEST_DIR, 'hms_snapshot.pkl')
+        self.dump_file = os.path.join(TEST_DIR, "hms_snapshot.pkl")
 
     def tearDown(self):
         os.remove(self.dump_file)
@@ -50,7 +49,7 @@ class TestPersistance(unittest.TestCase):
         self.assertEqual(hms_tree.height, loaded_tree.height)
         self.assertEqual(hms_tree.best_individual.fitness, loaded_tree.best_individual.fitness)
         self.assertEqual(len(hms_tree.all_demes), len(loaded_tree.all_demes))
-    
+
     def test_reload(self):
         options = {"log_level": "debug"}
         config = [
@@ -79,11 +78,14 @@ class TestPersistance(unittest.TestCase):
         loaded_tree = DemeTree.pickle_load(self.dump_file)
         self.assertEqual(loaded_tree.metaepoch_count, DEFAULT_GSC.limit)
         self.assertTrue(all(not deme._active for _, deme in loaded_tree.all_demes))
-        loaded_tree._gsc = metaepoch_limit(limit=2*DEFAULT_GSC.limit)
+        loaded_tree._gsc = metaepoch_limit(limit=2 * DEFAULT_GSC.limit)
         loaded_tree.root._active = True
         loaded_tree.levels[1][0]._active = True
         loaded_tree.run()
-        self.assertEqual(loaded_tree.metaepoch_count, 2*DEFAULT_GSC.limit)
+        self.assertEqual(loaded_tree.metaepoch_count, 2 * DEFAULT_GSC.limit)
         self.assertGreater(len(loaded_tree.all_demes), len(hms_tree.all_demes))
-        self.assertGreater(sum([len(deme.all_individuals) for _, deme in loaded_tree.all_demes]), sum([len(deme.all_individuals) for _, deme in hms_tree.all_demes]))
+        self.assertGreater(
+            sum([len(deme.all_individuals) for _, deme in loaded_tree.all_demes]),
+            sum([len(deme.all_individuals) for _, deme in hms_tree.all_demes]),
+        )
         self.assertLess(loaded_tree.best_individual.fitness, hms_tree.best_individual.fitness)
