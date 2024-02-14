@@ -3,8 +3,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 from leap_ec.individual import Individual
 from pyhms.config import BaseLevelConfig
-from pyhms.utils.misc_util import compute_centroid
 from structlog.typing import FilteringBoundLogger
+
+
+def compute_centroid(population: list[Individual]) -> np.ndarray:
+    return np.mean([ind.genome for ind in population], axis=0)
 
 
 class AbstractDeme(ABC):
