@@ -17,9 +17,9 @@ class DEDeme(AbstractDeme):
         config: DELevelConfig,
         logger: FilteringBoundLogger,
         started_at: int = 0,
-        seed: Individual = None,
+        sprout_seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, seed)
+        super().__init__(id, level, config, logger, started_at, sprout_seed)
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._dither = config.dither
@@ -27,7 +27,7 @@ class DEDeme(AbstractDeme):
         self._crossover_prob = config.crossover
         self._sample_std_dev = config.sample_std_dev
 
-        if seed is None:
+        if sprout_seed is None:
             starting_pop = Individual.create_population(
                 self._pop_size,
                 initialize=create_real_vector(bounds=self._bounds),
@@ -35,7 +35,7 @@ class DEDeme(AbstractDeme):
                 problem=self._problem,
             )
         else:
-            x = seed.genome
+            x = sprout_seed.genome
             starting_pop = Individual.create_population(
                 self._pop_size - 1,
                 initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),

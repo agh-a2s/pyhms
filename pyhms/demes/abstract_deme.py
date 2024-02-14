@@ -15,12 +15,12 @@ class AbstractDeme(ABC):
         config: BaseLevelConfig,
         logger: FilteringBoundLogger,
         started_at: int = 0,
-        seed: Individual = None,
+        sprout_seed: Individual = None,
     ) -> None:
         super().__init__()
         self._id = id
         self._started_at = started_at
-        self._seed = seed
+        self._sprout_seed = sprout_seed
         self._level = level
         self._config = config
         self._lsc = config.lsc
@@ -112,7 +112,8 @@ class AbstractDeme(ABC):
 
     def __str__(self) -> str:
         best_fitness = self.best_current_individual.fitness
-        if self._seed is None:
+        if self._sprout_seed is None:
             return f"Root deme {self.id} with best achieved fitness {best_fitness}"
         else:
-            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {best_fitness}"
+            return f"""Deme {self.id}, metaepoch {self.started_at} and
+            seed {self._sprout_seed.genome} with best {best_fitness}"""

@@ -23,6 +23,17 @@ class DemeTree:
         if nlevels < 1:
             raise ValueError("Level number must be positive")
 
+        if "random_seed" in config.options:
+            self._random_seed = config.options["random_seed"]
+            import random
+
+            import numpy as np
+
+            random.seed(self._random_seed)
+            np.random.seed(self._random_seed)
+        else:
+            self._random_seed = None
+
         self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
         root_deme = init_root(config.levels[0], self._logger)
         self._levels[0].append(root_deme)
@@ -127,14 +138,15 @@ class DemeTree:
                     new_id,
                     target_level,
                     self.metaepoch_count,
-                    seed=ind,
+                    sprout_seed=ind,
                     logger=self._logger,
+                    random_seed=self._random_seed,
                 )
                 deme.add_child(child)
                 self._levels[target_level].append(child)
                 self._logger.debug(
                     "Sprouted new child",
-                    seed=child._seed.genome,
+                    seed=child._sprout_seed.genome,
                     id=new_id,
                     tree_level=target_level,
                 )

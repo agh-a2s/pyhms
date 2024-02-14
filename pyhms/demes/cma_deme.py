@@ -1,3 +1,4 @@
+import numpy as np
 from cma import CMAEvolutionStrategy
 from leap_ec import Individual
 from leap_ec.decoder import IdentityDecoder
@@ -16,13 +17,18 @@ class CMADeme(AbstractDeme):
         logger: FilteringBoundLogger,
         x0: Individual,
         started_at: int = 0,
+        random_seed: int = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at, x0)
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
+        opts = {"bounds": [lb, ub], "verbose": -9}
+        if random_seed is not None:
+            opts["randn"] = np.random.randn
+            opts["seed"] = random_seed
 
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={"bounds": [lb, ub], "verbose": -9})
+        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
         starting_pop = [
             Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()
         ]
