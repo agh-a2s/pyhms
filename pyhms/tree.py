@@ -167,7 +167,7 @@ class DemeTree:
             pkl.dump(self, f)
 
     @staticmethod
-    def pickle_load(filepath: str):
+    def pickle_load(filepath: str) -> "DemeTree":
         with open(filepath, "rb") as f:
             tree = pkl.load(f)
         tree._logger.info("Tree loaded from snapshot", filepath=filepath)

@@ -26,7 +26,7 @@ class CMADeme(AbstractDeme):
         opts = {"bounds": [lb, ub], "verbose": -9}
         if random_seed is not None:
             opts["randn"] = np.random.randn
-            opts["seed"] = random_seed
+            opts["seed"] = random_seed + self._started_at
 
         self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
         starting_pop = [

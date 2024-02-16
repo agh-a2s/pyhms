@@ -1,7 +1,5 @@
-import random
 import unittest
 
-import numpy as np
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions.usc import dont_stop
@@ -11,11 +9,8 @@ from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PRO
 
 
 class TestSquare(unittest.TestCase):
-    def setUp(self):
-        random.seed(0)
-        np.random.seed(0)
-
     def test_square_optimization_ea(self):
+        options = {"random_seed": 2}
         config = [
             EALevelConfig(
                 ea_class=SEA,
@@ -38,13 +33,14 @@ class TestSquare(unittest.TestCase):
             ),
         ]
 
-        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND)
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND, options=options)
         hms_tree = DemeTree(config)
         hms_tree.run()
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
         self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
 
     def test_square_optimization_cma(self):
+        options = {"random_seed": 1}
         config = [
             EALevelConfig(
                 ea_class=SEA,
@@ -64,13 +60,14 @@ class TestSquare(unittest.TestCase):
             ),
         ]
 
-        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND)
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND, options=options)
         hms_tree = DemeTree(config)
         hms_tree.run()
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
         self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
 
     def test_square_optimization_de(self):
+        options = {"random_seed": 1}
         config = [
             DELevelConfig(
                 generations=2,
@@ -90,7 +87,7 @@ class TestSquare(unittest.TestCase):
             ),
         ]
 
-        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND)
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND, options=options)
         hms_tree = DemeTree(config)
         hms_tree.run()
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
