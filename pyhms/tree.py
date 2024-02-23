@@ -178,18 +178,18 @@ class DemeTree:
         """
         lines = []
         lines.append(f"Metaepoch count: {self.metaepoch_count}")
-        lines.append(f"Number of evaluations: {self.n_evaluations}")
         lines.append(f"Best fitness: {self.best_leaf_individual.fitness:.4e}")
         lines.append(f"Best individual: {self.best_leaf_individual.genome}")
+        lines.append(f"Number of evaluations: {self.n_evaluations}")
         lines.append(f"Number of demes: {len(self.all_demes)}")
         if level_summary:
             for level, level_demes in enumerate(self.levels):
                 lines.append(f"\nLevel {level+1}.")
-                lines.append(f"Number of demes: {len(level_demes)}")
                 level_best_individual = max(deme.best_individual for deme in level_demes)
                 lines.append(f"Best fitness: {level_best_individual.fitness:.4e}")
                 lines.append(f"Best individual: {level_best_individual.genome}")
                 lines.append(f"Number of evaluations: {sum(deme.n_evaluations for deme in level_demes)}")
+                lines.append(f"Number of demes: {len(level_demes)}")
                 level_problem = self.config.levels[level].problem
                 if isinstance(level_problem, StatsGatheringProblem):
                     m, sd = level_problem.duration_stats
