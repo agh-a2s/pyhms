@@ -8,6 +8,7 @@ from .config import TreeConfig
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
+from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
 
 
@@ -160,6 +161,46 @@ class DemeTree:
             return str(id_suffix)
         else:
             return f"{deme.id}/{id_suffix}"
+
+    def summary(self, level_summary: bool | None = True, deme_summary: bool | None = True) -> str:
+        """
+        Generates a summary report for the HMS.
+
+        Parameters:
+        - level_summary (bool | None, optional): If True (default), includes a summary of each level
+        in the report. If False, this level detail is omitted.
+        - deme_summary (bool | None, optional): If True (default), includes a summary of each deme
+        in the report. If False, deme details are omitted.
+
+        Returns:
+        - str: A multi-line string containing the formatted summary of the evolutionary process or
+        optimization algorithm, including overall statistics and, optionally, level and deme summaries.
+        """
+        lines = []
+        lines.append(f"Metaepoch count: {self.metaepoch_count}")
+        lines.append(f"Number of evaluations: {self.n_evaluations}")
+        lines.append(f"Best fitness: {self.best_leaf_individual.fitness:.4e}")
+        lines.append(f"Best individual: {self.best_leaf_individual.genome}")
+        lines.append(f"Number of demes: {len(self.all_demes)}")
+        if level_summary:
+            for level, level_demes in enumerate(self.levels):
+                lines.append(f"\nLevel {level+1}.")
+                lines.append(f"Number of demes: {len(level_demes)}")
+                level_best_individual = max(deme.best_individual for deme in level_demes)
+                lines.append(f"Best fitness: {level_best_individual.fitness:.4e}")
+                lines.append(f"Best individual: {level_best_individual.genome}")
+                lines.append(f"Number of evaluations: {sum(deme.n_evaluations for deme in level_demes)}")
+                level_problem = self.config.levels[level].problem
+                if isinstance(level_problem, StatsGatheringProblem):
+                    m, sd = level_problem.duration_stats
+                    lines.append(f"Problem duration avg. {m:.4e} std. dev. {sd:.4e}")
+        if deme_summary:
+            lines.append("\nDeme info:")
+            for _, deme in self.all_demes:
+                start = deme.started_at
+                end = deme.started_at + deme.metaepoch_count
+                lines.append(f"Deme {deme.id} [{start}-{end}] - best fitness: {deme.best_individual.fitness:.4e}")
+        return "\n".join(lines)
 
     def pickle_dump(self, filepath: str = "hms_snapshot.pkl") -> None:
         self._logger.info("Dumping tree snapshot", filepath=filepath)
