@@ -3,13 +3,13 @@ import unittest
 import numpy as np
 from leap_ec.problem import FunctionProblem
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.demes.abstract_deme import compute_centroid
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
 from pyhms.sprout.sprout_generators import NBC_Generator
 from pyhms.sprout.sprout_mechanisms import SproutMechanism, get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
 from pyhms.tree import DemeTree
-from pyhms.utils.misc_util import compute_centroid
 
 
 class TestSprout(unittest.TestCase):
@@ -79,7 +79,11 @@ class TestSprout(unittest.TestCase):
                         print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                         print(f"Current centroid position {compute_centroid(deme.current_population)}")
 
-            self.assertEqual(correct_sprout, True, "Should be no more than 2 active demes on each level")
+            self.assertEqual(
+                correct_sprout,
+                True,
+                "Should be no more than 2 active demes on each level",
+            )
 
     def test_default_nbc_sprout(self):
         correct_sprout = True
@@ -135,13 +139,21 @@ class TestSprout(unittest.TestCase):
                     print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                     print(f"Current centroid position {compute_centroid(deme.current_population)}")
 
-            self.assertEqual(correct_sprout, True, "Should be no more than 2 active demes on each level")
+            self.assertEqual(
+                correct_sprout,
+                True,
+                "Should be no more than 2 active demes on each level",
+            )
 
     def test_nbc_sprout_with_truncation(self):
         correct_sprout = True
         function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
         gsc = metaepoch_limit(limit=20)
-        sprout_cond = SproutMechanism(NBC_Generator(2.0, 0.4), [NBC_FarEnough(2.0, 2), DemeLimit(1)], [LevelLimit(4)])
+        sprout_cond = SproutMechanism(
+            NBC_Generator(2.0, 0.4),
+            [NBC_FarEnough(2.0, 2), DemeLimit(1)],
+            [LevelLimit(4)],
+        )
         limit = 4
 
         config = [
@@ -191,4 +203,8 @@ class TestSprout(unittest.TestCase):
                     print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                     print(f"Current centroid position {compute_centroid(deme.current_population)}")
 
-            self.assertEqual(correct_sprout, True, "Should be no more than 2 active demes on each level")
+            self.assertEqual(
+                correct_sprout,
+                True,
+                "Should be no more than 2 active demes on each level",
+            )

@@ -1,9 +1,15 @@
 import pickle
+from datetime import datetime
 
 import numpy as np
-from pyhms.util import unique_file_name
 
 FILE_NAME_EXT = ".gdat"
+
+
+def unique_file_name(prefix, ext):
+    dt_now = datetime.now()
+    dt_part = dt_now.strftime("-%Y%m%d-%H%M%S")
+    return prefix + dt_part + ext
 
 
 class Grid2DEvaluation(object):
