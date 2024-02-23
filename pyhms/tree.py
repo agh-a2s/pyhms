@@ -173,8 +173,7 @@ class DemeTree:
         in the report. If False, deme details are omitted.
 
         Returns:
-        - str: A multi-line string containing the formatted summary of the evolutionary process or
-        optimization algorithm, including overall statistics and, optionally, level and deme summaries.
+        - str: A multi-line string containing the formatted summary.
         """
         lines = []
         lines.append(f"Metaepoch count: {self.metaepoch_count}")
