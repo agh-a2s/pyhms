@@ -5,8 +5,6 @@ from leap_ec.individual import Individual
 from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
-from ..problem import EvalCountingProblem
-
 
 def compute_centroid(population: list[Individual]) -> np.ndarray:
     return np.mean([ind.genome for ind in population], axis=0)
@@ -72,8 +70,6 @@ class AbstractDeme(ABC):
 
     @property
     def n_evaluations(self) -> int:
-        if isinstance(self._problem, EvalCountingProblem):
-            return self._problem.n_evaluations
         return len(self.all_individuals)
 
     @property
