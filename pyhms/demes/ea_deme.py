@@ -14,18 +14,18 @@ class EADeme(AbstractDeme):
         config: EALevelConfig,
         logger: FilteringBoundLogger,
         started_at: int = 0,
-        seed: Individual = None,
+        sprout_seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, seed)
+        super().__init__(id, level, config, logger, started_at, sprout_seed)
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._ea = config.ea_class.create(**config.__dict__)
 
-        if seed is None:
+        if sprout_seed is None:
             starting_pop = self._ea.run()
         else:
-            x = seed.genome
+            x = sprout_seed.genome
             starting_pop = Individual.create_population(
                 self._pop_size - 1,
                 initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
@@ -57,7 +57,8 @@ class EADeme(AbstractDeme):
 
     def __str__(self) -> str:
         best_fitness = self.best_current_individual.fitness
-        if self._seed is None:
+        if self._sprout_seed is None:
             return f"Root deme {self.id} with best achieved fitness {best_fitness}"
         else:
-            return f"Deme {self.id}, metaepoch {self.started_at} and seed {self._seed.genome} with best {best_fitness}"
+            return f"""Deme {self.id}, metaepoch {self.started_at} and
+            seed {self._sprout_seed.genome} with best {best_fitness}"""

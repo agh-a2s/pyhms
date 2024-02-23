@@ -1,9 +1,7 @@
 import os
 import pathlib as pl
-import random
 import unittest
 
-import numpy as np
 from pyhms.config import CMALevelConfig, DELevelConfig, TreeConfig
 from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
 from pyhms.tree import DemeTree
@@ -13,8 +11,6 @@ from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PRO
 
 class TestPersistance(unittest.TestCase):
     def setUp(self):
-        random.seed(0)
-        np.random.seed(0)
         self.dump_file = os.path.join(TEST_DIR, "hms_snapshot.pkl")
 
     def tearDown(self):
@@ -51,7 +47,7 @@ class TestPersistance(unittest.TestCase):
         self.assertEqual(len(hms_tree.all_demes), len(loaded_tree.all_demes))
 
     def test_reload(self):
-        options = {"log_level": "debug"}
+        options = {"log_level": "debug", "random_seed": 1}
         config = [
             DELevelConfig(
                 generations=2,

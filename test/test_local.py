@@ -10,7 +10,7 @@ from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM
 
 class TestLocalOptimization(unittest.TestCase):
     def test_deme_tree(self):
-        options = {"hibernation": False, "log_level": "debug"}
+        options = {"hibernation": False, "log_level": "debug", "random_seed": 1}
         levels = [
             EALevelConfig(
                 ea_class=SEA,

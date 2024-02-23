@@ -13,15 +13,15 @@ class LocalDeme(AbstractDeme):
         level: int,
         config: LocalOptimizationConfig,
         logger: FilteringBoundLogger,
-        seed: Individual,
+        sprout_seed: Individual,
         started_at=0,
     ) -> None:
         super().__init__(id, level, config, logger, started_at)
         self._method = config.method
-        self._seed = seed
+        self._sprout_seed = sprout_seed
         self._n_evals = 0
 
-        self._history.append([self._seed])
+        self._history.append([self._sprout_seed])
         self._run_history: list[Individual] = []
 
         self._options = {}
@@ -29,7 +29,7 @@ class LocalDeme(AbstractDeme):
             self._options["maxiter"] = config.__dict__["maxiter"]
 
     def run_metaepoch(self, _) -> None:
-        x0 = self._seed.genome
+        x0 = self._sprout_seed.genome
         fun = self._problem.evaluate
 
         result = sopt.minimize(

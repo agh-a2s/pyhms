@@ -18,15 +18,16 @@ def init_from_config(
     new_id: str,
     target_level: int,
     metaepoch_count: int,
-    seed: Individual,
+    sprout_seed: Individual,
     logger: FilteringBoundLogger,
+    random_seed: int = None,
 ) -> AbstractDeme:
     args = {
         "id": new_id,
         "level": target_level,
         "config": config,
         "started_at": metaepoch_count,
-        "seed": seed,
+        "sprout_seed": sprout_seed,
         "logger": logger,
     }
     child: AbstractDeme
@@ -35,8 +36,9 @@ def init_from_config(
     elif isinstance(config, EALevelConfig):
         child = EADeme(**args)
     elif isinstance(config, CMALevelConfig):
-        args["x0"] = seed
-        args.pop("seed", None)
+        args["x0"] = sprout_seed
+        args.pop("sprout_seed", None)
+        args["random_seed"] = random_seed
         child = CMADeme(**args)
     elif isinstance(config, LocalOptimizationConfig):
         child = LocalDeme(**args)
