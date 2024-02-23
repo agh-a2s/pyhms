@@ -20,8 +20,8 @@ class LocalDeme(AbstractDeme):
         self._method = config.method
         self._sprout_seed = sprout_seed
         self._n_evals = 0
-
-        self._history.append([self._sprout_seed])
+        starting_pop = [self._sprout_seed]
+        self._history.append([starting_pop])
         self._run_history: list[Individual] = []
 
         self._options = {}
@@ -45,7 +45,7 @@ class LocalDeme(AbstractDeme):
         # Callback does not include jacobian approximation etc
         self._n_evals += result.nfev
         # Encapsulating all iterations in a list to match actual metaepoch count
-        self._history.append(self._run_history)
+        self._history.append([self._run_history])
         # By design local optimization is a one-metaepoch process
         self._active = False
         self.log("Local Deme run executed")

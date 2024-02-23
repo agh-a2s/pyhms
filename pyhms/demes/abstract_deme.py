@@ -31,7 +31,10 @@ class AbstractDeme(ABC):
         self._bounds = config.bounds
         self._active = True
         self._centroid: np.ndarray | None = None
-        self._history: list[Individual] = []
+        # History of populations is a nested list, where each element is a list of individuals.
+        # The reason for this is that we want to keep track of the entire history of the deme,
+        # and for some algorithms (e.g. CMA-ES) HMS can run multiple generations during one metaepoch.
+        self._history: list[list[Individual]] = []
         self._children: list[AbstractDeme] = []
         self._logger = logger
 
@@ -66,15 +69,15 @@ class AbstractDeme(ABC):
 
     @property
     def all_individuals(self) -> list:
-        return [ind for pop in self.history for ind in pop]
+        return [ind for pop in self.history for generation in pop for ind in generation]
 
     @property
     def n_evaluations(self) -> int:
         return len(self.all_individuals)
 
     @property
-    def current_population(self) -> list:
-        return self._history[-1]
+    def current_population(self) -> list[Individual]:
+        return self._history[-1][-1]
 
     @property
     def best_current_individual(self) -> Individual:
