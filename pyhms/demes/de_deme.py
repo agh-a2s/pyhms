@@ -50,6 +50,7 @@ class DEDeme(AbstractDeme):
 
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0
+        metaepoch_offspring = []
         while epoch_counter < self._generations:
             donors = self._create_donor_vectors(np.array([ind.genome for ind in self.current_population]))
             donors_pop = [Individual(donor, problem=self._problem, decoder=IdentityDecoder()) for donor in donors]
@@ -57,14 +58,14 @@ class DEDeme(AbstractDeme):
             offspring = [self._crossover(parent, donor) for parent, donor in zip(self.current_population, donors_pop)]
 
             epoch_counter += 1
+            metaepoch_offspring.extend(offspring)
 
             if tree._gsc(tree):
+                self._history.append(metaepoch_offspring)
                 self._active = False
-                self._history.append(offspring)
                 self.log("DE Deme finished due to GSC")
                 return
-
-        self._history.append(offspring)
+        self._history.append(metaepoch_offspring)
         if self._lsc(self):
             self.log("DE Deme finished due to LSC")
             self._active = False

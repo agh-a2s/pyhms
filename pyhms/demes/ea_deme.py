@@ -40,17 +40,18 @@ class EADeme(AbstractDeme):
 
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0
+        metaepoch_offspring = []
         while epoch_counter < self._generations:
             offspring = self._ea.run(self.current_population)
             epoch_counter += 1
+            metaepoch_offspring.extend(offspring)
 
             if tree._gsc(tree):
+                self._history.append(metaepoch_offspring)
                 self._active = False
-                self._history.append(offspring)
                 self.log("EA Deme finished due to GSC")
                 return
-
-        self._history.append(offspring)
+        self._history.append(metaepoch_offspring)
         if self._lsc(self):
             self.log("EA Deme finished due to LSC")
             self._active = False

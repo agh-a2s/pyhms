@@ -39,6 +39,7 @@ class CMADeme(AbstractDeme):
         epoch_counter = 0
         genomes = [ind.genome for ind in self.current_population]
         values = [ind.fitness for ind in self.current_population]
+        metaepoch_offspring = []
         while epoch_counter < self.generations:
             self._cma_es.tell(genomes, values)
             offspring = [
@@ -49,15 +50,16 @@ class CMADeme(AbstractDeme):
             genomes = [ind.genome for ind in offspring]
             values = [ind.fitness for ind in offspring]
             epoch_counter += 1
+            metaepoch_offspring.extend(offspring)
 
             if tree._gsc(tree):
+                self._history.append(metaepoch_offspring)
                 self._active = False
                 self._centroid = None
-                self._history.append(offspring)
                 self.log("CMA Deme finished due to GSC")
                 return
         self._centroid = None
-        self._history.append(offspring)
+        self._history.append(metaepoch_offspring)
 
         if self._lsc(self) or self._cma_es.stop():
             self.log("CMA Deme finished due to LSC")
