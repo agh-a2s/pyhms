@@ -1,20 +1,8 @@
 import unittest
 
-import numpy as np
-from leap_ec.individual import Individual
-from leap_ec.problem import FunctionProblem
-from leap_ec.real_rep import create_real_vector
-from leap_ec.representation import Representation
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.problem import EvalCountingProblem, PrecisionCutoffProblem
-from pyhms.stop_conditions.usc import (
-    UniversalStopCondition,
-    MetaepochLimit,
-    DontRun,
-    DontStop,
-)
-from pyhms.stop_conditions.usc import DontStop
+from pyhms.stop_conditions.usc import DontRun, DontStop, MetaepochLimit, UniversalStopCondition
 from pyhms.tree import DemeTree
 
 from .config import DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
