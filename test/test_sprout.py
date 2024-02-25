@@ -8,7 +8,7 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
 from pyhms.sprout.sprout_generators import NBC_Generator
 from pyhms.sprout.sprout_mechanisms import SproutMechanism, get_NBC_sprout, get_simple_sprout
-from pyhms.stop_conditions.usc import DontStop, MetaepochLimit
+from pyhms.stop_conditions import DontStop, MetaepochLimit
 from pyhms.tree import DemeTree
 
 

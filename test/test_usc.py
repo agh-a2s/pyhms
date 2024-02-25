@@ -2,7 +2,7 @@ import unittest
 
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.stop_conditions.usc import DontRun, DontStop, MetaepochLimit, UniversalStopCondition
+from pyhms.stop_conditions import DontRun, DontStop, MetaepochLimit, UniversalStopCondition
 from pyhms.tree import DemeTree
 
 from .config import DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN

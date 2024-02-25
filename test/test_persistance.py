@@ -3,7 +3,7 @@ import pathlib as pl
 import unittest
 
 from pyhms.config import CMALevelConfig, DELevelConfig, TreeConfig
-from pyhms.stop_conditions.usc import DontStop, MetaepochLimit
+from pyhms.stop_conditions import DontStop, MetaepochLimit
 from pyhms.tree import DemeTree
 
 from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN, TEST_DIR

@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.stop_conditions.usc import DontStop
+from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
 from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
