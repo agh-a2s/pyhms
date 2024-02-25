@@ -7,7 +7,7 @@ from structlog.typing import FilteringBoundLogger
 from .config import TreeConfig
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
-from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
+from .logging_ import get_logger
 from .sprout.sprout_mechanisms import SproutMechanism
 
 
@@ -17,7 +17,7 @@ class DemeTree:
         self.config: TreeConfig = config
         self._gsc = config.gsc
         self._sprout_mechanism: SproutMechanism = config.sprout_mechanism
-        self._logger: FilteringBoundLogger = get_logger(config.options.get("log_level", DEFAULT_LOGGING_LEVEL))
+        self._logger: FilteringBoundLogger = get_logger(config.options.get("log_level"))
 
         nlevels = len(config.levels)
         if nlevels < 1:
