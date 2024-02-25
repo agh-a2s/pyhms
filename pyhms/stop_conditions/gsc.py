@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from ..problem import EvalCountingProblem, PrecisionCutoffProblem, StatsGatheringProblem
-from ..tree import DemeTree
+
+if TYPE_CHECKING:
+    from pyhms.tree import DemeTree
 
 
 class GlobalStopCondition(ABC):
     @abstractmethod
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -19,7 +22,7 @@ class RootStopped(GlobalStopCondition):
     GSC is true if the root is not active.
     """
 
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         return not tree.root.is_active
 
 
@@ -28,7 +31,7 @@ class AllStopped(GlobalStopCondition):
     GSC is true if there are no active demes in the tree.
     """
 
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         return len(list(tree.active_demes)) == 0
 
 
@@ -64,7 +67,7 @@ class FitnessEvalLimitReached(GlobalStopCondition):
         self.limit = limit
         self.weights = weights
 
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         levels = tree.config.levels
         n_levels = len(levels)
         if self.weights is None or isinstance(self.weights, str):
@@ -104,7 +107,7 @@ class SingularProblemEvalLimitReached(GlobalStopCondition):
     def __init__(self, limit: int) -> None:
         self.limit = limit
 
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         problem = tree.root._problem
         if not isinstance(problem, StatsGatheringProblem) and not isinstance(problem, EvalCountingProblem):
             raise ValueError("Problem has to be an instance of EvalCountingProblem")
@@ -125,7 +128,7 @@ class SingularProblemPrecisionReached(GlobalStopCondition):
     def __init__(self, problem: PrecisionCutoffProblem):
         self.problem = problem
 
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         return self.problem.hit_precision
 
     def __str__(self) -> str:
@@ -143,7 +146,7 @@ class NoActiveNonrootDemes(GlobalStopCondition):
     def __init__(self, n_metaepochs: int = 5) -> None:
         self.n_metaepochs = n_metaepochs
 
-    def __call__(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: "DemeTree") -> bool:
         step = tree.metaepoch_count
         for level_no in range(1, tree.height):
             if len(tree.levels[level_no]) == 0:

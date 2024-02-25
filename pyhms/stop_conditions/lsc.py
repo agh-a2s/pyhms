@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ..demes.abstract_deme import AbstractDeme
+if TYPE_CHECKING:
+    from pyhms.demes.abstract_deme import AbstractDeme
 
 
 class LocalStopCondition(ABC):
     @abstractmethod
-    def __call__(self, deme: AbstractDeme) -> bool:
+    def __call__(self, deme: "AbstractDeme") -> bool:
         raise NotImplementedError()
 
 
@@ -20,7 +22,7 @@ class FitnessSteadiness(LocalStopCondition):
         self.max_deviation = max_deviation
         self.n_metaepochs = n_metaepochs
 
-    def __call__(self, deme: AbstractDeme) -> bool:
+    def __call__(self, deme: "AbstractDeme") -> bool:
         if self.n_metaepochs > deme.metaepoch_count:
             return False
 
@@ -36,7 +38,7 @@ class AllChildrenStopped(LocalStopCondition):
     LSC is true if all children of the deme are stopped.
     """
 
-    def __call__(self, deme: AbstractDeme) -> bool:
+    def __call__(self, deme: "AbstractDeme") -> bool:
         if not deme.children:
             return False
 
