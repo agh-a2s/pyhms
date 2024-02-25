@@ -4,7 +4,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from enum import StrEnum
+from enum import Enum
 from typing import Any
 
 from ..problem import EvalCountingProblem, PrecisionCutoffProblem, StatsGatheringProblem
@@ -46,7 +46,7 @@ class AllStopped(GSC):
         return "AllStopped"
 
 
-class WeightingStrategy(StrEnum):
+class WeightingStrategy(str, Enum):
     EQUAL = "equal"
     ROOT = "root"
 
@@ -55,6 +55,7 @@ class FitnessEvalLimitReached(GSC):
     """
     GSC is true if the total number of fitness evaluations in the tree is greater than or equal to the limit.
     It supports different weighting strategies for the evaluations at different levels of the tree.
+    It should be used if different levels of the tree use different problems, otherwise use SingularProblemEvalLimitReached.
 
     The class can be initialized with a limit and an optional weighting strategy.
     The weighting strategy determines how evaluations at different levels contribute
@@ -106,6 +107,14 @@ class FitnessEvalLimitReached(GSC):
 
 
 class SingularProblemEvalLimitReached(GSC):
+    """
+    GSC is true if the total number of fitness evaluations in the tree is greater than or equal to the limit.
+    It assumes that the same problem is used at all levels of the tree.
+
+    Args:
+    - limit (int): The threshold number of evaluations to check against.
+    """
+
     def __init__(self, limit: int) -> None:
         super().__init__()
         self.limit = limit
@@ -121,6 +130,13 @@ class SingularProblemEvalLimitReached(GSC):
 
 
 class SingularProblemPrecisionReached(GSC):
+    """
+    GSC is true if the precision of the problem is reached.
+
+    Args:
+    - problem (PrecisionCutoffProblem): The problem to check the precision for.
+    """
+
     def __init__(self, problem: PrecisionCutoffProblem):
         super().__init__()
         self.problem = problem
@@ -133,6 +149,13 @@ class SingularProblemPrecisionReached(GSC):
 
 
 class NoActiveNonrootDemes(GSC):
+    """
+    GSC is true if there are no active non-root demes in the tree for a certain number of metaepochs.
+
+    Args:
+    - n_metaepochs (int): The number of metaepochs to wait before the condition is satisfied. Default: 5.
+    """
+
     def __init__(self, n_metaepochs: int = 5) -> None:
         super().__init__()
         self.n_metaepochs = n_metaepochs
