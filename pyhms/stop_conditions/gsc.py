@@ -1,49 +1,35 @@
-"""
-    Global stopping conditions.
-"""
-
-import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any
 
 from ..problem import EvalCountingProblem, PrecisionCutoffProblem, StatsGatheringProblem
 from ..tree import DemeTree
 
-logger = logging.getLogger(__name__)
 
-
-class GSC(ABC):
+class GlobalStopCondition(ABC):
     @abstractmethod
-    def satisfied(self, tree: DemeTree) -> bool:
+    def __call__(self, tree: DemeTree) -> bool:
         raise NotImplementedError()
 
-    def __call__(self, *args: Any, **kwds: Any) -> bool:
-        return self.satisfied(*args, **kwds)
+    def __str__(self) -> str:
+        return self.__class__.__name__
 
 
-class RootStopped(GSC):
+class RootStopped(GlobalStopCondition):
     """
     GSC is true if the root is not active.
     """
 
-    def satisfied(self, tree: DemeTree) -> bool:
-        return not tree.root.is_active
-
-    def __str__(self) -> str:
-        return "RootStopped"
+    def __call__(self, obj: DemeTree) -> bool:
+        return not obj.root.is_active
 
 
-class AllStopped(GSC):
+class AllStopped(GlobalStopCondition):
     """
     GSC is true if there are no active demes in the tree.
     """
 
-    def satisfied(self, tree: DemeTree) -> bool:
-        return len(list(tree.active_demes)) == 0
-
-    def __str__(self) -> str:
-        return "AllStopped"
+    def __call__(self, obj: DemeTree) -> bool:
+        return len(list(obj.active_demes)) == 0
 
 
 class WeightingStrategy(str, Enum):
@@ -51,11 +37,12 @@ class WeightingStrategy(str, Enum):
     ROOT = "root"
 
 
-class FitnessEvalLimitReached(GSC):
+class FitnessEvalLimitReached(GlobalStopCondition):
     """
     GSC is true if the total number of fitness evaluations in the tree is greater than or equal to the limit.
     It supports different weighting strategies for the evaluations at different levels of the tree.
-    It should be used if different levels of the tree use different problems, otherwise use SingularProblemEvalLimitReached.
+    It should be used if different levels of the tree use different problems,
+    otherwise use SingularProblemEvalLimitReached.
 
     The class can be initialized with a limit and an optional weighting strategy.
     The weighting strategy determines how evaluations at different levels contribute
@@ -74,12 +61,11 @@ class FitnessEvalLimitReached(GSC):
         limit: int,
         weights: list[float] | WeightingStrategy | None = WeightingStrategy.EQUAL,
     ) -> None:
-        super().__init__()
         self.limit = limit
         self.weights = weights
 
-    def satisfied(self, tree: DemeTree) -> bool:
-        levels = tree.config.levels
+    def __call__(self, obj: DemeTree) -> bool:
+        levels = obj.config.levels
         n_levels = len(levels)
         if self.weights is None or isinstance(self.weights, str):
             self._transform_weights(n_levels)
@@ -106,7 +92,7 @@ class FitnessEvalLimitReached(GSC):
         return f"FitnessEvalLimitReached(limit={self.limit}, weights={self.weights})"
 
 
-class SingularProblemEvalLimitReached(GSC):
+class SingularProblemEvalLimitReached(GlobalStopCondition):
     """
     GSC is true if the total number of fitness evaluations in the tree is greater than or equal to the limit.
     It assumes that the same problem is used at all levels of the tree.
@@ -116,11 +102,10 @@ class SingularProblemEvalLimitReached(GSC):
     """
 
     def __init__(self, limit: int) -> None:
-        super().__init__()
         self.limit = limit
 
-    def satisfied(self, tree: DemeTree) -> bool:
-        problem = tree.root._problem
+    def __call__(self, obj: DemeTree) -> bool:
+        problem = obj.root._problem
         if not isinstance(problem, StatsGatheringProblem) and not isinstance(problem, EvalCountingProblem):
             raise ValueError("Problem has to be an instance of EvalCountingProblem")
         return problem.n_evaluations >= self.limit
@@ -129,7 +114,7 @@ class SingularProblemEvalLimitReached(GSC):
         return f"SingularProblemEvalLimitReached(limit={self.limit})"
 
 
-class SingularProblemPrecisionReached(GSC):
+class SingularProblemPrecisionReached(GlobalStopCondition):
     """
     GSC is true if the precision of the problem is reached.
 
@@ -138,17 +123,16 @@ class SingularProblemPrecisionReached(GSC):
     """
 
     def __init__(self, problem: PrecisionCutoffProblem):
-        super().__init__()
         self.problem = problem
 
-    def satisfied(self, _: DemeTree) -> bool:
+    def __call__(self, obj: DemeTree) -> bool:
         return self.problem.hit_precision
 
     def __str__(self) -> str:
         return f"SingularProblemPrecisionReached(precision={self.problem.precision})"
 
 
-class NoActiveNonrootDemes(GSC):
+class NoActiveNonrootDemes(GlobalStopCondition):
     """
     GSC is true if there are no active non-root demes in the tree for a certain number of metaepochs.
 
@@ -157,16 +141,15 @@ class NoActiveNonrootDemes(GSC):
     """
 
     def __init__(self, n_metaepochs: int = 5) -> None:
-        super().__init__()
         self.n_metaepochs = n_metaepochs
 
-    def satisfied(self, tree: DemeTree) -> bool:
-        step = tree.metaepoch_count
-        for level_no in range(1, tree.height):
-            if len(tree.levels[level_no]) == 0:
+    def __call__(self, obj: DemeTree) -> bool:
+        step = obj.metaepoch_count
+        for level_no in range(1, obj.height):
+            if len(obj.levels[level_no]) == 0:
                 return False
 
-            for deme in tree.levels[level_no]:
+            for deme in obj.levels[level_no]:
                 if deme.is_active or step <= deme.started_at + deme.metaepoch_count + self.n_metaepochs:
                     return False
 

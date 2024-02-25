@@ -2,7 +2,7 @@ import unittest
 
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.stop_conditions.usc import dont_stop
+from pyhms.stop_conditions.usc import DontStop
 from pyhms.tree import DemeTree
 
 from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
@@ -19,14 +19,14 @@ class TestHibernation(unittest.TestCase):
                 bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
-                lsc=dont_stop(),
+                lsc=DontStop(),
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
-                lsc=dont_stop(),
+                lsc=DontStop(),
             ),
         ]
         tree_config = TreeConfig(

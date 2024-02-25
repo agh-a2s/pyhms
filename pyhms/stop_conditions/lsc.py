@@ -1,31 +1,26 @@
-"""
-    Local stopping conditions.
-"""
-
 from abc import ABC, abstractmethod
-from typing import Any
 
 import numpy as np
 
 from ..demes.abstract_deme import AbstractDeme
 
 
-class lsc(ABC):
+class LocalStopCondition(ABC):
     @abstractmethod
-    def satisfied(self, deme: AbstractDeme) -> bool:
+    def __call__(self, deme: AbstractDeme) -> bool:
         raise NotImplementedError()
 
-    def __call__(self, *args: Any, **kwds: Any) -> Any:
-        return self.satisfied(*args, **kwds)
 
+class FitnessSteadiness(LocalStopCondition):
+    """
+    LSC is true if the average fitness of the last n_metaepochs is within max_deviation of the minimum fitness.
+    """
 
-class fitness_steadiness(lsc):
     def __init__(self, max_deviation: float = 0.001, n_metaepochs: int = 5) -> None:
-        super().__init__()
         self.max_deviation = max_deviation
         self.n_metaepochs = n_metaepochs
 
-    def satisfied(self, deme: AbstractDeme) -> bool:
+    def __call__(self, deme: AbstractDeme) -> bool:
         if self.n_metaepochs > deme.metaepoch_count:
             return False
 
@@ -33,13 +28,16 @@ class fitness_steadiness(lsc):
         return np.mean(avg_fits) - np.min(avg_fits) <= self.max_deviation
 
     def __str__(self) -> str:
-        return f"fitness_steadiness(max_dev={self.max_deviation}, n={self.n_metaepochs})"
+        return f"FitnessSteadiness(max_dev={self.max_deviation}, n={self.n_metaepochs})"
 
 
-class all_children_stopped(lsc):
-    def satisfied(self, deme: AbstractDeme) -> bool:
-        ch = deme.children
-        return not (ch == []) and np.all([not c.active for c in ch])  # type: ignore[return-value]
+class AllChildrenStopped(LocalStopCondition):
+    """
+    LSC is true if all children of the deme are stopped.
+    """
 
-    def __str__(self) -> str:
-        return "all_children_stopped"
+    def __call__(self, deme: AbstractDeme) -> bool:
+        if not deme.children:
+            return False
+
+        return all(not child.active for child in deme.children)
