@@ -17,13 +17,13 @@ pip install git+https://github.com/maciejsmolka/pyhms.git@master
 ### Quick Start
 
 ```python
-from pyhms.config import CMALevelConfig, EALevelConfig
-from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.stop_conditions import DontStop, MetaepochLimit
-from leap_ec.problem import FunctionProblem
 import numpy as np
-from pyhms.sprout import get_NBC_sprout
+from leap_ec.problem import FunctionProblem
+from pyhms.config import EALevelConfig
+from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.hms import hms
+from pyhms.sprout import get_NBC_sprout
+from pyhms.stop_conditions import DontStop, MetaepochLimit
 
 square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
 square_bounds = np.array([(-20, 20), (-20, 20)])
@@ -52,6 +52,7 @@ config = [
 global_stop_condition = MetaepochLimit(limit=10)
 sprout_condition = get_NBC_sprout(level_limit=4)
 hms_tree = hms(config, global_stop_condition, sprout_condition)
+print(f"Best fitness: {hms_tree.best_individual.fitness}")
 ```
 
 ### Relevant literature
