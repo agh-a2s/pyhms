@@ -14,9 +14,45 @@ It's also possible to install the current master branch:
 pip install git+https://github.com/maciejsmolka/pyhms.git@master
 ```
 
-### Usage
+### Quick Start
 
-TODO
+```python
+from pyhms.config import CMALevelConfig, EALevelConfig
+from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.stop_conditions import DontStop, MetaepochLimit
+from leap_ec.problem import FunctionProblem
+import numpy as np
+from pyhms.sprout import get_NBC_sprout
+from pyhms.hms import hms
+
+square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
+square_bounds = np.array([(-20, 20), (-20, 20)])
+
+config = [
+    EALevelConfig(
+        ea_class=SEA,
+        generations=2,
+        problem=square_problem,
+        bounds=square_bounds,
+        pop_size=20,
+        mutation_std=1.0,
+        lsc=DontStop(),
+    ),
+    EALevelConfig(
+        ea_class=SEA,
+        generations=4,
+        problem=square_problem,
+        bounds=square_bounds,
+        pop_size=10,
+        mutation_std=0.25,
+        sample_std_dev=1.0,
+        lsc=DontStop(),
+    ),
+]
+global_stop_condition = MetaepochLimit(limit=10)
+sprout_condition = get_NBC_sprout(level_limit=4)
+hms_tree = hms(config, global_stop_condition, sprout_condition)
+```
 
 ### Relevant literature
 
