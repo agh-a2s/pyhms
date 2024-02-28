@@ -9,7 +9,7 @@ from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_mechanisms import SproutMechanism
-from .utils.print_tree import print_deme, print_tree_from_deme
+from .utils.print_tree import format_deme, print_tree_from_deme
 
 
 class DemeTree:
@@ -175,5 +175,5 @@ class DemeTree:
         return tree
 
     def print_tree(self) -> None:
-        print_deme(self.root, self.best_individual.fitness)
+        print(format_deme(self.root, self.best_individual.fitness))
         print_tree_from_deme(self.root, best_fitness=self.best_individual.fitness)
