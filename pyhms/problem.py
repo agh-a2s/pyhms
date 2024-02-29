@@ -31,9 +31,10 @@ class EvalCountingProblem(Problem):
         return f"EvalCountingProblem({inner_str})"
 
 class EvalCutoffProblem(EvalCountingProblem):
-    def __init__(self, decorated_problem: Problem, eval_cutoff: int):
+    def __init__(self, decorated_problem: Problem, eval_cutoff: int, global_optima: float):
         super().__init__(decorated_problem)
         self._eval_cutoff = eval_cutoff
+        self.global_optima = global_optima
 
     def evaluate(self, phenome, *args, **kwargs):
         if self._n_evals >= self._eval_cutoff:

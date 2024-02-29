@@ -32,6 +32,7 @@ class FarEnough(DemeLevelCandidatesFilter):
             child_seeds = candidates[deme][1]
             for sibling in child_siblings:
                 child_seeds = list(filter(lambda ind: nla.norm(ind.genome - sibling.centroid, ord=self.norm_ord) > self.min_distance, child_seeds))
+                candidates[deme] = (candidates[deme][0], child_seeds)
         return candidates
 
 
@@ -43,7 +44,8 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         self.norm_ord = norm_ord
     
     def __call__(self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
-        assert 'NBC_mean_distance' in next(iter(candidates.values()))[0], "NBC_FarEnough filter requires NBC_mean_distance feature in candidates added throuhg NBC_Generator"
+        if len(candidates) > 0:
+            assert 'NBC_mean_distance' in next(iter(candidates.values()))[0], "NBC_FarEnough filter requires NBC_mean_distance feature in candidates added throuhg NBC_Generator"
 
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]

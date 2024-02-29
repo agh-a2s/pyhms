@@ -1,0 +1,12 @@
+Old configs:
+{'far_enough': 0.288769018813231, 'generations1': 2, 'generations2': 8, 'level_limit': 3, 'meataepoch2': 185, 'mutation1': 2.7548740563169476, 'pop1': 22, 'sigma2': 2.8308793657377334}
+{'far_enough': 5.533764915621696, 'generations1': 3, 'generations2': 2, 'level_limit': 10, 'meataepoch2': 12, 'mutation1': 0.30113932430261714, 'mutation2': 0.03637808039096236, 'pop1': 29, 'pop2': 20, 'sample_dev2': 0.9375043636862485}
+{'far_enough': 16.57532081548498, 'generations1': 2, 'generations2': 10, 'level_limit': 6, 'meataepoch2': 134, 'mutation1': 2.241413971578746, 'pop1': 32, 'sigma2': 2.6128662633612847}
+{'far_enough': 13.850188638220365, 'generations1': 2, 'generations2': 9, 'level_limit': 5, 'meataepoch2': 86, 'mutation1': 1.265542040510019, 'pop1': 25, 'sigma2': 1.2710313593749352}
+{'far_enough': 16.85391591224264, 'generations1': 2, 'generations2': 6, 'level_limit': 4, 'meataepoch2': 6, 'mutation1': 2.5459184638416805, 'mutation2': 0.2906046628084067, 'pop1': 78, 'pop2': 35, 'sample_dev2': 0.9618745655809818}
+New configs:
+{'generations1': 2, 'generations2': 21, 'level_limit': 8, 'meataepoch2': 263, 'mutation1': 1.9484976169586619, 'nbc_cut': 1.5714303852822233, 'nbc_far': 3.011773879099489, 'nbc_trunc': 0.3626768079917587, 'pop1': 23, 'sigma2': 0.5254858132124841}
+{'generations1': 2, 'generations2': 2, 'level_limit': 5, 'meataepoch2': 8, 'mutation1': 2.398264205799547, 'mutation2': 0.5386761396349128, 'nbc_cut': 3.7719456472737747, 'nbc_far': 3.548615403166231, 'nbc_trunc': 0.8967575335302175, 'pop1': 23, 'pop2': 32, 'sample_dev2': 0.5573119972683999}
+{'generations1': 1, 'generations2': 27, 'level_limit': 3, 'meataepoch2': 161, 'mutation1': 2.495415535209181, 'nbc_cut': 1.6174348913978842, 'nbc_far': 2.85292114809346, 'nbc_trunc': 0.38220900684376746, 'pop1': 22, 'sigma2': 0.33176438012625653}
+{'generations1': 3, 'generations2': 24, 'level_limit': 3, 'meataepoch2': 141, 'mutation1': 0.3907233317739933, 'nbc_cut': 3.9824058911712616, 'nbc_far': 3.648465811927861, 'nbc_trunc': 0.8991953759112247, 'pop1': 30, 'sigma2': 1.5867909128092943}
+{'generations1': 1, 'generations2': 2, 'level_limit': 5, 'meataepoch2': 6, 'mutation1': 0.4789120293659853, 'mutation2': 0.16658384975799623, 'nbc_cut': 1.7549302039405932, 'nbc_far': 3.9921360310330574, 'nbc_trunc': 0.29400968309797937, 'pop1': 103, 'pop2': 24, 'sample_dev2': 0.9038384697854606}

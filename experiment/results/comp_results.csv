@@ -1,0 +1,46 @@
+Algo;evaluation factor;dimensions;test suite;config;fitness
+ilshade;9500;10;2;{'archivesize': 9, 'popsize': 186}
+ilshade;9500;10;3;{'archivesize': 13, 'popsize': 71}
+ilshade;9500;10;4;{'archivesize': 13, 'popsize': 71}
+ilshade;9500;10;4;{'archivesize': 20, 'popsize': 68}
+ilshade;9500;10;2;{'archivesize': 12, 'popsize': 180}
+ilshade;9500;10;0;{'archivesize': 3, 'popsize': 52}
+ilshade;9500;10;1;{'archivesize': 3, 'popsize': 52}
+ilshade;9500;10;0;{'archivesize': 8, 'popsize': 49}
+ilshade;9500;10;0;{'archivesize': 5, 'popsize': 83}
+ilshade;9500;10;1;{'archivesize': 5, 'popsize': 83}
+ilshade;9500;10;0;{'archivesize': 5, 'popsize': 83}
+ilshade;9500;10;1;{'archivesize': 5, 'popsize': 83}
+ilshade;9500;10;2;{'archivesize': 5, 'popsize': 83}
+ilshade;9500;10;2;{'archivesize': 8, 'popsize': 147}
+ilshade;9500;10;3;{'archivesize': 13, 'popsize': 71}
+ilshade;9500;10;4;{'archivesize': 17, 'popsize': 79}
+ilshade;9500;10;4;{'archivesize': 9, 'popsize': 128}
+ilshade;9500;10;3;{'archivesize': 14, 'popsize': 63}
+ilshade;9500;10;0;{'archivesize': 14, 'popsize': 63}
+ilshade;9500;10;1;{'archivesize': 14, 'popsize': 63}
+ilshade;9500;10;2;{'archivesize': 14, 'popsize': 63}
+ilshade;9500;10;3;{'archivesize': 14, 'popsize': 63}
+ilshade;9500;10;4;{'archivesize': 14, 'popsize': 63}
+cmaes;9500;10;1;{'incpopsize': 5, 'popsize': 23, 'sigma0': 0.644655825861725, 'tolfun': 3.195365337704041e-10}
+cmaes;9500;10;2;{'incpopsize': 4, 'popsize': 21, 'sigma0': 3.1115428384947466, 'tolfun': 3.720206111323163e-09}
+cmaes;9500;10;1;{'incpopsize': 4, 'popsize': 15, 'sigma0': 3.3869313514486628, 'tolfun': 6.995934380765318e-10}
+cmaes;9500;10;2;{'incpopsize': 4, 'popsize': 15, 'sigma0': 3.3869313514486628, 'tolfun': 6.995934380765318e-10}
+cmaes;9500;10;3;{'incpopsize': 2, 'popsize': 15, 'sigma0': 3.198595880444435, 'tolfun': 3.262297273400133e-10}
+cmaes;9500;10;1;{'incpopsize': 2, 'popsize': 17, 'sigma0': 7.255551195959348, 'tolfun': 5.05233319309902e-11}
+cmaes;9500;10;2;{'incpopsize': 5, 'popsize': 21, 'sigma0': 1.5422278545614685, 'tolfun': 4.16830714347795e-09}
+cmaes;9500;10;1;{'incpopsize': 2, 'popsize': 20, 'sigma0': 4.054626841371361, 'tolfun': 1.4133949944885345e-11}
+cmaes;9500;10;2;{'incpopsize': 3, 'popsize': 40, 'sigma0': 6.659145771531261, 'tolfun': 7.114659974037497e-09}
+cmaes;9500;10;0;{'incpopsize': 3, 'popsize': 21, 'sigma0': 2.485196084766226, 'tolfun': 3.197682343766352e-10}
+cmaes;9500;10;0;{'incpopsize': 3, 'popsize': 15, 'sigma0': 7.338873801624451, 'tolfun': 1.5244770018572845e-09}
+cmaes;9500;10;0;{'incpopsize': 4, 'popsize': 37, 'sigma0': 5.839651851914823, 'tolfun': 1.1768739925474262e-09}
+cmaes;9500;10;0;{'incpopsize': 3, 'popsize': 15, 'sigma0': 7.338873801624451, 'tolfun': 1.5244770018572845e-09}
+cmaes;9500;10;0;{'incpopsize': 5, 'popsize': 21, 'sigma0': 1.5422278545614685, 'tolfun': 4.16830714347795e-09}
+cmaes;9500;10;3;{'incpopsize': 3, 'popsize': 66, 'sigma0': 1.5487085840722823, 'tolfun': 9.351568249636177e-09}
+cmaes;9500;10;4;{'incpopsize': 3, 'popsize': 55, 'sigma0': 6.686851878321965, 'tolfun': 7.842317499861448e-09}
+cmaes;9500;10;3;{'incpopsize': 1, 'popsize': 65, 'sigma0': 1.0458698061019893, 'tolfun': 8.24673039138759e-09}
+cmaes;9500;10;4;{'incpopsize': 2, 'popsize': 43, 'sigma0': 0.8174020430893367, 'tolfun': 3.4915709045633102e-09}
+cmaes;9500;10;3;{'incpopsize': 5, 'popsize': 21, 'sigma0': 1.5422278545614685, 'tolfun': 4.16830714347795e-09}
+cmaes;9500;10;4;{'incpopsize': 5, 'popsize': 26, 'sigma0': 2.296823342420593, 'tolfun': 6.352594265554864e-09}
+cmaes;9500;10;3;{'incpopsize': 2, 'popsize': 15, 'sigma0': 3.198595880444435, 'tolfun': 3.262297273400133e-10}
+cmaes;9500;10;4;{'incpopsize': 2, 'popsize': 15, 'sigma0': 3.198595880444435, 'tolfun': 3.262297273400133e-10}

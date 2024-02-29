@@ -105,8 +105,10 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.uvenv
 env/
 venv/
+uvenv/
 ENV/
 env.bak/
 venv.bak/
@@ -137,3 +139,5 @@ dmypy.json
 *.gdat
 *.mp4
 
+# SMAC cache
+smac3_output/

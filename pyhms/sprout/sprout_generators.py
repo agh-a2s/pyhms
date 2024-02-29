@@ -24,7 +24,7 @@ class BestPerDeme(SproutCandidatesGenerator):
 
 class NBC_Generator(SproutCandidatesGenerator):
 
-    def __init__(self, distance_factor: float, truncation_factor: float) -> None:
+    def __init__(self, distance_factor: float = 2.0, truncation_factor: float = 1.0) -> None:
         self.distance_factor = distance_factor
         self.truncation_factor = truncation_factor
         super().__init__()

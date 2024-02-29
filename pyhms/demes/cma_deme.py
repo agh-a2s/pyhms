@@ -10,13 +10,17 @@ from ..utils.misc_util import compute_centroid
 
 class CMADeme(AbstractDeme):
 
-    def __init__(self, id: str, level: int, config: CMALevelConfig, x0: Individual, started_at: int=0) -> None:
+    def __init__(self, id: str, level: int, config: CMALevelConfig, x0: Individual, started_at: int=0, rseed: int=None) -> None:
         super().__init__(id, level, config, started_at, x0)
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
+        inopts = {'bounds': [lb, ub], 'verbose': -9}
+        if rseed is not None:
+            inopts['seed'] = rseed + self._started_at
+            inopts['randn'] = np.random.randn
 
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts={'bounds': [lb, ub], 'verbose': -9})
+        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=inopts)
         starting_pop = [Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()]
         Individual.evaluate_population(starting_pop)
         self._history.append(starting_pop)

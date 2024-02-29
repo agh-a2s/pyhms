@@ -58,7 +58,7 @@ class SEA(SimpleEA):
             pipeline=[
                 lops.tournament_selection,
                 lops.clone,
-                mutate_gaussian(std=mutation_std, hard_bounds=bounds, expected_num_mutations='isotropic'),
+                mutate_gaussian(std=mutation_std, bounds=bounds, expected_num_mutations='isotropic'),
                 lops.evaluate,
                 lops.pool(size=pop_size)
             ], 

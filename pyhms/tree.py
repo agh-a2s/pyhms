@@ -20,6 +20,15 @@ class DemeTree():
         nlevels = len(config.levels)
         if nlevels < 1:
             raise ValueError("Level number must be positive")
+        
+        if 'random_state' in config.options:
+            self._random_state = config.options['random_state']
+            import random
+            import numpy as np
+            random.seed(self._random_state)
+            np.random.seed(self._random_state)
+        else:
+            self._random_state = None
 
         self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
         root_deme = init_root(config.levels[0])
@@ -89,7 +98,7 @@ class DemeTree():
                 new_id = self._next_child_id(deme)
                 config = self.config.levels[target_level]
 
-                child = init_from_config(config, new_id, target_level, self.metaepoch_count, seed=ind)
+                child = init_from_config(config, new_id, target_level, self.metaepoch_count, seed=ind, rseed=self._random_state)
                 deme.add_child(child)
                 self._levels[target_level].append(child)
 

@@ -1,5 +1,6 @@
 from leap_ec import Individual
 from leap_ec.decoder import IdentityDecoder
+from scipy import optimize as sopt
 
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.config import EALevelConfig
@@ -30,6 +31,13 @@ class EADeme(AbstractDeme):
 
         self._history.append(starting_pop)
 
+        self._run_minimize: bool = False
+        if 'run_minimize' in config.__dict__:
+            self._run_minimize = config.run_minimize
+        if self._run_minimize:
+            argnames = set(sopt.minimize.__code__.co_varnames) - {'x0', 'fun'}
+            self._minimize_args = {k: v for k, v in config.__dict__.items() if k in argnames}
+
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0
         while epoch_counter < self._generations:
@@ -42,7 +50,21 @@ class EADeme(AbstractDeme):
                 return
 
         self._history.append(offspring)
-        if self._lsc(self): self._active = False
+        if self._lsc(self):
+            self._active = False
+            if self._run_minimize: self.run_local_optimization()
+
+    def run_local_optimization(self) -> None:
+        x0 = self.best_current_individual.genome
+        fun = self._problem.evaluate
+        try:
+            res = sopt.minimize(fun, x0, **self._minimize_args)
+        except RuntimeWarning:
+            print("Invalid value encoutered: ", res.x, res.fun)
+
+        opt_ind = Individual(res.x, problem=self._problem)
+        opt_ind.fitness = res.fun
+        self.current_population.append(opt_ind)
 
     def __str__(self) -> str:
         if self._seed is None:

@@ -11,7 +11,7 @@ from leap_ec import Individual
 def init_root(config: BaseLevelConfig) -> AbstractDeme:
     return init_from_config(config, "root", 0, 0, None)
 
-def init_from_config(config: BaseLevelConfig, new_id: str, target_level: int, metaepoch_count: int, seed: Individual) -> AbstractDeme:
+def init_from_config(config: BaseLevelConfig, new_id: str, target_level: int, metaepoch_count: int, seed: Individual, rseed: int=None) -> AbstractDeme:
     if isinstance(config, DELevelConfig):
         child = DEDeme(
             id=new_id,
@@ -34,7 +34,8 @@ def init_from_config(config: BaseLevelConfig, new_id: str, target_level: int, me
             level=target_level,
             config=config,
             started_at=metaepoch_count,
-            x0=seed
+            x0=seed,
+            rseed=rseed
         )
     elif isinstance(config, LocalOptimizationConfig):
         child = LocalDeme(
