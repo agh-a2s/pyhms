@@ -42,4 +42,4 @@ class AllChildrenStopped(LocalStopCondition):
         if not deme.children:
             return False
 
-        return all(not child.active for child in deme.children)
+        return all(not child.is_active for child in deme.children)
