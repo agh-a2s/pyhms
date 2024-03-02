@@ -2,7 +2,7 @@ import unittest
 
 from pyhms.config import EALevelConfig, LocalOptimizationConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.stop_conditions.usc import dont_stop
+from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
 from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM
@@ -19,12 +19,12 @@ class TestLocalOptimization(unittest.TestCase):
                 bounds=[(-20, 20), (-20, 20)],
                 pop_size=20,
                 mutation_std=1.0,
-                lsc=dont_stop(),
+                lsc=DontStop(),
             ),
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
                 bounds=[(-20, 20), (-20, 20)],
-                lsc=dont_stop(),
+                lsc=DontStop(),
             ),
         ]
         tree_config = TreeConfig(

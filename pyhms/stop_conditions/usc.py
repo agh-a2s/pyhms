@@ -1,45 +1,36 @@
-"""
-    Universal stopping conditions. May be used as both local and global s.c.
-"""
 from abc import ABC, abstractmethod
-from typing import Any, Union
+from typing import TYPE_CHECKING, Union
 
-from ..demes.abstract_deme import AbstractDeme
-from ..tree import DemeTree
+if TYPE_CHECKING:
+    from pyhms.demes.abstract_deme import AbstractDeme
+    from pyhms.tree import DemeTree
 
 
-class usc(ABC):
+class UniversalStopCondition(ABC):
     @abstractmethod
-    def satisfied(self, obj: Union[DemeTree, AbstractDeme]) -> bool:
+    def __call__(self, obj: Union["DemeTree", "AbstractDeme"]) -> bool:
         raise NotImplementedError()
 
-    def __call__(self, *args: Any, **kwds: Any) -> Any:
-        return self.satisfied(*args, **kwds)
+    def __str__(self) -> str:
+        return self.__class__.__name__
 
 
-class metaepoch_limit(usc):
+class MetaepochLimit(UniversalStopCondition):
     def __init__(self, limit: int) -> None:
-        super().__init__()
         self.limit = limit
 
-    def satisfied(self, obj: Union[DemeTree, AbstractDeme]) -> bool:
+    def __call__(self, obj: Union["DemeTree", "AbstractDeme"]) -> bool:
         return obj.metaepoch_count >= self.limit
 
     def __str__(self) -> str:
-        return f"metaepoch_limit({self.limit})"
+        return f"MetaepochLimit({self.limit})"
 
 
-class dont_stop(usc):
-    def satisfied(self, _: Union[DemeTree, AbstractDeme]) -> bool:
+class DontStop(UniversalStopCondition):
+    def __call__(self, _: Union["DemeTree", "AbstractDeme"]) -> bool:
         return False
 
-    def __str__(self) -> str:
-        return "dont_stop"
 
-
-class dont_run(usc):
-    def satisfied(self, _: Union[DemeTree, AbstractDeme]) -> bool:
+class DontRun(UniversalStopCondition):
+    def __call__(self, _: Union["DemeTree", "AbstractDeme"]) -> bool:
         return True
-
-    def __str__(self) -> str:
-        return "dont_run"
