@@ -1,5 +1,3 @@
-from typing import Dict, List, Tuple
-
 import dill as pkl
 from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
@@ -34,12 +32,12 @@ class DemeTree:
         else:
             self._random_seed = None
 
-        self._levels: List[List[AbstractDeme]] = [[] for _ in range(nlevels)]
+        self._levels: list[list[AbstractDeme]] = [[] for _ in range(nlevels)]
         root_deme = init_root(config.levels[0], self._logger)
         self._levels[0].append(root_deme)
 
     @property
-    def levels(self):
+    def levels(self) -> list[list[AbstractDeme]]:
         return self._levels
 
     @property
@@ -47,23 +45,23 @@ class DemeTree:
         return len(self.levels)
 
     @property
-    def root(self):
+    def root(self) -> AbstractDeme:
         return self.levels[0][0]
 
     @property
-    def all_demes(self) -> List[Tuple[int, AbstractDeme]]:
+    def all_demes(self) -> list[tuple[int, AbstractDeme]]:
         return [(level_no, deme) for level_no in range(self.height) for deme in self.levels[level_no]]
 
     @property
-    def leaves(self) -> List[AbstractDeme]:
+    def leaves(self) -> list[AbstractDeme]:
         return self.levels[-1]
 
     @property
-    def active_demes(self) -> List[Tuple[int, AbstractDeme]]:
+    def active_demes(self) -> list[tuple[int, AbstractDeme]]:
         return [(level_no, deme) for level_no in range(self.height) for deme in self.levels[level_no] if deme.is_active]
 
     @property
-    def active_non_leaves(self) -> List[Tuple[int, AbstractDeme]]:
+    def active_non_leaves(self) -> list[tuple[int, AbstractDeme]]:
         return [
             (level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active
         ]
@@ -125,7 +123,7 @@ class DemeTree:
                         self._logger.debug("Deme started hibernating", deme=deme.id)
                     deme._hibernating = True
 
-    def _do_sprout(self, deme_seeds: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]) -> None:
+    def _do_sprout(self, deme_seeds: dict[AbstractDeme, tuple[dict[str, float], list[Individual]]]) -> None:
         for deme, info in deme_seeds.items():
             target_level = deme.level + 1
 
