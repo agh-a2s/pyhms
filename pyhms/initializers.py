@@ -10,17 +10,20 @@ def sample_normal(
     """
     Sample points from a multivariate normal distribution.
 
-    Args:
-    - center (np.array): The mean of the distribution.
-    - std_dev (float): The standard deviation for each dimension of the distribution;
+    :param np.array center: The mean of the distribution.
+    :param float std_dev: The standard deviation for each dimension of the distribution.
         The covariance matrix is assumed to be diagonal, with each diagonal
-        element being std_dev**2, indicating identical variance for each dimension
+        element being `std_dev**2`, indicating identical variance for each dimension
         and no covariance between dimensions.
-    - bounds (list of tuples or np.array or None): Min and max bounds for each dimension.
-
-    Returns a function that creates a sample from the distribution.
+    :param bounds: Min and max bounds for each dimension. It can be a list of tuples, a numpy array, or None.
+    :type bounds: np.array or None
+    :return: A function that creates a sample from the distribution.
+    :rtype: function
 
     Example:
+
+    .. code-block:: python
+
         >>> from pyhms.initializers import sample_normal
         >>> import numpy as np
         >>> bounds = [(-1, 1), (-1, 1)]

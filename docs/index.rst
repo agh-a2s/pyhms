@@ -1,20 +1,24 @@
-.. pyhms documentation master file, created by
-   sphinx-quickstart on Sat Feb 24 10:49:25 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: ../README.rst
 
 Welcome to pyhms's documentation!
-=================================
+===================================
+
+**pyhms** is a Python implementation of Hierarchic Memetic Strategy (HMS).
+
+The Hierarchic Memetic Strategy is a stochastic global optimizer designed to tackle highly multimodal problems. It is a composite global optimization strategy consisting of a multi-population evolutionary strategy and some auxiliary methods. The HMS makes use of a dynamically-evolving data structure that provides an organization among the component populations. It is a tree with a fixed maximal height and variable internal node degree. Each component population is governed by a particular optimization engine. This package provides a simple python implementation.
+
+Check out the :doc:`usage` section for further information, including
+how to install the project.
+
+.. note::
+
+   This project is under active development.
+
+Contents
+--------
 
 .. toctree::
+
    Home <self>
-   api
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   problem
+   usage
