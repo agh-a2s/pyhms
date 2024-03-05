@@ -2,8 +2,11 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 from leap_ec.individual import Individual
+from leap_ec.problem import Problem
 from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
+
+from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
 
 def compute_centroid(population: list[Individual]) -> np.ndarray:
@@ -26,20 +29,20 @@ class AbstractDeme(ABC):
         self._sprout_seed = sprout_seed
         self._level = level
         self._config = config
-        self._lsc = config.lsc
-        self._problem = config.problem
-        self._bounds = config.bounds
-        self._active = True
+        self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
+        self._problem: Problem = config.problem
+        self._bounds: np.ndarray = config.bounds
+        self._active: bool = True
         self._centroid: np.ndarray | None = None
         # History of populations is a nested list, where each element is a list of individuals.
         # The reason for this is that we want to keep track of the entire history of the deme,
         # and for some algorithms (e.g. CMA-ES) HMS can run multiple generations during one metaepoch.
         self._history: list[list[Individual]] = []
         self._children: list[AbstractDeme] = []
-        self._logger = logger
+        self._logger: FilteringBoundLogger = logger
 
         # Additional low-level options
-        self._hibernating = False
+        self._hibernating: bool = False
 
     @property
     def id(self) -> str:

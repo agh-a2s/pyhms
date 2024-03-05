@@ -8,7 +8,7 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
 from pyhms.sprout.sprout_generators import NBC_Generator
 from pyhms.sprout.sprout_mechanisms import SproutMechanism, get_NBC_sprout, get_simple_sprout
-from pyhms.stop_conditions.usc import dont_stop, metaepoch_limit
+from pyhms.stop_conditions import DontStop, MetaepochLimit
 from pyhms.tree import DemeTree
 
 
@@ -27,7 +27,7 @@ class TestSprout(unittest.TestCase):
         for limit in [2, 4, 8]:
             correct_sprout = True
             function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
-            gsc = metaepoch_limit(limit=20)
+            gsc = MetaepochLimit(limit=20)
             sprout_cond = get_simple_sprout(10.0, limit)
 
             config = [
@@ -38,14 +38,14 @@ class TestSprout(unittest.TestCase):
                     bounds=[(-512, 512), (-512, 512), (-512, 512)],
                     pop_size=20,
                     mutation_std=50.0,
-                    lsc=dont_stop(),
+                    lsc=DontStop(),
                 ),
                 CMALevelConfig(
                     generations=2,
                     problem=function_problem,
                     bounds=[(-512, 512), (-512, 512), (-512, 512)],
                     sigma0=2.5,
-                    lsc=metaepoch_limit(limit=8),
+                    lsc=MetaepochLimit(limit=8),
                 ),
             ]
 
@@ -88,7 +88,7 @@ class TestSprout(unittest.TestCase):
     def test_default_nbc_sprout(self):
         correct_sprout = True
         function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
-        gsc = metaepoch_limit(limit=20)
+        gsc = MetaepochLimit(limit=20)
         sprout_cond = get_NBC_sprout()
         limit = 4
 
@@ -100,14 +100,14 @@ class TestSprout(unittest.TestCase):
                 bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 pop_size=20,
                 mutation_std=50.0,
-                lsc=dont_stop(),
+                lsc=DontStop(),
             ),
             CMALevelConfig(
                 generations=2,
                 problem=function_problem,
                 bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 sigma0=2.5,
-                lsc=metaepoch_limit(limit=8),
+                lsc=MetaepochLimit(limit=8),
             ),
         ]
 
@@ -148,7 +148,7 @@ class TestSprout(unittest.TestCase):
     def test_nbc_sprout_with_truncation(self):
         correct_sprout = True
         function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
-        gsc = metaepoch_limit(limit=20)
+        gsc = MetaepochLimit(limit=20)
         sprout_cond = SproutMechanism(
             NBC_Generator(2.0, 0.4),
             [NBC_FarEnough(2.0, 2), DemeLimit(1)],
@@ -164,14 +164,14 @@ class TestSprout(unittest.TestCase):
                 bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 pop_size=20,
                 mutation_std=50.0,
-                lsc=dont_stop(),
+                lsc=DontStop(),
             ),
             CMALevelConfig(
                 generations=2,
                 problem=function_problem,
                 bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 sigma0=2.5,
-                lsc=metaepoch_limit(limit=8),
+                lsc=MetaepochLimit(limit=8),
             ),
         ]
 
