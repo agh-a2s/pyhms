@@ -28,7 +28,7 @@ class AbstractDeme(ABC):
         self._started_at = started_at
         self._sprout_seed = sprout_seed
         self._level = level
-        self._config = config
+        self._config: BaseLevelConfig = config
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
         self._problem: Problem = config.problem
         self._bounds: np.ndarray = config.bounds
@@ -92,18 +92,18 @@ class AbstractDeme(ABC):
         return len(self._history) - 1
 
     @property
-    def config(self):
+    def config(self) -> BaseLevelConfig:
         return self._config
 
     @property
-    def children(self):
+    def children(self) -> list["AbstractDeme"]:
         return self._children
 
-    def add_child(self, deme):
+    def add_child(self, deme: "AbstractDeme") -> None:
         self._children.append(deme)
 
     @abstractmethod
-    def run_metaepoch(self, tree):
+    def run_metaepoch(self, tree) -> None:
         raise NotImplementedError()
 
     def log(self, message: str) -> None:
