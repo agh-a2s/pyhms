@@ -66,7 +66,7 @@ class TestSprout(unittest.TestCase):
                     for level, deme in hms_tree.all_demes:
                         print(f"Level {level}")
                         print(f"Active({deme.is_active}) {deme}")
-                        print(f"Centroid position at the start {compute_centroid(deme.history[0][0])}")
+                        print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                         print(f"Current centroid position {compute_centroid(deme.current_population)}")
                     break
 
@@ -76,7 +76,7 @@ class TestSprout(unittest.TestCase):
                     for level, deme in hms_tree.all_demes:
                         print(f"Level {level}")
                         print(f"Active({deme.is_active}) {deme}")
-                        print(f"Centroid position at the start {compute_centroid(deme.history[0][0])}")
+                        print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                         print(f"Current centroid position {compute_centroid(deme.current_population)}")
 
             self.assertEqual(
@@ -126,7 +126,7 @@ class TestSprout(unittest.TestCase):
                 for level, deme in hms_tree.all_demes:
                     print(f"Level {level}")
                     print(f"Active({deme.is_active}) {deme}")
-                    print(f"Centroid position at the start {compute_centroid(deme.history[0][0])}")
+                    print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                     print(f"Current centroid position {compute_centroid(deme.current_population)}")
                 break
 
@@ -136,7 +136,7 @@ class TestSprout(unittest.TestCase):
                 for level, deme in hms_tree.all_demes:
                     print(f"Level {level}")
                     print(f"Active({deme.is_active}) {deme}")
-                    print(f"Centroid position at the start {compute_centroid(deme.history[0][0])}")
+                    print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                     print(f"Current centroid position {compute_centroid(deme.current_population)}")
 
             self.assertEqual(
@@ -190,7 +190,7 @@ class TestSprout(unittest.TestCase):
                 for level, deme in hms_tree.all_demes:
                     print(f"Level {level}")
                     print(f"Active({deme.is_active}) {deme}")
-                    print(f"Centroid position at the start {compute_centroid(deme.history[0][0])}")
+                    print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                     print(f"Current centroid position {compute_centroid(deme.current_population)}")
                 break
 
@@ -200,7 +200,7 @@ class TestSprout(unittest.TestCase):
                 for level, deme in hms_tree.all_demes:
                     print(f"Level {level}")
                     print(f"Active({deme.is_active}) {deme}")
-                    print(f"Centroid position at the start {compute_centroid(deme.history[0][0])}")
+                    print(f"Centroid position at the start {compute_centroid(deme.history[0])}")
                     print(f"Current centroid position {compute_centroid(deme.current_population)}")
 
             self.assertEqual(

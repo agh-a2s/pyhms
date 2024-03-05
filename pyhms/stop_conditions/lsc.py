@@ -27,7 +27,7 @@ class FitnessSteadiness(LocalStopCondition):
             return False
 
         avg_fits = [
-            np.mean([ind.fitness for generation in deme.history[n] for ind in generation])
+            np.mean([ind.fitness for generation in deme._history[n] for ind in generation])
             for n in range(-self.n_metaepochs, 0)
         ]
         return np.mean(avg_fits) - np.min(avg_fits) <= self.max_deviation

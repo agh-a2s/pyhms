@@ -43,22 +43,10 @@ class TestReproducibility(unittest.TestCase):
         best_genome_equality_mask = hms_tree_1.best_individual.genome == hms_tree_2.best_individual.genome
         self.assertEqual(np.all(best_genome_equality_mask), True, "Best individuals should be equal")
         all_genomes_1 = np.array(
-            [
-                ind.genome
-                for _, deme in hms_tree_1.all_demes
-                for pop in deme.history
-                for generation in pop
-                for ind in generation
-            ]
+            [ind.genome for _, deme in hms_tree_1.all_demes for pop in deme.history for ind in pop]
         ).flatten()
         all_genomes_2 = np.array(
-            [
-                ind.genome
-                for _, deme in hms_tree_2.all_demes
-                for pop in deme.history
-                for generation in pop
-                for ind in generation
-            ]
+            [ind.genome for _, deme in hms_tree_2.all_demes for pop in deme.history for ind in pop]
         ).flatten()
         all_genomes_equality_mask = all_genomes_1 == all_genomes_2
         self.assertEqual(np.all(all_genomes_equality_mask), True, "All genomes should be equal")
@@ -94,22 +82,10 @@ class TestReproducibility(unittest.TestCase):
         best_genome_equality_mask = hms_tree_1.best_individual.genome == hms_tree_2.best_individual.genome
         self.assertEqual(np.all(best_genome_equality_mask), True, "Best individuals should be equal")
         all_genomes_1 = np.array(
-            [
-                ind.genome
-                for _, deme in hms_tree_1.all_demes
-                for pop in deme.history
-                for generation in pop
-                for ind in generation
-            ]
+            [ind.genome for _, deme in hms_tree_1.all_demes for pop in deme.history for ind in pop]
         ).flatten()
         all_genomes_2 = np.array(
-            [
-                ind.genome
-                for _, deme in hms_tree_2.all_demes
-                for pop in deme.history
-                for generation in pop
-                for ind in generation
-            ]
+            [ind.genome for _, deme in hms_tree_2.all_demes for pop in deme.history for ind in pop]
         ).flatten()
         all_genomes_equality_mask = all_genomes_1 == all_genomes_2
         self.assertEqual(np.all(all_genomes_equality_mask), True, "All genomes should be equal")
