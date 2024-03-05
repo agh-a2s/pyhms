@@ -3,7 +3,7 @@ import os
 import numpy as np
 from leap_ec.problem import FunctionProblem
 from pyhms.sprout import get_NBC_sprout, get_simple_sprout
-from pyhms.stop_conditions.usc import metaepoch_limit
+from pyhms.stop_conditions import MetaepochLimit
 
 SQUARE_PROBLEM = FunctionProblem(lambda x: sum(x**2), maximize=False)
 SQUARE_BOUNDS = np.array([(-20, 20), (-20, 20)])
@@ -12,7 +12,7 @@ NEGATIVE_SQUARE_PROBLEM = FunctionProblem(lambda x: -1 * sum(x**2), maximize=Tru
 
 SQUARE_PROBLEM_DOMAIN = np.array([(-20, 20), (-20, 20)])
 
-DEFAULT_GSC = metaepoch_limit(limit=10)
+DEFAULT_GSC = MetaepochLimit(limit=10)
 
 LEVEL_LIMIT = 4
 
