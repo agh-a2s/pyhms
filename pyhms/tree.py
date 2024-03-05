@@ -10,7 +10,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
-from .utils.print_tree import format_deme, print_tree_from_deme
+from .utils.print_tree import format_deme, format_deme_children_tree
 
 
 class DemeTree:
@@ -171,7 +171,7 @@ class DemeTree:
         - level_summary (bool | None, optional): If True (default), includes a summary of each level
         in the report. If False, this level detail is omitted.
         - deme_summary (bool | None, optional): If True (default), includes a summary of each deme
-        in the report. If False, deme details are omitted.
+        in the report (see `tree` for more details). If False, deme details are omitted.
 
         Returns:
         - str: A multi-line string containing the formatted summary.
@@ -195,11 +195,7 @@ class DemeTree:
                     m, sd = level_problem.duration_stats
                     lines.append(f"Problem duration avg. {m:.4e} std. dev. {sd:.4e}")
         if deme_summary:
-            lines.append("\nDeme info:")
-            for _, deme in self.all_demes:
-                start = deme.started_at
-                end = deme.started_at + deme.metaepoch_count
-                lines.append(f"Deme {deme.id} [{start}-{end}] - best fitness: {deme.best_individual.fitness:.4e}")
+            lines.append("\n" + self.tree())
         return "\n".join(lines)
 
     def pickle_dump(self, filepath: str = "hms_snapshot.pkl") -> None:
@@ -214,6 +210,10 @@ class DemeTree:
         tree._logger.info("Tree loaded from snapshot", filepath=filepath)
         return tree
 
-    def print_tree(self) -> None:
-        print(format_deme(self.root, self.best_individual.fitness))
-        print_tree_from_deme(self.root, best_fitness=self.best_individual.fitness)
+    def tree(self) -> str:
+        "Generates a string representation of the tree."
+        return (
+            format_deme(self.root, self.best_individual.fitness)
+            + "\n"
+            + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
+        )
