@@ -12,10 +12,10 @@ class EvalCountingProblem(Problem):
     `evaluate` method is called. This is useful for monitoring and limiting the computational
     cost of optimization processes.
 
-    Args:
-    - decorated_problem (leap_ec.Problem): The problem to be decorated.
+    :param leap_ec.Problem decorated_problem: The problem to be decorated.
 
-    Example:
+    .. code-block:: python
+
         >>> from leap_ec.problem import FunctionProblem
         >>> from pyhms.problem import EvalCountingProblem
         >>> import numpy as np
@@ -64,7 +64,12 @@ class EvalCutoffProblem(EvalCountingProblem):
     in scenarios where computational resources are limited or when implementing certain
     types of optimization algorithms that require evaluation limits.
 
-    Example:
+    Note:
+        It returns `np.inf` for evaluations beyond the cutoff if the problem is a minimization one,
+        and `-np.inf` for maximization.
+
+    .. code-block:: python
+
         >>> from leap_ec.problem import FunctionProblem
         >>> from pyhms.problem import EvalCutoffProblem
         >>> import numpy as np
@@ -74,9 +79,6 @@ class EvalCutoffProblem(EvalCountingProblem):
         >>> cutoff_problem.evaluate(1.0)
         inf
 
-    Note:
-        It returns `np.inf` for evaluations beyond the cutoff if the problem is a minimization one,
-        and `-np.inf` for maximization.
     """
 
     def __init__(self, decorated_problem: Problem, eval_cutoff: int):
