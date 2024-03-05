@@ -211,7 +211,19 @@ class DemeTree:
         return tree
 
     def tree(self) -> str:
-        "Generates a string representation of the tree."
+        """
+        Generates a string representation of the tree.
+
+        Returns:
+        - str: A multi-line string containing the formatted tree.
+
+        Notes:
+        - Each deme is represented by a line containing its type (e.g. CMADeme), id, best solution
+        and best fitness, sprout seed (for non root demes), number of evaluations.
+        - The fitness value is formatted using {:.2e} (that's why we use ~= instead of =).
+        - Solutions are formatted using {:#.2f}.
+        - *** is appended to the best deme (one with the best fitness value) representation.
+        """
         return (
             format_deme(self.root, self.best_individual.fitness)
             + "\n"

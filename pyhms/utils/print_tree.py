@@ -13,7 +13,7 @@ def format_array(solution: np.ndarray, float_format="{:#.2f}") -> str:
 
 
 def format_deme(deme: AbstractDeme, best_fitness: float | None = None) -> str:
-    best_symbol = "*** " if best_fitness and deme.best_individual.fitness == best_fitness else ""
+    best_symbol = " *** " if best_fitness and deme.best_individual.fitness == best_fitness else " "
     is_root = deme._sprout_seed is None
     root_symbol = "root" if is_root else deme._id
     new_deme_symbol = "(new_deme)" if deme.metaepoch_count <= 1 and not is_root else ""
@@ -21,7 +21,7 @@ def format_deme(deme: AbstractDeme, best_fitness: float | None = None) -> str:
     fitness_value = f"f{format_array(deme.best_individual.genome)} ~= {deme.best_individual.fitness:.2e}"
     evaluations = f"evals: {deme.n_evaluations}"
     deme_type = deme.__class__.__name__
-    return f"{deme_type} {root_symbol} {best_symbol} {fitness_value}{sprout} {evaluations} {new_deme_symbol}"
+    return f"{deme_type} {root_symbol}{best_symbol}{fitness_value}{sprout} {evaluations} {new_deme_symbol}"
 
 
 def format_deme_children_tree(deme: AbstractDeme, prefix: str | None = "", best_fitness: float | None = None) -> str:
