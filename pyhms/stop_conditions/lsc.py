@@ -26,7 +26,10 @@ class FitnessSteadiness(LocalStopCondition):
         if self.n_metaepochs > deme.metaepoch_count:
             return False
 
-        avg_fits = [np.mean([ind.fitness for ind in deme.history[n]]) for n in range(-self.n_metaepochs, 0)]
+        avg_fits = [
+            np.mean([ind.fitness for generation in deme._history[n] for ind in generation])
+            for n in range(-self.n_metaepochs, 0)
+        ]
         return np.mean(avg_fits) - np.min(avg_fits) <= self.max_deviation
 
     def __str__(self) -> str:

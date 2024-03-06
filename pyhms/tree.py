@@ -6,7 +6,9 @@ from .config import TreeConfig
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
+from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
+from .utils.print_tree import format_deme, format_deme_children_tree
 
 
 class DemeTree:
@@ -159,6 +161,41 @@ class DemeTree:
         else:
             return f"{deme.id}/{id_suffix}"
 
+    def summary(self, level_summary: bool | None = True, deme_summary: bool | None = True) -> str:
+        """
+        Generates a summary report for the HMS.
+
+        Parameters:
+        - level_summary (bool | None, optional): If True (default), includes a summary of each level
+        in the report. If False, this level detail is omitted.
+        - deme_summary (bool | None, optional): If True (default), includes a summary of each deme
+        in the report (see `tree` for more details). If False, deme details are omitted.
+
+        Returns:
+        - str: A multi-line string containing the formatted summary.
+        """
+        lines = []
+        lines.append(f"Metaepoch count: {self.metaepoch_count}")
+        lines.append(f"Best fitness: {self.best_leaf_individual.fitness:.4e}")
+        lines.append(f"Best individual: {self.best_leaf_individual.genome}")
+        lines.append(f"Number of evaluations: {self.n_evaluations}")
+        lines.append(f"Number of demes: {len(self.all_demes)}")
+        if level_summary:
+            for level, level_demes in enumerate(self.levels):
+                lines.append(f"\nLevel {level+1}.")
+                level_best_individual = max(deme.best_individual for deme in level_demes)
+                lines.append(f"Best fitness: {level_best_individual.fitness:.4e}")
+                lines.append(f"Best individual: {level_best_individual.genome}")
+                lines.append(f"Number of evaluations: {sum(deme.n_evaluations for deme in level_demes)}")
+                lines.append(f"Number of demes: {len(level_demes)}")
+                level_problem = self.config.levels[level].problem
+                if isinstance(level_problem, StatsGatheringProblem):
+                    m, sd = level_problem.duration_stats
+                    lines.append(f"Problem duration avg. {m:.4e} std. dev. {sd:.4e}")
+        if deme_summary:
+            lines.append("\n" + self.tree())
+        return "\n".join(lines)
+
     def pickle_dump(self, filepath: str = "hms_snapshot.pkl") -> None:
         self._logger.info("Dumping tree snapshot", filepath=filepath)
         with open(filepath, "wb") as f:
@@ -170,3 +207,23 @@ class DemeTree:
             tree = pkl.load(f)
         tree._logger.info("Tree loaded from snapshot", filepath=filepath)
         return tree
+
+    def tree(self) -> str:
+        """
+        Generates a string representation of the tree.
+
+        Returns:
+        - str: A multi-line string containing the formatted tree.
+
+        Notes:
+        - Each deme is represented by a line containing its type (e.g. CMADeme), id, best solution
+        and best fitness, sprout seed (for non root demes), number of evaluations.
+        - The fitness value is formatted using {:.2e} (that's why we use ~= instead of =).
+        - Solutions are formatted using {:#.2f}.
+        - *** is appended to the best deme (one with the best fitness value) representation.
+        """
+        return (
+            format_deme(self.root, self.best_individual.fitness)
+            + "\n"
+            + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
+        )
