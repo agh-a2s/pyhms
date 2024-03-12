@@ -3,7 +3,7 @@ sphinx_rtd_theme==2.0.0
 readthedocs-sphinx-search==0.3.2
 numpy>=1.13
 cma>=3.2.2
-leap-ec=>=0.7.0
+leap-ec>=0.7.0
 numpy>=1.22.2
 scipy>=1.8.0
 toolz>=0.11.2
