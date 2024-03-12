@@ -23,11 +23,7 @@ pip install git+https://github.com/agh-a2s/pyhms.git@main
 ```python
 import numpy as np
 from leap_ec.problem import FunctionProblem
-from pyhms.config import EALevelConfig
-from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.hms import hms
-from pyhms.sprout import get_NBC_sprout
-from pyhms.stop_conditions import DontStop, MetaepochLimit
+from pyhms import EALevelConfig, hms, get_NBC_sprout, DontStop, MetaepochLimit, SEA
 
 square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
 square_bounds = np.array([(-20, 20), (-20, 20)])
