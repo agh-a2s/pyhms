@@ -9,6 +9,8 @@ from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.print_tree import format_deme, format_deme_children_tree
+from .utils.visualisation.animate import save_tree_animation
+from .utils.visualisation.grid import Grid2DProblemEvaluation
 
 
 class DemeTree:
@@ -227,3 +229,17 @@ class DemeTree:
             + "\n"
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
+
+    def save_animation(self, filepath: str = "hms_tree.mp4") -> None:
+        """
+        Saves an animation of the tree evolution as an mp4 file.
+        """
+        save_tree_animation(self, filepath)
+
+    def plot_problem(self) -> None:
+        """
+        Plots 2D grid for the root level problem.
+        """
+        grid = Grid2DProblemEvaluation(self.config.levels[0].problem, self.config.levels[0].bounds)
+        grid.evaluate()
+        grid.plot()
