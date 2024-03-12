@@ -233,12 +233,14 @@ class DemeTree:
     def save_animation(self, filepath: str = "hms_tree.mp4") -> None:
         """
         Saves an animation of the tree evolution as an mp4 file.
+        In case of multidimensional genomes, only the first two dimensions are plotted.
         """
         save_tree_animation(self, filepath)
 
     def plot_problem(self) -> None:
         """
         Plots 2D grid for the root level problem.
+        In case of multidimensional problem, only the first two dimensions are considered.
         """
         grid = Grid2DProblemEvaluation(self.config.levels[0].problem, self.config.levels[0].bounds)
         grid.evaluate()
