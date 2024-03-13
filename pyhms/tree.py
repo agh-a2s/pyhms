@@ -10,6 +10,7 @@ from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import save_tree_animation
+from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
 
 
@@ -230,12 +231,17 @@ class DemeTree:
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
 
-    def save_animation(self, filepath: str = "hms_tree.mp4") -> None:
+    def save_animation(
+        self,
+        filepath: str = "hms_tree.gif",
+        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
+    ) -> None:
         """
-        Saves an animation of the tree evolution as an mp4 file.
-        In case of multidimensional genomes, only the first two dimensions are plotted.
+        Saves an animation of the tree evolution as an gif/mp4 file (gif is used by default).
+        In case of multidimensional genomes dimensionaty reducer is employed.
+        By default it uses NaiveDimensionalityReducer which takes only the first two dimensions.
         """
-        save_tree_animation(self, filepath)
+        save_tree_animation(self, filepath, dimensionality_reducer)
 
     def plot_problem(self) -> None:
         """

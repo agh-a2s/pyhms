@@ -3,12 +3,18 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ...tree import DemeTree
 
-
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
+import numpy as np
+
+from .dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 
 
-def save_tree_animation(tree: "DemeTree", filepath: str = "animation.mp4") -> None:
+def save_tree_animation(
+    tree: "DemeTree",
+    filepath: str = "hms_tree.gif",
+    dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
+) -> None:
     fig, ax = plt.subplots()
     bounds = tree.config.levels[0].bounds
     ax.set_xlim(bounds[0])
@@ -33,11 +39,11 @@ def save_tree_animation(tree: "DemeTree", filepath: str = "animation.mp4") -> No
 
             if deme_marker is not None:
                 deme_pop = deme.history[deme_epoch]
-                x = [ind.genome[0] for ind in deme_pop]
-                y = [ind.genome[1] for ind in deme_pop]
+                X = np.array([ind.genome for ind in deme_pop])
+                X_reduced = dimensionality_reducer.fit_transform(X)
                 ax.scatter(
-                    x,
-                    y,
+                    X_reduced[:, 0],
+                    X_reduced[:, 1],
                     label=f"{deme.__class__.__name__} {deme.id}",
                     marker=deme_marker,
                 )
