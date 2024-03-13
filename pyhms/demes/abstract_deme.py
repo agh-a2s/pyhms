@@ -127,3 +127,17 @@ class AbstractDeme(ABC):
         else:
             return f"""Deme {self.id}, metaepoch {self.started_at} and
             seed {self._sprout_seed.genome} with best {best_fitness}"""
+
+    @property
+    def name(self) -> str:
+        return f"{self.__class__.__name__} {self.id}"
+
+    @property
+    def best_fitness_by_metaepoch(self) -> dict[int, float]:
+        metaepoch_to_best_fitness = {}
+        for metaepoch_idx, metaepoch_history in enumerate(self._history):
+            if not metaepoch_history:
+                continue
+            best_fitness = max(pop for generation in metaepoch_history for pop in generation).fitness
+            metaepoch_to_best_fitness[metaepoch_idx + self._started_at] = best_fitness
+        return metaepoch_to_best_fitness

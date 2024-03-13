@@ -1,4 +1,6 @@
 import dill as pkl
+import matplotlib.pyplot as plt
+import pandas as pd
 from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
@@ -251,3 +253,13 @@ class DemeTree:
         grid = Grid2DProblemEvaluation(self.config.levels[0].problem, self.config.levels[0].bounds)
         grid.evaluate()
         grid.plot()
+
+    def plot_best_fitness(self) -> None:
+        """
+        Plots the best fitness value for each metaepoch.
+        """
+        pd.concat(
+            [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
+        ).T.plot()
+        plt.title("Best fitness by metaepoch")
+        plt.show()
