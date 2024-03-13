@@ -22,3 +22,4 @@ Contents
    Home <self>
    problem
    usage
+   inspecting
