@@ -1,9 +1,11 @@
 from typing import Protocol
+
 import numpy as np
 
 
 class DimensionalityReducer(Protocol):
-    def fit_transform(self, X: np.ndarray) -> np.ndarray: ...
+    def fit_transform(self, X: np.ndarray) -> np.ndarray:
+        ...
 
 
 class NaiveDimensionalityReducer(DimensionalityReducer):
