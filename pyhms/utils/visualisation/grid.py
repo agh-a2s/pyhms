@@ -3,7 +3,6 @@ from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-from leap_ec import Individual
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 FILE_NAME_EXT = ".pkl"
@@ -72,15 +71,3 @@ class Grid2DProblemEvaluation:
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt.colorbar(ims, cax=cax)
         plt.show()
-
-
-def plot_population(population: list[Individual]) -> None:
-    x = [ind.genome[0] for ind in population]
-    y = [ind.genome[1] for ind in population]
-    z = [ind.fitness for ind in population]
-    ax = plt.subplot()
-    sct = ax.scatter(x, y, c=z, cmap=DEFAULT_CMAP)
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(sct, cax=cax)
-    plt.show()
