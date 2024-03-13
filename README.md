@@ -1,8 +1,9 @@
 # pyhms
-![GitHub Test Badge][1] [![codecov][2]](https://codecov.io/gh/agh-a2s/pyhms)
+![GitHub Test Badge][1] [![codecov][2]](https://codecov.io/gh/agh-a2s/pyhms) [![Documentation Status][3]](https://pyhms.readthedocs.io/en/latest/?badge=latest)
 
 [1]: https://github.com/agh-a2s/pyhms/actions/workflows/pytest.yml/badge.svg "GitHub CI Badge"
 [2]: https://codecov.io/gh/agh-a2s/pyhms/graph/badge.svg?token=srsivvv2ff
+[3]: https://readthedocs.org/projects/pyhms/badge/?version=latest
 
 `pyhms` is a Python implementation of Hierarchic Memetic Strategy (HMS).
 
@@ -23,11 +24,7 @@ pip install git+https://github.com/agh-a2s/pyhms.git@main
 ```python
 import numpy as np
 from leap_ec.problem import FunctionProblem
-from pyhms.config import EALevelConfig
-from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.hms import hms
-from pyhms.sprout import get_NBC_sprout
-from pyhms.stop_conditions import DontStop, MetaepochLimit
+from pyhms import EALevelConfig, hms, get_NBC_sprout, DontStop, MetaepochLimit, SEA
 
 square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
 square_bounds = np.array([(-20, 20), (-20, 20)])
