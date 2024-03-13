@@ -20,7 +20,8 @@ def init_from_config(
     metaepoch_count: int,
     sprout_seed: Individual,
     logger: FilteringBoundLogger,
-    random_seed: int = None,
+    random_seed: int | None = None,
+    parent_deme: AbstractDeme | None = None,
 ) -> AbstractDeme:
     args = {
         "id": new_id,
@@ -29,6 +30,7 @@ def init_from_config(
         "started_at": metaepoch_count,
         "sprout_seed": sprout_seed,
         "logger": logger,
+        "parent_deme": parent_deme,
     }
     child: AbstractDeme
     if isinstance(config, DELevelConfig):

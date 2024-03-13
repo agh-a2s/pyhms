@@ -141,6 +141,7 @@ class DemeTree:
                     sprout_seed=ind,
                     logger=self._logger,
                     random_seed=self._random_seed,
+                    parent_deme=deme,
                 )
                 deme.add_child(child)
                 self._levels[target_level].append(child)

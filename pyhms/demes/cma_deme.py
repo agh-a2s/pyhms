@@ -2,6 +2,7 @@ import numpy as np
 from cma import CMAEvolutionStrategy
 from leap_ec import Individual
 from leap_ec.decoder import IdentityDecoder
+from sklearn.covariance import empirical_covariance
 from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
@@ -18,6 +19,7 @@ class CMADeme(AbstractDeme):
         x0: Individual,
         started_at: int = 0,
         random_seed: int = None,
+        parent_deme: AbstractDeme | None = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at, x0)
         self.generations = config.generations
@@ -28,7 +30,13 @@ class CMADeme(AbstractDeme):
             opts["randn"] = np.random.randn
             opts["seed"] = random_seed + self._started_at
 
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
+        if config.sigma0 is None:
+            last_5_generation_population = np.array([ind.genome for pop in parent_deme.history[-5:] for ind in pop])
+            cov_estimate = empirical_covariance(last_5_generation_population)
+            sigma0 = np.sqrt(np.trace(cov_estimate) / len(cov_estimate))
+        else:
+            sigma0 = config.sigma0
+        self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
         starting_pop = [
             Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()
         ]

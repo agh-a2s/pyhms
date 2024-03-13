@@ -15,6 +15,7 @@ class LocalDeme(AbstractDeme):
         logger: FilteringBoundLogger,
         sprout_seed: Individual,
         started_at=0,
+        parent_deme: AbstractDeme | None = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at)
         self._method = config.method
