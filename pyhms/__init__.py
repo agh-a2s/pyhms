@@ -1,4 +1,12 @@
-from .config import BaseLevelConfig, CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig, TreeConfig
+from .config import (
+    BaseLevelConfig,
+    CMALevelConfig,
+    DELevelConfig,
+    EALevelConfig,
+    LocalOptimizationConfig,
+    QuadraticSurrogateConfig,
+    TreeConfig,
+)
 from .demes.single_pop_eas.sea import SEA, SimpleEA
 from .hms import hms
 from .problem import EvalCutoffProblem, PrecisionCutoffProblem, StatsGatheringProblem

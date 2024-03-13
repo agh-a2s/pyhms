@@ -1,5 +1,12 @@
 from leap_ec import Individual
-from pyhms.config import BaseLevelConfig, CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig
+from pyhms.config import (
+    BaseLevelConfig,
+    CMALevelConfig,
+    DELevelConfig,
+    EALevelConfig,
+    LocalOptimizationConfig,
+    QuadraticSurrogateConfig,
+)
 from structlog.typing import FilteringBoundLogger
 
 from .abstract_deme import AbstractDeme
@@ -7,6 +14,7 @@ from .cma_deme import CMADeme
 from .de_deme import DEDeme
 from .ea_deme import EADeme
 from .local_deme import LocalDeme
+from .surrogate_deme import QuadraticSurrogateDeme
 
 
 def init_root(config: BaseLevelConfig, logger: FilteringBoundLogger) -> AbstractDeme:
@@ -44,4 +52,8 @@ def init_from_config(
         child = CMADeme(**args)
     elif isinstance(config, LocalOptimizationConfig):
         child = LocalDeme(**args)
+    elif isinstance(config, QuadraticSurrogateConfig):
+        args["x0"] = sprout_seed
+        args.pop("sprout_seed", None)
+        child = QuadraticSurrogateDeme(**args)
     return child

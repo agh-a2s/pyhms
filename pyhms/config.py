@@ -94,6 +94,18 @@ class LocalOptimizationConfig(BaseLevelConfig):
         self.__dict__.update(kwargs)
 
 
+class QuadraticSurrogateConfig(BaseLevelConfig):
+    def __init__(
+        self,
+        problem: Problem,
+        bounds: np.ndarray,
+        lsc: LocalStopCondition | UniversalStopCondition,
+    ):
+        self.problem = problem
+        self.bounds = bounds
+        self.lsc = lsc
+
+
 class Options(TypedDict, total=False):
     log_level: LoggingLevel | None  # Default value: "warning"
     hibernation: bool | None  # Default value: False
