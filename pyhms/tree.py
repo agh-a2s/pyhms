@@ -236,8 +236,8 @@ class DemeTree:
 
     def animate(
         self,
-        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
         filepath: str | None = None,
+        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
     ) -> animation.FuncAnimation:
         """
         Returns an animation (animation.FuncAnimation) of the tree evolution.

@@ -90,7 +90,7 @@ We can also generate an animation presenting populations of all demes.
 
 .. code-block:: python
 
-    hms_tree.save_animation("your_path.gif")
+    hms_tree.animate("your_path.gif")
 
 .. image:: _static/images/animation.gif
    :alt: Animation
@@ -102,13 +102,13 @@ To change this behaviour, please specify the `dimensionality_reducer` parameter.
 .. code-block:: python
 
     from sklearn.decomposition import PCA
-    hms_tree.save_animation("your_path.gif", dimensionality_reducer=PCA(n_components=2))
+    hms_tree.animate(filepath="your_path.gif", dimensionality_reducer=PCA(n_components=2))
 
 In case of 2D problems, we can visualize the problem itself by `plot_problem`.
 
 .. code-block:: python
 
-    hms_tree.plot_problem()
+    hms_tree.plot_problem_surface()
 
 .. image:: _static/images/problem_plot.png
    :alt: Problem
