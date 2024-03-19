@@ -23,4 +23,6 @@ Contents
    algorithm
    usage
    inspecting
+   stop
+   sprout
    problem
