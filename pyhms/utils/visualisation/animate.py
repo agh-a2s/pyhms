@@ -10,11 +10,10 @@ import numpy as np
 from .dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 
 
-def save_tree_animation(
+def tree_animation(
     tree: "DemeTree",
-    filepath: str = "hms_tree.gif",
     dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
-) -> None:
+) -> animation.FuncAnimation:
     fig, ax = plt.subplots()
     bounds = tree.config.levels[0].bounds
     ax.set_xlim(bounds[0])
@@ -62,5 +61,4 @@ def save_tree_animation(
         interval=1000,
         repeat=False,
     )
-
-    ani.save(filepath)
+    return ani

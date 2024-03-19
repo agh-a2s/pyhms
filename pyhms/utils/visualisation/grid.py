@@ -58,7 +58,7 @@ class Grid2DProblemEvaluation:
         s += f"Granularity: {self.granularity}"
         return s
 
-    def plot(self) -> None:
+    def plot(self, filepath: str | None = None) -> None:
         ax = plt.subplot()
         extent = (
             self.bounds[0][0],
@@ -70,4 +70,6 @@ class Grid2DProblemEvaluation:
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt.colorbar(ims, cax=cax)
+        if filepath:
+            plt.savefig(filepath)
         plt.show()
