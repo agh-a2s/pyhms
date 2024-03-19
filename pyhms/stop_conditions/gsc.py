@@ -53,10 +53,12 @@ class FitnessEvalLimitReached(GlobalStopCondition):
     the default. If the strategy is "equal", all levels contribute equally to the total count.
     If the strategy is "root", only the root level contributes to the total count.
 
-    Args:
-    - limit (int): The threshold number of evaluations to check against.
-    - weights (list[float] | WeightingStrategy): A list of weights corresponding to each level
-    in the tree or a WeightingStrategy specifying a predefined weighting strategy. Defaults to WeightingStrategy.EQUAL.
+    :param int limit: The threshold number of evaluations to check against.
+    :param weights: A list of weights corresponding to each level in the tree or a WeightingStrategy.
+    :type weights: list[float] or WeightingStrategy or None
+
+    Note:
+        By default WeightingStrategy.EQUAL is used.
     """
 
     def __init__(
@@ -100,8 +102,7 @@ class SingularProblemEvalLimitReached(GlobalStopCondition):
     GSC is true if the total number of fitness evaluations in the tree is greater than or equal to the limit.
     It assumes that the same problem is used at all levels of the tree.
 
-    Args:
-    - limit (int): The threshold number of evaluations to check against.
+    :param int limit: The threshold number of evaluations to check against.
     """
 
     def __init__(self, limit: int) -> None:
@@ -121,8 +122,7 @@ class SingularProblemPrecisionReached(GlobalStopCondition):
     """
     GSC is true if the precision of the problem is reached.
 
-    Args:
-    - problem (PrecisionCutoffProblem): The problem to check the precision for.
+    :param problem PrecisionCutoffProblem: The problem to check the precision for.
     """
 
     def __init__(self, problem: PrecisionCutoffProblem):
@@ -139,8 +139,7 @@ class NoActiveNonrootDemes(GlobalStopCondition):
     """
     GSC is true if there are no active non-root demes in the tree for a certain number of metaepochs.
 
-    Args:
-    - n_metaepochs (int): The number of metaepochs to wait before the condition is satisfied. Default: 5.
+    :param int n_metaepochs: The number of metaepochs to wait before the condition is satisfied. Default: 5.
     """
 
     def __init__(self, n_metaepochs: int = 5) -> None:

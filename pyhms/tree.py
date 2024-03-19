@@ -1,4 +1,7 @@
 import dill as pkl
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import pandas as pd
 from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
@@ -9,6 +12,9 @@ from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.print_tree import format_deme, format_deme_children_tree
+from .utils.visualisation.animate import tree_animation
+from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
+from .utils.visualisation.grid import Grid2DProblemEvaluation
 
 
 class DemeTree:
@@ -228,3 +234,43 @@ class DemeTree:
             + "\n"
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
+
+    def animate(
+        self,
+        filepath: str | None = None,
+        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
+    ) -> animation.FuncAnimation:
+        """
+        Returns an animation (animation.FuncAnimation) of the tree evolution.
+        It can save an animation of the tree evolution as an gif/mp4 file.
+        To save the animation, provide the filepath argument.
+        In case of multidimensional genomes dimensionality reducer is employed.
+        By default it uses NaiveDimensionalityReducer which takes only the first two dimensions.
+        """
+        animation = tree_animation(self, dimensionality_reducer)
+        if filepath is not None:
+            animation.save(filepath)
+        return animation
+
+    def plot_problem_surface(self, filepath: str | None = None) -> None:
+        """
+        Plots 2D grid for the root level problem.
+        In case of multidimensional problem, only the first two dimensions are considered.
+        To save the plot, provide the filepath argument.
+        """
+        grid = Grid2DProblemEvaluation(self.config.levels[0].problem, self.config.levels[0].bounds)
+        grid.evaluate()
+        grid.plot(filepath)
+
+    def plot_best_fitness(self, filepath: str | None = None) -> None:
+        """
+        Plots the best fitness value for each metaepoch.
+        To save the plot, provide the filepath argument.
+        """
+        pd.concat(
+            [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
+        ).T.plot()
+        plt.title("Best fitness by metaepoch")
+        if filepath:
+            plt.savefig(filepath)
+        plt.show()
