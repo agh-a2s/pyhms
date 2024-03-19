@@ -102,7 +102,8 @@ class PrecisionCutoffProblem(EvalCountingProblem):
     This class is useful for optimization problems where the goal is to find a solution that
     is close enough to the known global optimum within a certain precision threshold.
 
-    Example:
+    .. code-block:: python
+
         >>> from leap_ec.problem import FunctionProblem
         >>> from pyhms.problem import PrecisionCutoffProblem
         >>> import numpy as np
@@ -136,7 +137,8 @@ class StatsGatheringProblem(Problem):
     evaluation performed on the decorated problem. It's particularly useful for performance
     analysis, enabling the monitoring of how long each call to `evaluate` takes.
 
-    Example:
+    .. code-block:: python
+
         >>> from leap_ec.problem import FunctionProblem
         >>> from pyhms.problem import StatsGatheringProblem
         >>> import numpy as np
