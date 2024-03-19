@@ -20,6 +20,7 @@ Contents
 .. toctree::
 
    Home <self>
-   problem
+   algorithm
    usage
    inspecting
+   problem
