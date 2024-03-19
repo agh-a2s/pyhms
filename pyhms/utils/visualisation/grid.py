@@ -1,18 +1,20 @@
 import pickle
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-FILE_NAME_EXT = ".gdat"
+FILE_NAME_EXT = ".pkl"
+DEFAULT_CMAP = "gnuplot"
 
 
-def unique_file_name(prefix, ext):
-    dt_now = datetime.now()
-    dt_part = dt_now.strftime("-%Y%m%d-%H%M%S")
+def unique_file_name(prefix: str, ext: str = FILE_NAME_EXT) -> str:
+    dt_part = datetime.now().strftime("-%Y%m%d-%H%M%S")
     return prefix + dt_part + ext
 
 
-class Grid2DEvaluation(object):
+class Grid2DProblemEvaluation:
     def __init__(self, problem, bounds, granularity=0.1) -> None:
         super().__init__()
         self.problem = problem
@@ -20,25 +22,27 @@ class Grid2DEvaluation(object):
         self.granularity = granularity
         self.z: np.ndarray
 
-    def save_binary(self, file_name_prefix="grid"):
-        file_name = unique_file_name(file_name_prefix, FILE_NAME_EXT)
-        with open(file_name, "wb") as f:
+    def pickle_dump(self, filepath: str | None = None) -> None:
+        if filepath is None:
+            file_name_prefix = self.problem.__class__.__name__
+            filepath = unique_file_name(file_name_prefix, FILE_NAME_EXT)
+        with open(filepath, "wb") as f:
             pickle.dump(self, f)
 
     @staticmethod
-    def load_binary(file_name):
-        grid = None
-        with open(file_name, "rb") as infile:
-            grid = pickle.load(infile)
+    def pickle_load(filepath: str) -> "Grid2DProblemEvaluation":
+        with open(filepath, "rb") as file:
+            grid = pickle.load(file)
         return grid
 
-    def evaluate(self):
+    def evaluate(self) -> np.ndarray:
         xs = np.arange(self.bounds[0][0], self.bounds[0][1] + self.granularity, self.granularity)
         ys = np.arange(self.bounds[1][0], self.bounds[1][1] + self.granularity, self.granularity)
         self.z = np.zeros((len(xs), len(ys)))
         for i, x in enumerate(xs):
             for j, y in enumerate(ys):
                 self.z[i, j] = self.problem.evaluate(phenome=np.asarray([x, y]))
+        return self.z
 
     @property
     def imshow_view(self) -> np.ndarray:
@@ -53,3 +57,19 @@ class Grid2DEvaluation(object):
         s += f"Bounds: {self.bounds}\n"
         s += f"Granularity: {self.granularity}"
         return s
+
+    def plot(self, filepath: str | None = None) -> None:
+        ax = plt.subplot()
+        extent = (
+            self.bounds[0][0],
+            self.bounds[0][1],
+            self.bounds[1][0],
+            self.bounds[1][1],
+        )
+        ims = ax.imshow(self.imshow_view, cmap=DEFAULT_CMAP, extent=extent)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(ims, cax=cax)
+        if filepath:
+            plt.savefig(filepath)
+        plt.show()

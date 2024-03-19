@@ -53,7 +53,7 @@ config = [
 global_stop_condition = MetaepochLimit(limit=10)
 sprout_condition = get_NBC_sprout(level_limit=4)
 hms_tree = hms(config, global_stop_condition, sprout_condition)
-print(f"Best fitness: {hms_tree.best_individual.fitness}")
+print(hms_tree.summary())
 ```
 
 ### Relevant literature
