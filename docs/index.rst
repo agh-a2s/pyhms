@@ -20,6 +20,9 @@ Contents
 .. toctree::
 
    Home <self>
-   problem
+   algorithm
    usage
    inspecting
+   stop
+   sprout
+   problem
