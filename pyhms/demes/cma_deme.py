@@ -9,6 +9,32 @@ from ..config import CMALevelConfig
 from .abstract_deme import AbstractDeme
 
 
+def find_closest_rows(X: np.ndarray, y: np.ndarray, top_n: int) -> np.ndarray:
+    distances = np.sqrt(((X - y) ** 2).sum(axis=1))
+    closest_indices = np.argsort(distances)
+    top_indices = closest_indices[:top_n]
+    return X[top_indices]
+
+
+def estimate_sigma0(X: np.ndarray) -> float:
+    cov_estimate = empirical_covariance(X)
+    return np.sqrt(np.trace(cov_estimate) / len(cov_estimate))
+
+
+def get_initial_sigma0(
+    parent_deme: AbstractDeme,
+    x0: Individual,
+    n_individuals: int | None = 1000,
+    use_closest_rows: bool | None = True,
+) -> float:
+    parent_population = np.array([ind.genome for pop in parent_deme.history for ind in pop])
+    if use_closest_rows:
+        population = find_closest_rows(parent_population, x0.genome, n_individuals)
+    else:
+        population = parent_population[-n_individuals:]
+    return estimate_sigma0(population)
+
+
 class CMADeme(AbstractDeme):
     def __init__(
         self,
@@ -31,9 +57,7 @@ class CMADeme(AbstractDeme):
             opts["seed"] = random_seed + self._started_at
 
         if config.sigma0 is None:
-            last_5_generation_population = np.array([ind.genome for pop in parent_deme.history[-5:] for ind in pop])
-            cov_estimate = empirical_covariance(last_5_generation_population)
-            sigma0 = np.sqrt(np.trace(cov_estimate) / len(cov_estimate))
+            sigma0 = get_initial_sigma0(parent_deme, x0)
         else:
             sigma0 = config.sigma0
         self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
