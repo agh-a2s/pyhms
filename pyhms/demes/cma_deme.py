@@ -83,7 +83,12 @@ class CMADeme(AbstractDeme):
             values = [ind.fitness for ind in offspring]
             epoch_counter += 1
             metaepoch_generations.append(offspring)
-
+            if self._cma_es.stop():
+                self._history.append(metaepoch_generations)
+                self._active = False
+                self._centroid = None
+                self.log("CMA Deme finished due to CMA ES stop")
+                return
             if tree._gsc(tree):
                 self._history.append(metaepoch_generations)
                 self._active = False
