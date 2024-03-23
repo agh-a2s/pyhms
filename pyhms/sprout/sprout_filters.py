@@ -52,10 +52,16 @@ class FarEnough(DemeLevelCandidatesFilter):
 
 
 class NBC_FarEnough(DemeLevelCandidatesFilter):
-    def __init__(self, min_distance_factor: float = 2.0, norm_ord: int = 2) -> None:
+    def __init__(
+        self,
+        min_distance_factor: float = 2.0,
+        norm_ord: int = 2,
+        levels: list[int] | None = None,
+    ) -> None:
         super().__init__()
         self.min_distance_factor = min_distance_factor
         self.norm_ord = norm_ord
+        self.levels = levels
 
     def __call__(
         self,
@@ -67,6 +73,8 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         ), "NBC_FarEnough filter requires NBC_mean_distance feature in candidates added throuhg NBC_Generator"
 
         for deme in candidates.keys():
+            if self.levels and deme.level not in self.levels:
+                continue
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
             child_seeds = candidates[deme][1]
             for sibling in child_siblings:

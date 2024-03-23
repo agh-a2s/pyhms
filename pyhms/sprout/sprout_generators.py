@@ -45,3 +45,32 @@ class NBC_Generator(SproutCandidatesGenerator):
                         deme_candidates,
                     )
         return candidates  # type: ignore[return-value]
+
+
+class NBC_Generator_WithLocalMethod(SproutCandidatesGenerator):
+    def __init__(self, distance_factor: float, truncation_factor: float) -> None:
+        self.distance_factor = distance_factor
+        self.truncation_factor = truncation_factor
+        super().__init__()
+
+    def __call__(self, tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+        candidates = {}
+        for level in tree.levels[:-2]:
+            for deme in level:
+                if deme.is_active:
+                    nbc = NearestBetterClustering(
+                        deme.current_population,
+                        self.distance_factor,
+                        self.truncation_factor,
+                    )
+                    deme_candidates = nbc.cluster()
+                    candidates[deme] = (
+                        {"NBC_mean_distance": np.mean(nbc.distances)},
+                        deme_candidates,
+                    )
+        for deme in tree.levels[-2]:
+            if deme.is_active:
+                candidates[deme] = ({}, [deme.best_current_individual])
+            else:
+                candidates[deme] = ({}, [deme.best_individual])
+        return candidates  # type: ignore[return-value]

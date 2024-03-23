@@ -24,7 +24,7 @@ class QuadraticSurrogateDeme(AbstractDeme):
         super().__init__(id, level, config, logger, started_at, x0)
         X = np.array([ind.genome for pop in parent_deme.history for ind in pop])
         y = np.array([ind.fitness for pop in parent_deme.history for ind in pop])
-        quadratic_model = make_pipeline(PolynomialFeatures(degree=2, include_bias=False), LinearRegression())
+        quadratic_model = make_pipeline(PolynomialFeatures(degree=2, include_bias=True), LinearRegression())
         quadratic_model.fit(X, y)
         self.surrogate_model = quadratic_model
         self._history.append([[self._sprout_seed]])
