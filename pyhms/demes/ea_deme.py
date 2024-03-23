@@ -20,7 +20,10 @@ class EADeme(AbstractDeme):
         self._sample_std_dev = config.sample_std_dev
         self._pop_size = config.pop_size
         self._generations = config.generations
-        self._ea = config.ea_class.create(**config.__dict__)
+        # In order to count evaluations we need to use internal problem:
+        ea_params = config.__dict__.copy()
+        ea_params["problem"] = self._problem
+        self._ea = config.ea_class.create(**ea_params)
 
         if sprout_seed is None:
             starting_pop = self._ea.run()
