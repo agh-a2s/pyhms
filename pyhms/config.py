@@ -70,7 +70,7 @@ class CMALevelConfig(BaseLevelConfig):
         problem: Problem,
         bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
-        sigma0: float,
+        sigma0: float | None,
         generations: int,
         **kwargs,
     ) -> None:
@@ -92,6 +92,18 @@ class LocalOptimizationConfig(BaseLevelConfig):
         super().__init__(problem, bounds, lsc)
         self.method = method
         self.__dict__.update(kwargs)
+
+
+class QuadraticSurrogateConfig(BaseLevelConfig):
+    def __init__(
+        self,
+        problem: Problem,
+        bounds: np.ndarray,
+        lsc: LocalStopCondition | UniversalStopCondition,
+    ):
+        self.problem = problem
+        self.bounds = bounds
+        self.lsc = lsc
 
 
 class Options(TypedDict, total=False):

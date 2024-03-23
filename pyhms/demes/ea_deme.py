@@ -15,6 +15,7 @@ class EADeme(AbstractDeme):
         logger: FilteringBoundLogger,
         started_at: int = 0,
         sprout_seed: Individual = None,
+        parent_deme: AbstractDeme | None = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at, sprout_seed)
         self._sample_std_dev = config.sample_std_dev
