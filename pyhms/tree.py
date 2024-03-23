@@ -29,7 +29,7 @@ class DemeTree:
         if nlevels < 1:
             raise ValueError("Level number must be positive")
 
-        if "random_seed" in config.options:
+        if "random_seed" in config.options and config.options["random_seed"] is not None:
             self._random_seed = config.options["random_seed"]
             import random
 
