@@ -8,6 +8,32 @@ from ..config import CMALevelConfig
 from .abstract_deme import AbstractDeme
 
 
+def find_closest_rows(X: np.ndarray, y: np.ndarray, top_n: int) -> np.ndarray:
+    distances = np.sqrt(((X - y) ** 2).sum(axis=1))
+    closest_indices = np.argsort(distances)
+    top_indices = closest_indices[:top_n]
+    return X[top_indices]
+
+
+def estimate_sigma0(X: np.ndarray) -> float:
+    cov_estimate = np.cov(X.T, bias=1)  # type: ignore[call-overload]
+    return np.sqrt(np.trace(cov_estimate) / len(cov_estimate))
+
+
+def get_initial_sigma0(
+    parent_deme: AbstractDeme,
+    x0: Individual,
+    n_individuals: int | None = 1000,
+    use_closest_rows: bool | None = True,
+) -> float:
+    parent_population = np.array([ind.genome for pop in parent_deme.history for ind in pop])
+    if use_closest_rows:
+        population = find_closest_rows(parent_population, x0.genome, n_individuals)
+    else:
+        population = parent_population[-n_individuals:]
+    return estimate_sigma0(population)
+
+
 class CMADeme(AbstractDeme):
     def __init__(
         self,
@@ -18,6 +44,7 @@ class CMADeme(AbstractDeme):
         x0: Individual,
         started_at: int = 0,
         random_seed: int = None,
+        parent_deme: AbstractDeme | None = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at, x0)
         self.generations = config.generations
@@ -28,7 +55,8 @@ class CMADeme(AbstractDeme):
             opts["randn"] = np.random.randn
             opts["seed"] = random_seed + self._started_at
 
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
+        sigma0 = config.sigma0 if config.sigma0 else get_initial_sigma0(parent_deme, x0)
+        self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
         starting_pop = [
             Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()
         ]
