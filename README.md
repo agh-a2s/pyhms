@@ -22,6 +22,23 @@ pip install git+https://github.com/agh-a2s/pyhms.git@main
 ### Quick Start
 
 ```python
+from pyhms import minimize
+import numpy as np
+
+fun = lambda x: sum(x**2)
+bounds = np.array([(-20, 20), (-20, 20)])
+solution = minimize(
+    fun=fun,
+    bounds=bounds,
+    maxfun=10000,
+    log_level="debug",
+    seed=42
+)
+```
+
+`pyhms` provides an interface similar to `scipy.optimize.minimize`. This is the simplest way to run HMS with default parameters.
+
+```python
 import numpy as np
 from leap_ec.problem import FunctionProblem
 from pyhms import EALevelConfig, hms, get_NBC_sprout, DontStop, MetaepochLimit, SEA
