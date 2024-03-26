@@ -70,7 +70,7 @@ class CMALevelConfig(BaseLevelConfig):
         problem: Problem,
         bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
-        sigma0: float,
+        sigma0: float | None,
         generations: int,
         **kwargs,
     ) -> None:
