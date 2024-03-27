@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
 
+import numpy as np
 import numpy.linalg as nla
 from leap_ec.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
