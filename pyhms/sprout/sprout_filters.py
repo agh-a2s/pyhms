@@ -109,3 +109,26 @@ class LevelLimit(TreeLevelCandidatesFilter):
                         list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme][1])),
                     )
         return candidates
+
+class SkipSameSprout(TreeLevelCandidatesFilter):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __call__(
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
+    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+        for deme in candidates.keys():
+            if not deme.children:
+                continue
+            children_sprout_genomes = np.array(
+                [child._sprout_seed.genome for level_deme in tree.levels[deme.level] for child in level_deme.children]
+            )
+            not_equal_candidate_sprouts = [
+                ind
+                for ind in candidates[deme][1]
+                if not np.any(np.all(np.isclose(children_sprout_genomes, ind.genome), axis=1))
+            ]
+            candidates[deme] = (candidates[deme][0], not_equal_candidate_sprouts)
+        return candidates
