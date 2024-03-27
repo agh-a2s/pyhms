@@ -49,6 +49,29 @@ def crowding_survival(offsprings: list[Individual], parents: list[Individual], k
 
 @wrap_curry
 @lops.iteriter_op
+def mutate_uniform(next_individual: Iterator, p_mutate: float = 0.1, bounds=(-np.inf, np.inf)) -> Iterator:
+    """
+    Mutate an individual by applying a uniform mutation to a single random gene.
+
+    :param next_individual: Iterator of individuals to be mutated
+    :param magnitude_range: A tuple specifying the range (min, max) for the uniform mutation
+    :param expected_num_mutations: Not used in this function, kept for interface compatibility
+    :param bounds: Tuple specifying the lower and upper bounds for the mutation
+    :return: Iterator of mutated individuals
+    """
+
+    while True:
+        individual = next(next_individual)
+        if np.random.rand() <= p_mutate:
+            gene_index = np.random.randint(0, len(individual.genome))
+            mutated_gene = np.random.uniform(bounds[gene_index][0], bounds[gene_index][1])
+            individual.genome[gene_index] = mutated_gene
+            individual.fitness = None
+        yield individual
+
+
+@wrap_curry
+@lops.iteriter_op
 def mutate_aggresive_uniform(next_individual: Iterator, p_mutate: float = 0.1, bounds=(-np.inf, np.inf)) -> Iterator:
     """
     Mutate an individual by applying a uniform mutation to a single random gene.
@@ -280,11 +303,12 @@ class SEAWithCrowding(SimpleEA):
                 ArithmeticCrossover(p_xover),
                 mutate_gaussian(std=mutation_std, bounds=bounds, expected_num_mutations="isotropic"),
                 lops.evaluate,
+                lops.pool(size=pop_size),
             ],
             generations=generations,
             k_elites=k_elites,
             representation=representation,
-            elitist_survival=crowding_survival(k=k_elites),
+            elitist_survival=crowding_survival,
         )
 
     @classmethod
@@ -315,8 +339,19 @@ class GAStyleEA(SimpleEA):
         representation=None,
         p_mutation=1,
         p_crossover=1,
-        use_warm_start=True,
+        use_aggresive_mutation: bool = False,
     ) -> None:
+        mutation = (
+            mutate_aggresive_uniform(
+                bounds=bounds,
+                p_mutate=p_mutation,
+            )
+            if use_aggresive_mutation
+            else mutate_uniform(
+                bounds=bounds,
+                p_mutate=p_mutation,
+            )
+        )
         super().__init__(
             problem,
             bounds,
@@ -327,10 +362,7 @@ class GAStyleEA(SimpleEA):
                 ArithmeticCrossover(
                     p_xover=p_crossover,
                 ),
-                mutate_aggresive_uniform(
-                    bounds=bounds,
-                    p_mutate=p_mutation,
-                ),
+                mutation,
                 lops.evaluate,
                 lops.pool(size=pop_size),
             ],
@@ -338,13 +370,13 @@ class GAStyleEA(SimpleEA):
             k_elites=k_elites,
             representation=representation,
         )
-        self._use_warm_start = use_warm_start
 
     @classmethod
     def create(cls, generations, problem, bounds, pop_size, **kwargs):
         k_elites = kwargs.get("k_elites") or 1
         p_mutation = kwargs.get("p_mutation") or 0.9
         p_crossover = kwargs.get("p_crossover") or 0.9
+        use_aggresive_mutation = kwargs.get("use_aggresive_mutation") or False
         return cls(
             generations=generations,
             problem=problem,
@@ -353,4 +385,5 @@ class GAStyleEA(SimpleEA):
             k_elites=k_elites,
             p_mutation=p_mutation,
             p_crossover=p_crossover,
+            use_aggresive_mutation=use_aggresive_mutation,
         )
