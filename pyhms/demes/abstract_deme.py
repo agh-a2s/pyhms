@@ -31,8 +31,7 @@ class AbstractDeme(ABC):
         self._level = level
         self._config: BaseLevelConfig = config
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
-        self._raw_problem = config.problem
-        self._problem: Problem = EvalCountingProblem(self._raw_problem)
+        self._problem: Problem = EvalCountingProblem(config.problem)
         self._bounds: np.ndarray = config.bounds
         self._active: bool = True
         self._centroid: np.ndarray | None = None

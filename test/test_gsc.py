@@ -101,16 +101,18 @@ class TestGlobalStopCondition(unittest.TestCase):
     def test_singular_problem_eval_limit_reached(self):
         LIMIT = 100
         gsc = SingularProblemEvalLimitReached(LIMIT)
-        problem = EvalCountingProblem(SQUARE_PROBLEM)
-        deme_tree = self.get_deme_tree(gsc, problem)
+        deme_tree = self.get_deme_tree(gsc, SQUARE_PROBLEM)
         # Evaluate problem LIMIT - 1 times:
         representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=LIMIT - problem.n_evaluations - 1, problem=problem)
+        population = representation.create_population(
+            pop_size=LIMIT - deme_tree.root._problem.n_evaluations - 1,
+            problem=deme_tree.root._problem,
+        )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem 1 more time:
         representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=1, problem=problem)
+        population = representation.create_population(pop_size=1, problem=deme_tree.root._problem)
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))
 

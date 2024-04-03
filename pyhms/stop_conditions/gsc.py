@@ -109,10 +109,7 @@ class SingularProblemEvalLimitReached(GlobalStopCondition):
         self.limit = limit
 
     def __call__(self, tree: "DemeTree") -> bool:
-        problem = tree.root._raw_problem
-        if not isinstance(problem, StatsGatheringProblem) and not isinstance(problem, EvalCountingProblem):
-            raise ValueError("Problem has to be an instance of EvalCountingProblem")
-        return problem.n_evaluations >= self.limit
+        return tree.n_evaluations >= self.limit
 
     def __str__(self) -> str:
         return f"SingularProblemEvalLimitReached(limit={self.limit})"
