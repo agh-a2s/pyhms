@@ -1,6 +1,7 @@
 import dill as pkl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
@@ -11,6 +12,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
+from .surrogate.bo import BOSurrogate
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
@@ -98,6 +100,7 @@ class DemeTree:
             self.metaepoch_count += 1
             self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
             self.run_metaepoch()
+            self.run_surrogate()
             if not self._gsc(self):
                 self.run_sprout()
             if len(self.leaves) > 0:
@@ -115,6 +118,16 @@ class DemeTree:
                 continue
 
             deme.run_metaepoch(self)
+
+    def run_surrogate(self) -> None:
+        tree_population = [ind for level in self.levels for deme in level for ind in deme.current_population]
+        X = np.array([ind.genome for ind in tree_population])
+        y = -1 * np.array([ind.fitness for ind in tree_population])
+        surrogate = BOSurrogate(self.root.config.bounds).fit(X, y)
+        suggested_solution = surrogate.suggest()
+        individual = Individual(suggested_solution, problem=self.root._problem)
+        individual.evaluate()
+        self.root.add_suggested_individual(individual)
 
     def run_sprout(self) -> None:
         deme_seeds = self._sprout_mechanism.get_seeds(self)
