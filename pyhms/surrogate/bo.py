@@ -79,7 +79,7 @@ def acq_max(ac, gp, y_max, bounds, random_state, n_warmup=10000, n_iter=10, y_ma
         # Add the provided best sample to the seeds so that the optimization
         # algorithm is aware of it and will attempt to find its local maxima
         x_seeds[1] = y_max_params
-
+    start = time()
     for x_try in x_seeds:
         # Find the minimum of minus the acquisition function
         res = minimize(adjusted_ac, x_try, bounds=bounds, method="L-BFGS-B")
@@ -92,7 +92,7 @@ def acq_max(ac, gp, y_max, bounds, random_state, n_warmup=10000, n_iter=10, y_ma
         if max_acq is None or -np.squeeze(res.fun) >= max_acq:
             x_max = res.x
             max_acq = -np.squeeze(res.fun)
-
+    print(f"Optimization time: {time() - start}")
     return np.clip(x_max, bounds[:, 0], bounds[:, 1])
 
 
