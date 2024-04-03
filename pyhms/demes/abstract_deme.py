@@ -106,6 +106,13 @@ class AbstractDeme(ABC):
     def add_child(self, deme: "AbstractDeme") -> None:
         self._children.append(deme)
 
+    def add_suggested_individual(self, individual: Individual) -> None:
+        current_population = self.current_population.copy()
+        worst_individual = min(self.current_population)
+        worst_index = current_population.index(worst_individual)
+        current_population[worst_index] = individual
+        self._history[-1].append(current_population)
+
     @abstractmethod
     def run_metaepoch(self, tree) -> None:
         raise NotImplementedError()
