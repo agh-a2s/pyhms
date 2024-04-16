@@ -7,7 +7,12 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions import DontStop, MetaepochLimit
 
-SQUARE_PROBLEM = FunctionProblem(lambda x: sum(x**2), maximize=False)
+
+def square(x: np.ndarray) -> float:
+    return sum(x**2)
+
+
+SQUARE_PROBLEM = FunctionProblem(square, maximize=False)
 SQUARE_BOUNDS = np.array([(-20, 20), (-20, 20)])
 
 NEGATIVE_SQUARE_PROBLEM = FunctionProblem(lambda x: -1 * sum(x**2), maximize=True)
