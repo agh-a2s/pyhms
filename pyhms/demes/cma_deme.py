@@ -32,7 +32,8 @@ class CMADeme(AbstractDeme):
         if config.__dict__.get("set_stds"):
             opts["CMA_stds"] = get_initial_stds(parent_deme, x0)
             # We recommend to use sigma0 = 1 in this case.
-            self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
+            sigma0 = 1.0 if config.sigma0 is None else config.sigma0
+            self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
         elif config.sigma0:
             self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
         else:

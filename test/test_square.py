@@ -66,6 +66,34 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
         self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
 
+    def test_square_optimization_cma_warm_start_set_stds(self):
+        options = {"random_seed": 1}
+        config = [
+            EALevelConfig(
+                ea_class=SEA,
+                generations=2,
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
+                pop_size=20,
+                mutation_std=1.0,
+                lsc=DontStop(),
+            ),
+            CMALevelConfig(
+                generations=4,
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
+                sigma0=None,
+                set_stds=True,
+                lsc=DontStop(),
+            ),
+        ]
+
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND, options=options)
+        hms_tree = DemeTree(config)
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
+
     def test_square_optimization_de(self):
         options = {"random_seed": 1}
         config = [
