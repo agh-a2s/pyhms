@@ -120,10 +120,11 @@ class DemeTree:
             deme.run_metaepoch(self)
 
     def run_surrogate(self) -> None:
-        N = 5
-        if self.metaepoch_count % N != 0:
-            return
-        tree_population = [ind for level in self.levels for deme in level for pop in deme.history[-N:] for ind in pop]
+        # N = 5
+        # if self.metaepoch_count % N != 0:
+        #     return
+        tree_population = [ind for level in self.levels for deme in level for pop in deme.history[-5:] for ind in pop]
+        # tree_population = [ind for pop in self.root.history[-5:] for ind in pop]
         X = np.array([ind.genome for ind in tree_population])
         y = -1 * np.array([ind.fitness for ind in tree_population])
         surrogate = BOSurrogate(self.root.config.bounds).fit(X, y)

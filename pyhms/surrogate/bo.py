@@ -299,7 +299,7 @@ class UtilityFunction:
 
 class BOSurrogate(Surrogate):
     def __init__(self, bounds: np.ndarray):
-        self.utility_function = UtilityFunction(kind="ucb")
+        self.utility_function = UtilityFunction(kind="ucb", kappa=5)
         self._random_state = np.random.RandomState()
         self._gp = GaussianProcessRegressor(
             kernel=Matern(nu=2.5),
@@ -314,8 +314,8 @@ class BOSurrogate(Surrogate):
         start = time()
         self._gp.fit(X, y)
         print(f"GP fit time: {time() - start}")
-        self.y_max = np.max(y)
-        self.x_max = X[np.argmax(y)]
+        self.y_max = np.min(y)
+        self.x_max = X[np.argmin(y)]
         return self
 
     def suggest(self) -> np.ndarray:
@@ -329,4 +329,5 @@ class BOSurrogate(Surrogate):
             random_state=self._random_state,
         )
         print(f"Suggest time: {time() - start}")
+        print(f"Suggested: {suggested}")
         return suggested
