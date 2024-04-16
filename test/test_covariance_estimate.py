@@ -1,11 +1,7 @@
 import unittest
 
 import numpy as np
-from pyhms.utils.covariance_estimate import (
-    find_closest_rows,
-    estimate_sigma0,
-    get_initial_sigma0_from_bounds,
-)
+from pyhms.utils.covariance_estimate import estimate_sigma0, find_closest_rows, get_initial_sigma0_from_bounds
 
 
 class TestCovarianceEstimateUtils(unittest.TestCase):
