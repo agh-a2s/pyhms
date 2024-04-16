@@ -60,7 +60,7 @@ def minimize(
     level_config = [
         EALevelConfig(
             ea_class=SEA,
-            generations=2,
+            generations=1,
             problem=function_problem,
             bounds=bounds,
             pop_size=35,
@@ -68,7 +68,7 @@ def minimize(
             lsc=DontStop(),
         ),
         CMALevelConfig(
-            generations=10,
+            generations=20,
             problem=function_problem,
             bounds=bounds,
             sigma0=1.0,
