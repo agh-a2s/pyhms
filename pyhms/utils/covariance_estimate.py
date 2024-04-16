@@ -1,8 +1,10 @@
 import numpy as np
-from ..demes.abstract_deme import AbstractDeme
 from leap_ec import Individual
 
+from ..demes.abstract_deme import AbstractDeme
+
 N_INDIVIDUALS_PER_DIMENSION = 25
+_EPS = 1e-10
 
 
 def find_closest_rows(X: np.ndarray, y: np.ndarray, top_n: int) -> np.ndarray:
@@ -18,7 +20,9 @@ def estimate_covariance(X: np.ndarray) -> np.ndarray:
 
 def estimate_sigma0(X: np.ndarray) -> float:
     cov_estimate = estimate_covariance(X)
-    return np.sqrt(np.trace(cov_estimate) / len(cov_estimate))
+    sigma0 = np.sqrt(np.trace(cov_estimate) / len(cov_estimate))
+    # Avoid ZeroDivisionError in cma.CMAEvolutionStrategy.
+    return max(sigma0, _EPS)
 
 
 def estimate_stds(X: np.ndarray) -> np.ndarray:
@@ -31,9 +35,7 @@ def get_population(
     use_closest_rows: bool | None = True,
 ) -> np.ndarray:
     n_individuals = N_INDIVIDUALS_PER_DIMENSION * len(x0.genome)
-    parent_population = np.array(
-        [ind.genome for pop in parent_deme.history for ind in pop]
-    )
+    parent_population = np.array([ind.genome for pop in parent_deme.history for ind in pop])
     if use_closest_rows:
         population = find_closest_rows(parent_population, x0.genome, n_individuals)
     else:
@@ -46,16 +48,24 @@ def get_initial_sigma0(
     x0: Individual,
     use_closest_rows: bool | None = True,
 ) -> float:
-    n_individuals = N_INDIVIDUALS_PER_DIMENSION * len(x0.genome)
-    population = get_population(parent_deme, x0, n_individuals, use_closest_rows)
+    population = get_population(parent_deme, x0, use_closest_rows)
     return estimate_sigma0(population)
 
 
 def get_initial_stds(
     parent_deme: AbstractDeme,
     x0: Individual,
-    n_individuals: int | None = 1000,
     use_closest_rows: bool | None = True,
 ) -> np.ndarray:
-    population = get_population(parent_deme, x0, n_individuals, use_closest_rows)
+    population = get_population(parent_deme, x0, use_closest_rows)
     return estimate_stds(population)
+
+
+def get_initial_sigma0_from_bounds(bounds: np.ndarray) -> float:
+    """
+    This initialization method is used for CMA-ES in Optuna:
+    https://optuna.readthedocs.io/en/v2.10.1/_modules/optuna/integration/cma.html#PyCmaSampler
+    """
+    sigma0 = min([bound[1] - bound[0] for bound in bounds]) / 6
+    # Avoid ZeroDivisionError in cma.CMAEvolutionStrategy.
+    return max(sigma0, _EPS)

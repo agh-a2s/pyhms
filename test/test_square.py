@@ -39,7 +39,7 @@ class TestSquare(unittest.TestCase):
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
         self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
 
-    def test_square_optimization_cma(self):
+    def test_square_optimization_cma_warm_start(self):
         options = {"random_seed": 1}
         config = [
             EALevelConfig(
@@ -55,7 +55,7 @@ class TestSquare(unittest.TestCase):
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 bounds=SQUARE_PROBLEM_DOMAIN,
-                sigma0=2.5,
+                sigma0=None,
                 lsc=DontStop(),
             ),
         ]
