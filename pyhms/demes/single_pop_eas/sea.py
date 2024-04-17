@@ -8,11 +8,16 @@ from leap_ec.problem import Problem
 from leap_ec.real_rep import create_real_vector
 from leap_ec.real_rep.ops import mutate_gaussian
 from leap_ec.representation import Representation
-from toolz import pipe
 
 DEFAULT_K_ELITES = 1
 DEFAULT_GENERATIONS = 1
 DEFAULT_MUTATION_STD = 1.0
+
+
+def pipe(data, *funcs):
+    for func in funcs:
+        data = func(data)
+    return data
 
 
 class AbstractEA(ABC):
