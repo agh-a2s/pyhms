@@ -11,6 +11,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
+from .utils.deme_performance import get_variance_per_gene
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
@@ -270,6 +271,18 @@ class DemeTree:
             [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
         ).T.plot()
         plt.title("Best fitness by metaepoch")
+        if filepath:
+            plt.savefig(filepath)
+        plt.show()
+
+    def plot_deme_variance(self, deme_id: str | None = "root", filepath: str | None = None) -> None:
+        """
+        Plots the variance of the population in the deme.
+        """
+        deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
+        variance_per_gene = get_variance_per_gene(deme)
+        variance_per_gene.plot()
+        plt.title(f"Variance of genes for {deme_id}")
         if filepath:
             plt.savefig(filepath)
         plt.show()
