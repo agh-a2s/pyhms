@@ -4,12 +4,14 @@ import pandas as pd
 from ..demes.abstract_deme import AbstractDeme
 
 
-def get_variance_per_gene(deme: AbstractDeme) -> pd.DataFrame:
+def get_average_variance_per_generation(deme: AbstractDeme) -> pd.DataFrame:
+    """Computes the average variance of genomes for each generation within a deme."""
     rows = []
-    for metaepoch_idx, metaepoch_populations in enumerate(deme._history):
-        for generation_idx, population in enumerate(metaepoch_populations):
+    for metaepoch_populations in deme._history:
+        for population in metaepoch_populations:
             generation_variances = np.var([ind.genome for ind in population], axis=0)
-            row = {f"Gene {gene_idx}": variance for gene_idx, variance in enumerate(generation_variances)}
-            row["Metaepoch"] = f"{metaepoch_idx}/{generation_idx}"
+            row = {
+                "Average Variance of Genome": np.mean(generation_variances),
+            }
             rows.append(row)
     return pd.DataFrame(rows)
