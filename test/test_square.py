@@ -1,7 +1,15 @@
 import unittest
 
-from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
+from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.sprout import (
+    DemeLimit,
+    LevelLimit,
+    NBC_FarEnough,
+    NBCGeneratorWithLocalMethod,
+    SkipSameSprout,
+    SproutMechanism,
+)
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
@@ -119,4 +127,43 @@ class TestSquare(unittest.TestCase):
         hms_tree = DemeTree(config)
         hms_tree.run()
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
+
+    def test_square_optimization_with_local_method(self):
+        options = {"random_seed": 1}
+        config = [
+            EALevelConfig(
+                ea_class=SEA,
+                generations=2,
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
+                pop_size=20,
+                mutation_std=1.0,
+                lsc=DontStop(),
+            ),
+            CMALevelConfig(
+                generations=4,
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
+                sigma0=2.5,
+                lsc=DontStop(),
+            ),
+            LocalOptimizationConfig(
+                problem=SQUARE_PROBLEM,
+                bounds=SQUARE_PROBLEM_DOMAIN,
+                lsc=DontStop(),
+                maxiter=10,
+            ),
+        ]
+
+        sprout_cond = SproutMechanism(
+            NBCGeneratorWithLocalMethod(3.0, 0.7),
+            [NBC_FarEnough(3.0, 2), DemeLimit(1)],
+            [LevelLimit(4), SkipSameSprout()],
+        )
+
+        config = TreeConfig(config, DEFAULT_GSC, sprout_cond, options=options)
+        hms_tree = DemeTree(config)
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 3, "Tree height should be equal 2")
         self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")

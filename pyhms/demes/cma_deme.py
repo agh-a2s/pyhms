@@ -75,7 +75,3 @@ class CMADeme(AbstractDeme):
         if self._lsc(self) or self._cma_es.stop():
             self.log("CMA Deme finished due to LSC")
             self._active = False
-
-    @property
-    def n_evaluations(self) -> int:
-        return self._cma_es.result.evaluations
