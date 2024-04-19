@@ -21,6 +21,7 @@ def init_from_config(
     sprout_seed: Individual,
     logger: FilteringBoundLogger,
     random_seed: int = None,
+    parent_deme: AbstractDeme | None = None,
 ) -> AbstractDeme:
     args = {
         "id": new_id,
@@ -39,6 +40,7 @@ def init_from_config(
         args["x0"] = sprout_seed
         args.pop("sprout_seed", None)
         args["random_seed"] = random_seed
+        args["parent_deme"] = parent_deme
         child = CMADeme(**args)
     elif isinstance(config, LocalOptimizationConfig):
         child = LocalDeme(**args)

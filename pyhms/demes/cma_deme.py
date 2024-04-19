@@ -5,6 +5,7 @@ from leap_ec.decoder import IdentityDecoder
 from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
+from ..utils.covariance_estimate import get_initial_sigma0, get_initial_stds
 from .abstract_deme import AbstractDeme
 
 
@@ -18,6 +19,7 @@ class CMADeme(AbstractDeme):
         x0: Individual,
         started_at: int = 0,
         random_seed: int = None,
+        parent_deme: AbstractDeme | None = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at, x0)
         self.generations = config.generations
@@ -27,8 +29,17 @@ class CMADeme(AbstractDeme):
         if random_seed is not None:
             opts["randn"] = np.random.randn
             opts["seed"] = random_seed + self._started_at
+        if config.__dict__.get("set_stds"):
+            opts["CMA_stds"] = get_initial_stds(parent_deme, x0)
+            # We recommend to use sigma0 = 1 in this case.
+            sigma0 = 1.0 if config.sigma0 is None else config.sigma0
+            self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
+        elif config.sigma0:
+            self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
+        else:
+            sigma0 = get_initial_sigma0(parent_deme, x0)
+            self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
 
-        self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
         starting_pop = [
             Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()
         ]
