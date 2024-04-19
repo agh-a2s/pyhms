@@ -4,6 +4,7 @@ from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.demes.ea_deme import EADeme
 from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.problem import EvalCountingProblem
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
@@ -12,11 +13,12 @@ from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PRO
 
 class TestDemeTree(unittest.TestCase):
     def test_deme_tree_properties(self):
+        problem = EvalCountingProblem(SQUARE_PROBLEM)
         levels = [
             EALevelConfig(
                 ea_class=SEA,
                 generations=2,
-                problem=SQUARE_PROBLEM,
+                problem=problem,
                 bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
@@ -24,7 +26,7 @@ class TestDemeTree(unittest.TestCase):
             ),
             CMALevelConfig(
                 generations=4,
-                problem=SQUARE_PROBLEM,
+                problem=problem,
                 bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
@@ -43,3 +45,4 @@ class TestDemeTree(unittest.TestCase):
             self.assertLessEqual(deme.best_individual, hms_tree.best_individual)
             self.assertLessEqual(deme.best_current_individual, deme.best_individual)
             self.assertGreaterEqual(deme.n_evaluations, 0)
+        self.assertEqual(problem.n_evaluations, hms_tree.n_evaluations)
