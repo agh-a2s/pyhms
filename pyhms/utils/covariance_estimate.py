@@ -59,13 +59,3 @@ def get_initial_stds(
 ) -> np.ndarray:
     population = get_population(parent_deme, x0, use_closest_rows)
     return estimate_stds(population)
-
-
-def get_initial_sigma0_from_bounds(bounds: np.ndarray) -> float:
-    """
-    This initialization method is used for CMA-ES in Optuna:
-    https://optuna.readthedocs.io/en/v2.10.1/_modules/optuna/integration/cma.html#PyCmaSampler
-    """
-    sigma0 = min([bound[1] - bound[0] for bound in bounds]) / 6
-    # Avoid ZeroDivisionError in cma.CMAEvolutionStrategy.
-    return max(sigma0, _EPS)

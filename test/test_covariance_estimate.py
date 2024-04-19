@@ -1,13 +1,7 @@
 import unittest
 
 import numpy as np
-from pyhms.utils.covariance_estimate import (
-    estimate_covariance,
-    estimate_sigma0,
-    estimate_stds,
-    find_closest_rows,
-    get_initial_sigma0_from_bounds,
-)
+from pyhms.utils.covariance_estimate import estimate_covariance, estimate_sigma0, estimate_stds, find_closest_rows
 
 
 class TestCovarianceEstimateUtils(unittest.TestCase):
@@ -31,8 +25,3 @@ class TestCovarianceEstimateUtils(unittest.TestCase):
         self.assertTrue(np.abs(sigma0 - 1) < 1e-2)
         stds = estimate_stds(X)
         self.assertTrue(np.all(np.abs(stds - 1) < 5e-2))
-
-    def test_sigma0_from_bounds(self):
-        bounds = np.array([[0, 1], [0, 1]])
-        sigma0 = get_initial_sigma0_from_bounds(bounds)
-        self.assertAlmostEqual(sigma0, 1 / 6)
