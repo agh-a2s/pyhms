@@ -5,7 +5,6 @@ from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
-from ..core.problem import Problem
 from ..problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
@@ -135,7 +134,7 @@ class AbstractDeme(ABC):
 
     @property
     def best_fitness_by_metaepoch(self) -> dict[int, float]:
-        metaepoch_to_best_fitness = {}
+        metaepoch_to_best_fitness: dict[int, float] = {}
         for metaepoch_idx, metaepoch_history in enumerate(self._history):
             if not metaepoch_history:
                 continue

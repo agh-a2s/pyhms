@@ -1,9 +1,9 @@
 import unittest
 
 import numpy as np
-from leap_ec.real_rep import create_real_vector
 from leap_ec.representation import Representation
 from pyhms.core.individual import Individual
+from pyhms.initializers import sample_uniform
 from pyhms.problem import EvalCountingProblem, EvalCutoffProblem, PrecisionCutoffProblem, StatsGatheringProblem
 
 from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
@@ -40,7 +40,7 @@ class TestProblemDecorator(unittest.TestCase):
 
     def test_eval_counting_problem(self):
         eval_counting_problem = EvalCountingProblem(SQUARE_PROBLEM)
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=POPULATION_SIZE, problem=eval_counting_problem)
         Individual.evaluate_population(population)
         self.assertEqual(
@@ -52,7 +52,7 @@ class TestProblemDecorator(unittest.TestCase):
     def test_eval_cutoff_problem_for_minimization(self):
         EVAL_CUTOFF = 10
         eval_cutoff_problem = EvalCutoffProblem(NEGATIVE_SQUARE_PROBLEM, EVAL_CUTOFF)
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=EVAL_CUTOFF, problem=eval_cutoff_problem)
         Individual.evaluate_population(population)
 
@@ -76,7 +76,7 @@ class TestProblemDecorator(unittest.TestCase):
     def test_eval_cutoff_problem_for_maximization(self):
         EVAL_CUTOFF = 10
         eval_cutoff_problem = EvalCutoffProblem(SQUARE_PROBLEM, EVAL_CUTOFF)
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=EVAL_CUTOFF, problem=eval_cutoff_problem)
         Individual.evaluate_population(population)
 
@@ -139,7 +139,7 @@ class TestProblemDecorator(unittest.TestCase):
 
     def test_stats_gathering_problem(self):
         stats_gathering_problem = StatsGatheringProblem(SQUARE_PROBLEM)
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=POPULATION_SIZE, problem=stats_gathering_problem)
         Individual.evaluate_population(population)
         self.assertEqual(

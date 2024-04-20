@@ -1,9 +1,8 @@
 import numpy as np
 import numpy.typing as npt
-from leap_ec.real_rep.initializers import create_real_vector
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
-from pyhms.initializers import sample_normal
+from pyhms.initializers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
@@ -30,7 +29,7 @@ class DEDeme(AbstractDeme):
         if sprout_seed is None:
             starting_pop = Individual.create_population(
                 self._pop_size,
-                initialize=create_real_vector(bounds=self._bounds),
+                initialize=sample_uniform(bounds=self._bounds),
                 problem=self._problem,
             )
         else:

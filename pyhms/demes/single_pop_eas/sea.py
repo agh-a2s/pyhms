@@ -3,9 +3,9 @@ from typing import Any
 
 import leap_ec.ops as lops
 import numpy as np
-from leap_ec.real_rep import create_real_vector
 from leap_ec.real_rep.ops import mutate_gaussian
 from leap_ec.representation import Representation
+from pyhms.initializers import sample_uniform
 
 from ...core.individual import Individual
 from ...core.problem import Problem
@@ -64,7 +64,7 @@ class SimpleEA(AbstractEA):
         if representation is not None:
             self.representation = representation
         else:
-            self.representation = Representation(initialize=create_real_vector(bounds=bounds))
+            self.representation = Representation(initialize=sample_uniform(bounds=bounds))
 
     def run(self, parents: list[Individual] | None = None) -> list[Individual]:
         if parents is None:

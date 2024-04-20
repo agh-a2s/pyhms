@@ -11,7 +11,9 @@ from ..core.individual import Individual
 class DemeLevelCandidatesFilter(ABC):
     @abstractmethod
     def __call__(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         raise NotImplementedError()
 
@@ -19,7 +21,9 @@ class DemeLevelCandidatesFilter(ABC):
 class TreeLevelCandidatesFilter(ABC):
     @abstractmethod
     def __call__(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         raise NotImplementedError()
 
@@ -31,7 +35,9 @@ class FarEnough(DemeLevelCandidatesFilter):
         self.norm_ord = norm_ord
 
     def __call__(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
@@ -53,7 +59,9 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         self.norm_ord = norm_ord
 
     def __call__(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         assert (
             "NBC_mean_distance" in next(iter(candidates.values()))[0]
@@ -80,12 +88,17 @@ class DemeLimit(DemeLevelCandidatesFilter):
         self.limit = limit
 
     def __call__(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], _
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        _,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         for deme in candidates.keys():
             candidates[deme][1].sort(key=lambda ind: ind.fitness)
             if len(candidates[deme][1]) > self.limit:
-                candidates[deme] = (candidates[deme][0], candidates[deme][1][: self.limit])
+                candidates[deme] = (
+                    candidates[deme][0],
+                    candidates[deme][1][: self.limit],
+                )
         return candidates
 
 
@@ -95,7 +108,9 @@ class LevelLimit(TreeLevelCandidatesFilter):
         self.limit = limit
 
     def __call__(
-        self, candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]], tree
+        self,
+        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        tree,
     ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
         for level in range(len(tree.levels[:-1])):
             level_demes = [deme for deme in candidates.keys() if deme.level == level]
@@ -108,7 +123,7 @@ class LevelLimit(TreeLevelCandidatesFilter):
                 for deme in level_demes:
                     candidates[deme] = (
                         candidates[deme][0],
-                        list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme][1])),
+                        list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme][1])),  # type: ignore
                     )
         return candidates
 

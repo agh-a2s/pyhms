@@ -1,12 +1,12 @@
 import unittest
 
 import numpy as np
-from leap_ec.real_rep import create_real_vector
 from leap_ec.representation import Representation
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
 from pyhms.core.problem import Problem
 from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.initializers import sample_uniform
 from pyhms.problem import EvalCountingProblem, PrecisionCutoffProblem
 from pyhms.stop_conditions import (
     AllStopped,
@@ -103,7 +103,7 @@ class TestGlobalStopCondition(unittest.TestCase):
         gsc = SingularProblemEvalLimitReached(LIMIT)
         deme_tree = self.get_deme_tree(gsc, SQUARE_PROBLEM)
         # Evaluate problem LIMIT - 1 times:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(
             pop_size=LIMIT - deme_tree.root._problem.n_evaluations - 1,
             problem=deme_tree.root._problem,
@@ -111,7 +111,7 @@ class TestGlobalStopCondition(unittest.TestCase):
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=1, problem=deme_tree.root._problem)
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))
@@ -156,14 +156,14 @@ class TestGlobalStopCondition(unittest.TestCase):
         )
         deme_tree = DemeTree(tree_config)
         # Evaluate problem (level 1) LIMIT - 1 times:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(
             pop_size=LIMIT - problem_level1.n_evaluations - 1, problem=problem_level1
         )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem (level 2) 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=1, problem=problem_level2)
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))
@@ -199,19 +199,19 @@ class TestGlobalStopCondition(unittest.TestCase):
         )
         deme_tree = DemeTree(tree_config)
         # Evaluate problem (level 1) LIMIT - 1 times:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(
             pop_size=LIMIT - problem_level1.n_evaluations - 1, problem=problem_level1
         )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem (level 2) 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=1, problem=problem_level2)
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem (level 1) 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
+        representation = Representation(initialize=sample_uniform(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=1, problem=problem_level1)
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))

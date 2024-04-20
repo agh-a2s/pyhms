@@ -2,6 +2,23 @@ import numpy as np
 import numpy.random as nrand
 
 
+def sample_uniform(bounds: np.ndarray):
+    """
+    Sample points from a uniform distribution.
+
+    :param np.array bounds: Min and max bounds for each dimension.
+    It has to be in a form of a 2-dimensional NumPy array of shape (n, 2).
+    :param int size: Sample size.
+
+    :return: A sample from the distribution.
+    """
+
+    def create():
+        return np.random.uniform(bounds[:, 0], bounds[:, 1], size=len(bounds))
+
+    return create
+
+
 def sample_normal(
     center: np.ndarray,
     std_dev: float,
@@ -15,7 +32,7 @@ def sample_normal(
         The covariance matrix is assumed to be diagonal, with each diagonal
         element being `std_dev**2`, indicating identical variance for each dimension
         and no covariance between dimensions.
-    :param bounds: Min and max bounds for each dimension. It can be a list of tuples, a numpy array, or None.
+    :param bounds: Min and max bounds for each dimension. It can be a numpy array, or None.
     :type bounds: np.array or None
     :return: A function that creates a sample from the distribution.
     :rtype: function

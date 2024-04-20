@@ -1,8 +1,8 @@
 import unittest
 
 import numpy as np
-from leap_ec.real_rep import create_real_vector
 from pyhms.core.individual import Individual
+from pyhms.initializers import sample_uniform
 from pyhms.utils.clusterization import NearestBetterClustering, get_individual_id
 
 from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
@@ -15,7 +15,7 @@ class TestClustering(unittest.TestCase):
         population = Individual.create_population(
             pop_size=population_size,
             problem=SQUARE_PROBLEM,
-            initialize=create_real_vector(bounds=SQUARE_BOUNDS),
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
         )
         Individual.evaluate_population(population)
 
@@ -99,7 +99,7 @@ class TestClustering(unittest.TestCase):
         min_population = Individual.create_population(
             pop_size=population_size,
             problem=SQUARE_PROBLEM,
-            initialize=create_real_vector(bounds=SQUARE_BOUNDS),
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
         )
         max_population = [
             Individual(
