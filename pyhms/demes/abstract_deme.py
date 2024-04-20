@@ -5,7 +5,7 @@ from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
-from ..problem import EvalCountingProblem
+from ..core.problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
 

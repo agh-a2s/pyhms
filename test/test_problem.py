@@ -3,8 +3,8 @@ import unittest
 import numpy as np
 from leap_ec.representation import Representation
 from pyhms.core.individual import Individual
+from pyhms.core.problem import EvalCountingProblem, EvalCutoffProblem, PrecisionCutoffProblem, StatsGatheringProblem
 from pyhms.initializers import sample_uniform
-from pyhms.problem import EvalCountingProblem, EvalCutoffProblem, PrecisionCutoffProblem, StatsGatheringProblem
 
 from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
 

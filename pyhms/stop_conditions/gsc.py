@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from ..problem import EvalCountingProblem, PrecisionCutoffProblem, StatsGatheringProblem
+from ..core.problem import EvalCountingProblem, PrecisionCutoffProblem, StatsGatheringProblem
 
 if TYPE_CHECKING:
     from pyhms.tree import DemeTree

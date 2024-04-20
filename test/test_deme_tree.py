@@ -1,10 +1,10 @@
 import unittest
 
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.problem import EvalCountingProblem
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.demes.ea_deme import EADeme
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.problem import EvalCountingProblem
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
