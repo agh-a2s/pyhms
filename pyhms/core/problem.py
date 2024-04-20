@@ -1,4 +1,6 @@
+import random
 from abc import ABC, abstractmethod
+from math import isclose, isnan
 from typing import Callable
 
 import numpy as np
@@ -17,7 +19,10 @@ class Problem(ABC):
         raise NotImplementedError
 
     def equivalent(self, first_fitness: float, second_fitness: float) -> bool:
-        return np.isclose(first_fitness, second_fitness)  # type: ignore[return-value]
+        if type(first_fitness) == float and type(second_fitness) == float:
+            return isclose(first_fitness, second_fitness)
+        else:
+            return first_fitness == second_fitness
 
 
 class FunctionProblem(Problem):
@@ -30,6 +35,12 @@ class FunctionProblem(Problem):
         return self.fitness_function(genome, *args, **kwargs)
 
     def worse_than(self, first_fitness: float, second_fitness: float) -> bool:
+        if isnan(first_fitness):
+            if isnan(second_fitness):
+                return random.choice([True, False])
+            return True
+        elif isnan(second_fitness):
+            return False
         if self.maximize:
             return first_fitness < second_fitness
         else:

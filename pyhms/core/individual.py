@@ -29,10 +29,14 @@ class Individual:
         return self
 
     def __lt__(self, other) -> bool:
+        if other is None:
+            return False
         return self.problem.worse_than(self.fitness, other.fitness)
 
     def __eq__(self, other) -> bool:
-        return np.isclose(self.fitness, other.fitness)
+        if other is None:
+            return False
+        return self.problem.equivalent(self.fitness, other.fitness)
 
     @classmethod
     def create_population(cls, pop_size: int, problem: Problem, initialize: Callable) -> list["Individual"]:
