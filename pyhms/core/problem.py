@@ -1,6 +1,7 @@
-import numpy as np
-
 from abc import ABC, abstractmethod
+from typing import Callable
+
+import numpy as np
 
 
 class Problem(ABC):
@@ -15,12 +16,12 @@ class Problem(ABC):
     def worse_than(self, first_fitness: float, second_fitness: float):
         raise NotImplementedError
 
+    def equivalent(self, first_fitness: float, second_fitness: float) -> bool:
+        return np.isclose(first_fitness, second_fitness)  # type: ignore[return-value]
+
 
 class FunctionProblem(Problem):
-
-    def __init__(
-        self, fitness_function: callable, bounds: np.ndarray, maximize: bool
-    ) -> None:
+    def __init__(self, fitness_function: Callable, bounds: np.ndarray, maximize: bool) -> None:
         self.fitness_function = fitness_function
         self.bounds = bounds
         self.maximize = maximize

@@ -7,13 +7,13 @@ from .core.problem import Problem
 
 class EvalCountingProblem(Problem):
     """
-    A decorator for a leap_ec.Problem instance that counts the number of evaluations performed.
+    A decorator for a Problem instance that counts the number of evaluations performed.
 
     This class wraps around any instance of `Problem` and counts how many times the
     `evaluate` method is called. This is useful for monitoring and limiting the computational
     cost of optimization processes.
 
-    :param leap_ec.Problem decorated_problem: The problem to be decorated.
+    :param Problem decorated_problem: The problem to be decorated.
 
     .. code-block:: python
 
@@ -39,9 +39,6 @@ class EvalCountingProblem(Problem):
     def worse_than(self, first_fitness, second_fitness):
         return self._inner.worse_than(first_fitness, second_fitness)
 
-    def equivalent(self, first_fitness, second_fitness):
-        return self._inner.equivalent(first_fitness, second_fitness)
-
     @property
     def n_evaluations(self) -> int:
         return self._n_evals
@@ -56,7 +53,7 @@ class EvalCountingProblem(Problem):
 
 class EvalCutoffProblem(EvalCountingProblem):
     """
-    A decorator for a leap_ec.Problem instance that imposes a cutoff on the number of evaluations.
+    A decorator for a Problem instance that imposes a cutoff on the number of evaluations.
 
     This class extends `EvalCountingProblem` by adding a functionality to stop evaluations
     once a specified cutoff limit is reached. Evaluations beyond this limit will return a
@@ -129,7 +126,7 @@ class PrecisionCutoffProblem(EvalCountingProblem):
 
 class StatsGatheringProblem(Problem):
     """
-    A decorator for a leap_ec.Problem instance that gathers statistics about evaluation times.
+    A decorator for a Problem instance that gathers statistics about evaluation times.
 
     This class wraps around any instance of `Problem` to record the duration of each
     evaluation performed on the decorated problem. It's particularly useful for performance
@@ -163,9 +160,6 @@ class StatsGatheringProblem(Problem):
 
     def worse_than(self, first_fitness, second_fitness):
         return self._inner.worse_than(first_fitness, second_fitness)
-
-    def equivalent(self, first_fitness, second_fitness):
-        return self._inner.equivalent(first_fitness, second_fitness)
 
     @property
     def n_evaluations(self) -> int:

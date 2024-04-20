@@ -1,6 +1,5 @@
 import numpy as np
 import numpy.typing as npt
-from leap_ec.decoder import IdentityDecoder
 from leap_ec.real_rep.initializers import create_real_vector
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
@@ -32,7 +31,6 @@ class DEDeme(AbstractDeme):
             starting_pop = Individual.create_population(
                 self._pop_size,
                 initialize=create_real_vector(bounds=self._bounds),
-                decoder=IdentityDecoder(),
                 problem=self._problem,
             )
         else:
@@ -40,7 +38,6 @@ class DEDeme(AbstractDeme):
             starting_pop = Individual.create_population(
                 self._pop_size - 1,
                 initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
-                decoder=IdentityDecoder(),
                 problem=self._problem,
             )
             seed_ind = Individual(x, problem=self._problem)
@@ -54,7 +51,7 @@ class DEDeme(AbstractDeme):
         metaepoch_generations = []
         while epoch_counter < self._generations:
             donors = self._create_donor_vectors(np.array([ind.genome for ind in self.current_population]))
-            donors_pop = [Individual(donor, problem=self._problem, decoder=IdentityDecoder()) for donor in donors]
+            donors_pop = [Individual(donor, problem=self._problem) for donor in donors]
             Individual.evaluate_population(donors_pop)
             offspring = [self._crossover(parent, donor) for parent, donor in zip(self.current_population, donors_pop)]
 
@@ -93,6 +90,6 @@ class DEDeme(AbstractDeme):
             genome = np.array(
                 [p if np.random.uniform() < self._crossover_prob else d for p, d in zip(parent.genome, donor.genome)]
             )
-            offspring = Individual(genome, problem=self._problem, decoder=IdentityDecoder())
+            offspring = Individual(genome, problem=self._problem)
             offspring.evaluate()
             return offspring

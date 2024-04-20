@@ -1,7 +1,7 @@
-from leap_ec import Individual
 from pyhms.config import BaseLevelConfig, CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig
 from structlog.typing import FilteringBoundLogger
 
+from ..core.individual import Individual
 from .abstract_deme import AbstractDeme
 from .cma_deme import CMADeme
 from .de_deme import DEDeme

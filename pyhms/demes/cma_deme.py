@@ -1,7 +1,6 @@
 import numpy as np
 from cma import CMAEvolutionStrategy
-from leap_ec import Individual
-from leap_ec.decoder import IdentityDecoder
+from pyhms.core.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
@@ -40,9 +39,7 @@ class CMADeme(AbstractDeme):
             sigma0 = get_initial_sigma0(parent_deme, x0)
             self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
 
-        starting_pop = [
-            Individual(solution, problem=self._problem, decoder=IdentityDecoder()) for solution in self._cma_es.ask()
-        ]
+        starting_pop = [Individual(solution, problem=self._problem) for solution in self._cma_es.ask()]
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
 
@@ -53,10 +50,7 @@ class CMADeme(AbstractDeme):
         metaepoch_generations = []
         while epoch_counter < self.generations:
             self._cma_es.tell(genomes, values)
-            offspring = [
-                Individual(solution, problem=self._problem, decoder=IdentityDecoder())
-                for solution in self._cma_es.ask()
-            ]
+            offspring = [Individual(solution, problem=self._problem) for solution in self._cma_es.ask()]
             Individual.evaluate_population(offspring)
             genomes = [ind.genome for ind in offspring]
             values = [ind.fitness for ind in offspring]

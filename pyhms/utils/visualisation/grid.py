@@ -41,7 +41,7 @@ class Grid2DProblemEvaluation:
         self.z = np.zeros((len(xs), len(ys)))
         for i, x in enumerate(xs):
             for j, y in enumerate(ys):
-                self.z[i, j] = self.problem.evaluate(phenome=np.asarray([x, y]))
+                self.z[i, j] = self.problem.evaluate(np.asarray([x, y]))
         return self.z
 
     @property

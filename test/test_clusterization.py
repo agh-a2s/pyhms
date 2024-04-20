@@ -1,9 +1,7 @@
 import unittest
 
 import numpy as np
-from leap_ec.decoder import IdentityDecoder
 from leap_ec.real_rep import create_real_vector
-from leap_ec.representation import Representation
 from pyhms.core.individual import Individual
 from pyhms.utils.clusterization import NearestBetterClustering, get_individual_id
 
@@ -14,8 +12,11 @@ class TestClustering(unittest.TestCase):
     def test_nbc_truncation(self):
         truncation_factor = 0.3
         population_size = 40
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
-        population = representation.create_population(pop_size=population_size, problem=SQUARE_PROBLEM)
+        population = Individual.create_population(
+            pop_size=population_size,
+            problem=SQUARE_PROBLEM,
+            initialize=create_real_vector(bounds=SQUARE_BOUNDS),
+        )
         Individual.evaluate_population(population)
 
         clustering = NearestBetterClustering(population, truncation_factor=truncation_factor)
@@ -38,7 +39,6 @@ class TestClustering(unittest.TestCase):
         population = [
             Individual(
                 genome=genome,
-                decoder=IdentityDecoder(),
                 problem=SQUARE_PROBLEM,
             )
             for genome in population_genomes
@@ -96,12 +96,14 @@ class TestClustering(unittest.TestCase):
 
     def test_nbc_works_for_min_and_max(self):
         population_size = 40
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
-        min_population = representation.create_population(pop_size=population_size, problem=SQUARE_PROBLEM)
+        min_population = Individual.create_population(
+            pop_size=population_size,
+            problem=SQUARE_PROBLEM,
+            initialize=create_real_vector(bounds=SQUARE_BOUNDS),
+        )
         max_population = [
             Individual(
                 genome=ind.genome,
-                decoder=IdentityDecoder(),
                 problem=NEGATIVE_SQUARE_PROBLEM,
             )
             for ind in min_population

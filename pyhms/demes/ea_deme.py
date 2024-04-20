@@ -1,6 +1,5 @@
-from leap_ec import Individual
-from leap_ec.decoder import IdentityDecoder
 from pyhms.config import EALevelConfig
+from pyhms.core.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.initializers import sample_normal
 from structlog.typing import FilteringBoundLogger
@@ -32,7 +31,6 @@ class EADeme(AbstractDeme):
             starting_pop = Individual.create_population(
                 self._pop_size - 1,
                 initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
-                decoder=IdentityDecoder(),
                 problem=self._problem,
             )
             seed_ind = Individual(x, problem=self._problem)

@@ -1,6 +1,6 @@
 import numpy as np
-from leap_ec import Individual
 from pyhms.config import CMALevelConfig
+from pyhms.core.individual import Individual
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.logging_ import get_logger
 from pyhms.tree import DemeTree
