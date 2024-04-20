@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from leap_ec.individual import Individual
-from leap_ec.problem import Problem
 from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
+from ..core.individual import Individual
+from ..core.problem import Problem
 from ..problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 

@@ -2,10 +2,10 @@ import dill as pkl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import pandas as pd
-from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
+from .core.individual import Individual
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger

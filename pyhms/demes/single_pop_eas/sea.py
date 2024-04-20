@@ -3,11 +3,12 @@ from typing import Any
 
 import leap_ec.ops as lops
 import numpy as np
-from leap_ec.individual import Individual
-from leap_ec.problem import Problem
 from leap_ec.real_rep import create_real_vector
 from leap_ec.real_rep.ops import mutate_gaussian
 from leap_ec.representation import Representation
+
+from ...core.individual import Individual
+from ...core.problem import Problem
 
 DEFAULT_K_ELITES = 1
 DEFAULT_GENERATIONS = 1

@@ -1,12 +1,13 @@
 import numpy as np
 import numpy.typing as npt
 from leap_ec.decoder import IdentityDecoder
-from leap_ec.individual import Individual
 from leap_ec.real_rep.initializers import create_real_vector
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.initializers import sample_normal
 from structlog.typing import FilteringBoundLogger
+
+from ..core.individual import Individual
 
 
 class DEDeme(AbstractDeme):

@@ -1,4 +1,6 @@
 from .config import BaseLevelConfig, CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig, TreeConfig
+from .core.individual import Individual
+from .core.problem import Problem
 from .demes.single_pop_eas.sea import SEA, SimpleEA
 from .hms import hms
 from .problem import EvalCutoffProblem, PrecisionCutoffProblem, StatsGatheringProblem

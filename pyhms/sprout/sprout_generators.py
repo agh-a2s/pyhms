@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
 
 import numpy as np
-from leap_ec.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.utils.clusterization import NearestBetterClustering
+
+from ..core.individual import Individual
 
 # Would be nice to have a type alias for this. Although it requires python 3.12
 # type SproutCandidates = Dict[AbstractDeme: (Dict[str: float], List[Individual])]

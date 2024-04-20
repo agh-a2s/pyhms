@@ -2,19 +2,19 @@ import unittest
 
 import numpy as np
 from leap_ec.decoder import IdentityDecoder
-from leap_ec.individual import Individual
 from leap_ec.real_rep import create_real_vector
 from leap_ec.representation import Representation
+from pyhms.core.individual import Individual
 from pyhms.utils.clusterization import NearestBetterClustering, get_individual_id
 
-from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
+from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
 
 
 class TestClustering(unittest.TestCase):
     def test_nbc_truncation(self):
         truncation_factor = 0.3
         population_size = 40
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
+        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
         population = representation.create_population(pop_size=population_size, problem=SQUARE_PROBLEM)
         Individual.evaluate_population(population)
 
@@ -96,7 +96,7 @@ class TestClustering(unittest.TestCase):
 
     def test_nbc_works_for_min_and_max(self):
         population_size = 40
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
+        representation = Representation(initialize=create_real_vector(bounds=SQUARE_BOUNDS))
         min_population = representation.create_population(pop_size=population_size, problem=SQUARE_PROBLEM)
         max_population = [
             Individual(

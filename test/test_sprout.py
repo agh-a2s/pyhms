@@ -1,8 +1,8 @@
 import unittest
 
 import numpy as np
-from leap_ec.problem import FunctionProblem
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.problem import Problem
 from pyhms.demes.abstract_deme import compute_centroid
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
@@ -26,7 +26,7 @@ class TestSprout(unittest.TestCase):
     def test_simple_sprout(self):
         for limit in [2, 4, 8]:
             correct_sprout = True
-            function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
+            function_problem = Problem(lambda x: self.egg_holder(x), maximize=False)
             gsc = MetaepochLimit(limit=20)
             sprout_cond = get_simple_sprout(10.0, limit)
 
@@ -87,7 +87,7 @@ class TestSprout(unittest.TestCase):
 
     def test_default_nbc_sprout(self):
         correct_sprout = True
-        function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
+        function_problem = Problem(lambda x: self.egg_holder(x), maximize=False)
         gsc = MetaepochLimit(limit=20)
         sprout_cond = get_NBC_sprout()
         limit = 4
@@ -147,7 +147,7 @@ class TestSprout(unittest.TestCase):
 
     def test_nbc_sprout_with_truncation(self):
         correct_sprout = True
-        function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
+        function_problem = Problem(lambda x: self.egg_holder(x), maximize=False)
         gsc = MetaepochLimit(limit=20)
         sprout_cond = SproutMechanism(
             NBC_Generator(2.0, 0.4),

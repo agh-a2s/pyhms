@@ -1,6 +1,5 @@
 from typing import Dict, List, Tuple
 
-from leap_ec.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.sprout.sprout_filters import (
     DemeLevelCandidatesFilter,
@@ -11,6 +10,8 @@ from pyhms.sprout.sprout_filters import (
     TreeLevelCandidatesFilter,
 )
 from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator, SproutCandidatesGenerator
+
+from ..core.individual import Individual
 
 
 class SproutMechanism:

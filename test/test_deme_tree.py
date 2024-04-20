@@ -8,7 +8,7 @@ from pyhms.problem import EvalCountingProblem
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROBLEM
 
 
 class TestDemeTree(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestDemeTree(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=problem,
-                bounds=SQUARE_PROBLEM_DOMAIN,
+                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -27,7 +27,7 @@ class TestDemeTree(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem,
-                bounds=SQUARE_PROBLEM_DOMAIN,
+                bounds=SQUARE_BOUNDS,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),

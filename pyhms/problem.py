@@ -1,7 +1,8 @@
 import time
 
 import numpy as np
-from leap_ec.problem import FunctionProblem, Problem
+
+from .core.problem import Problem
 
 
 class EvalCountingProblem(Problem):
@@ -16,10 +17,9 @@ class EvalCountingProblem(Problem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import EvalCountingProblem
+        >>> from pyhms import EvalCountingProblem, Problem
         >>> import numpy as np
-        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> problem = Problem(lambda x: -x**2, maximize=True)
         >>> counting_problem = EvalCountingProblem(problem)
         >>> counting_problem.evaluate(2.0)
         >>> print(counting_problem.n_evaluations)
@@ -47,8 +47,8 @@ class EvalCountingProblem(Problem):
         return self._n_evals
 
     def __str__(self) -> str:
-        if isinstance(self._inner, FunctionProblem):
-            inner_str = f"FunctionProblem({self._inner.__dict__})"
+        if isinstance(self._inner, Problem):
+            inner_str = f"Problem({self._inner.__dict__})"
         else:
             inner_str = str(self._inner)
         return f"EvalCountingProblem({inner_str})"
@@ -70,10 +70,9 @@ class EvalCutoffProblem(EvalCountingProblem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import EvalCutoffProblem
+        >>> from pyhms import EvalCutoffProblem, Problem
         >>> import numpy as np
-        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> problem = Problem(lambda x: -x**2, maximize=True)
         >>> cutoff_problem = EvalCutoffProblem(problem, eval_cutoff=1)
         >>> cutoff_problem.evaluate(2.0)
         >>> cutoff_problem.evaluate(1.0)
@@ -104,10 +103,9 @@ class PrecisionCutoffProblem(EvalCountingProblem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import PrecisionCutoffProblem
+        >>> from pyhms import PrecisionCutoffProblem, Problem
         >>> import numpy as np
-        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> problem = Problem(lambda x: -x**2, maximize=True)
         >>> precision_cutoff_problem = PrecisionCutoffProblem(problem, 0, 1e-4)
         >>> precision_cutoff_problem.evaluate(0)
         >>> print(precision_cutoff_problem.ETA)
@@ -139,8 +137,7 @@ class StatsGatheringProblem(Problem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import StatsGatheringProblem
+        >>> from pyhms import StatsGatheringProblem, Problem
         >>> import numpy as np
         >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
         >>> stats_gathering_problem = StatsGatheringProblem(problem)
@@ -183,8 +180,8 @@ class StatsGatheringProblem(Problem):
         return np.mean(self._durations), np.std(self._durations)
 
     def __str__(self) -> str:
-        if isinstance(self._inner, FunctionProblem):
-            inner_str = f"FunctionProblem({self._inner.__dict__})"
+        if isinstance(self._inner, Problem):
+            inner_str = f"Problem({self._inner.__dict__})"
         else:
             inner_str = str(self._inner)
         return f"StatsGatheringProblem({inner_str})"
