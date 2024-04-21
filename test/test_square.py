@@ -1,7 +1,7 @@
 import unittest
 
 from pyhms import minimize
-from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
+from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import (
     DemeLimit,

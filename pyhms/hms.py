@@ -11,12 +11,14 @@ from .problem import EvalCutoffProblem
 from .sprout import get_NBC_sprout
 from .stop_conditions import (
     DontStop,
+    FitnessSteadiness,
     GlobalStopCondition,
     MetaepochLimit,
     SingularProblemEvalLimitReached,
     UniversalStopCondition,
 )
 from .tree import DemeTree
+from .utils.parameter_initializer import get_default_generations, get_default_mutation_std, get_default_population_size
 
 DEFAULT_MAX_FUN = 10000
 
@@ -49,7 +51,7 @@ def minimize(
     seed: int | None = None,
     log_level: str | LoggingLevel | None = LoggingLevel.WARNING,
 ) -> OptimizeResult:
-    # If neither maxfun nor maxiter are specified, default to maxfun=10000.
+    # If neither maxfun nor maxiter are specified, default to maxfun=DEFAULT_MAX_FUN.
     if maxfun is None and maxiter is None:
         maxfun = DEFAULT_MAX_FUN
     function_problem = FunctionProblem(fun, maximize=False)
@@ -61,22 +63,22 @@ def minimize(
     level_config = [
         EALevelConfig(
             ea_class=SEA,
-            generations=1,
+            generations=get_default_generations(bounds, tree_level=0),
             problem=function_problem,
             bounds=bounds,
-            pop_size=35,
-            mutation_std=1.0,
+            pop_size=get_default_population_size(bounds, tree_level=0),
+            mutation_std=get_default_mutation_std(bounds, tree_level=0),
             lsc=DontStop(),
         ),
         CMALevelConfig(
-            generations=20,
+            generations=get_default_generations(bounds, tree_level=1),
             problem=function_problem,
             bounds=bounds,
-            sigma0=1.0,
-            lsc=MetaepochLimit(20),
+            sigma0=None,
+            lsc=FitnessSteadiness(),
         ),
     ]
-    sprout_condition = get_NBC_sprout(level_limit=4)
+    sprout_condition = get_NBC_sprout()
     options: Options = {"random_seed": seed, "log_level": parse_log_level(log_level)}
     config = TreeConfig(level_config, gsc, sprout_condition, options=options)
     hms_tree = DemeTree(config)
