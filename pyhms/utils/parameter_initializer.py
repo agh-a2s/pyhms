@@ -14,9 +14,7 @@ def get_default_mutation_std(bounds: np.ndarray, tree_level: int) -> float:
 
 def get_default_population_size(bounds: np.ndarray, tree_level: int) -> int:
     n_dimensions = len(bounds)
-    dimensionality_adjusted_population_size = (
-        INITIAL_POPULATION_SIZE + POPULATION_CONSTANT_PER_DIMENSION * n_dimensions
-    )
+    dimensionality_adjusted_population_size = INITIAL_POPULATION_SIZE + POPULATION_CONSTANT_PER_DIMENSION * n_dimensions
     return int(dimensionality_adjusted_population_size / (tree_level + 1))
 
 
