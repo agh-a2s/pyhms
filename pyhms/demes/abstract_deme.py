@@ -6,6 +6,7 @@ from leap_ec.problem import Problem
 from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
+from ..problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
 
@@ -30,7 +31,7 @@ class AbstractDeme(ABC):
         self._level = level
         self._config: BaseLevelConfig = config
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
-        self._problem: Problem = config.problem
+        self._problem: Problem = EvalCountingProblem(config.problem)
         self._bounds: np.ndarray = config.bounds
         self._active: bool = True
         self._centroid: np.ndarray | None = None
@@ -77,7 +78,7 @@ class AbstractDeme(ABC):
 
     @property
     def n_evaluations(self) -> int:
-        return len(self.all_individuals)
+        return self._problem.n_evaluations
 
     @property
     def current_population(self) -> list[Individual]:
