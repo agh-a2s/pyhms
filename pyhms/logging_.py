@@ -25,3 +25,14 @@ def get_logger(level: LoggingLevel = DEFAULT_LOGGING_LEVEL) -> FilteringBoundLog
         None,
         wrapper_class=wrapper_class,
     )
+
+
+def parse_log_level(log_level: str | LoggingLevel | None) -> LoggingLevel:
+    if log_level is None:
+        return LoggingLevel.WARNING
+    if isinstance(log_level, LoggingLevel):
+        return log_level
+    levels = [level.value for level in LoggingLevel]
+    if log_level.lower() not in levels:
+        raise ValueError(f"Invalid log level: {log_level}, available levels: {levels}")
+    return LoggingLevel[log_level.upper()]
