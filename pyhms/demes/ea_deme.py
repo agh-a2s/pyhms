@@ -44,8 +44,12 @@ class EADeme(AbstractDeme):
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0
         metaepoch_generations = []
+        mutation_std = (
+            self._ea.mutation_std
+            + self.iterations_count_since_last_sprout * self._ea.mutation_std * 2.0
+        )
         while epoch_counter < self._generations:
-            offspring = self._ea.run(self.current_population)
+            offspring = self._ea.run(self.current_population, mutation_std=mutation_std)
             epoch_counter += 1
             metaepoch_generations.append(offspring)
 

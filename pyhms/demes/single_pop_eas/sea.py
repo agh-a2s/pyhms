@@ -33,7 +33,7 @@ class AbstractEA(ABC):
         self.pop_size = pop_size
 
     @abstractmethod
-    def run(self, parents: list[Individual] | None = None):
+    def run(self, parents: list[Individual] | None = None, **kwargs):
         raise NotImplementedError()
 
     @classmethod
@@ -63,16 +63,29 @@ class SimpleEA(AbstractEA):
         if representation is not None:
             self.representation = representation
         else:
-            self.representation = Representation(initialize=create_real_vector(bounds=bounds))
+            self.representation = Representation(
+                initialize=create_real_vector(bounds=bounds)
+            )
 
-    def run(self, parents: list[Individual] | None = None) -> list[Individual]:
+    def get_pipeline(self, **kwargs):
+        return self.pipeline
+
+    def run(
+        self, parents: list[Individual] | None = None, **kwargs
+    ) -> list[Individual]:
         if parents is None:
-            parents = self.representation.create_population(pop_size=self.pop_size, problem=self.problem)
+            parents = self.representation.create_population(
+                pop_size=self.pop_size, problem=self.problem
+            )
             parents = Individual.evaluate_population(parents)
         else:
             assert self.pop_size == len(parents)
 
-        return pipe(parents, *self.pipeline, lops.elitist_survival(parents=parents, k=self.k_elites))
+        return pipe(
+            parents,
+            *self.get_pipeline(**kwargs),
+            lops.elitist_survival(parents=parents, k=self.k_elites)
+        )
 
 
 class SEA(SimpleEA):
@@ -90,6 +103,9 @@ class SEA(SimpleEA):
         representation: Representation | None = None,
         mutation_std: float | None = DEFAULT_MUTATION_STD,
     ) -> None:
+        self.bounds = bounds
+        self.pop_size = pop_size
+        self.mutation_std = mutation_std
         super().__init__(
             problem,
             bounds,
@@ -97,7 +113,9 @@ class SEA(SimpleEA):
             pipeline=[
                 lops.tournament_selection,
                 lops.clone,
-                mutate_gaussian(std=mutation_std, bounds=bounds, expected_num_mutations="isotropic"),
+                mutate_gaussian(
+                    std=mutation_std, bounds=bounds, expected_num_mutations="isotropic"
+                ),
                 lops.evaluate,
                 lops.pool(size=pop_size),
             ],
@@ -105,6 +123,20 @@ class SEA(SimpleEA):
             k_elites=k_elites,
             representation=representation,
         )
+
+    def get_pipeline(self, **kwargs):
+        print("MUTATION", kwargs.get("mutation_std", self.mutation_std))
+        return [
+            lops.tournament_selection,
+            lops.clone,
+            mutate_gaussian(
+                std=kwargs.get("mutation_std", self.mutation_std),
+                bounds=self.bounds,
+                expected_num_mutations="isotropic",
+            ),
+            lops.evaluate,
+            lops.pool(size=self.pop_size),
+        ]
 
     @classmethod
     def create(cls, problem: Problem, bounds: np.ndarray, pop_size: int, **kwargs):

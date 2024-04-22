@@ -70,7 +70,11 @@ class AbstractDeme(ABC):
     @property
     def history(self) -> list[list[Individual]]:
         # Returns flattened self._history = list of all generations.
-        return [generation for metaepoch_generations in self._history for generation in metaepoch_generations]
+        return [
+            generation
+            for metaepoch_generations in self._history
+            for generation in metaepoch_generations
+        ]
 
     @property
     def all_individuals(self) -> list:
@@ -103,6 +107,17 @@ class AbstractDeme(ABC):
     @property
     def children(self) -> list["AbstractDeme"]:
         return self._children
+
+    @property
+    def current_iteration(self) -> int:
+        return self._started_at + self.metaepoch_count
+
+    @property
+    def iterations_count_since_last_sprout(self) -> int:
+        return self.current_iteration - max(
+            [child.started_at for child in self.children],
+            default=self.current_iteration,
+        )
 
     def add_child(self, deme: "AbstractDeme") -> None:
         self._children.append(deme)
@@ -139,6 +154,8 @@ class AbstractDeme(ABC):
         for metaepoch_idx, metaepoch_history in enumerate(self._history):
             if not metaepoch_history:
                 continue
-            best_fitness = max(pop for generation in metaepoch_history for pop in generation).fitness
+            best_fitness = max(
+                pop for generation in metaepoch_history for pop in generation
+            ).fitness
             metaepoch_to_best_fitness[metaepoch_idx + self._started_at] = best_fitness
         return metaepoch_to_best_fitness
