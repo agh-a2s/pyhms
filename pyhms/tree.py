@@ -11,6 +11,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
+from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
@@ -271,6 +272,34 @@ class DemeTree:
             [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
         ).T.plot()
         plt.title("Best fitness by metaepoch")
+        if filepath:
+            plt.savefig(filepath)
+        plt.show()
+
+    def plot_deme_variance(
+        self, filepath: str | None = None, deme_id: str | None = "root", selected_dimensions: list[int] | None = None
+    ) -> None:
+        """
+        Plots the average variance of genes/dimensions across generations for a given deme
+        to analyze its convergence behavior and exploration of the search space.
+        This plot is useful for visualizing how the diversity within a deme changes over time.
+        The main use case is the analysis of the root deme.
+        To save the plot, provide the filepath argument.
+        """
+        deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
+        variance_per_gene = get_average_variance_per_generation(deme, selected_dimensions)
+        variance_per_gene.plot()
+        plt.plot(
+            variance_per_gene.index,
+            variance_per_gene["Average Variance of Genome"],
+            marker="o",
+            linestyle="-",
+            color="b",
+        )
+        plt.title(f"Variance Across Generations for {deme.id.capitalize()} Deme")
+        plt.xlabel("Generation Number")
+        plt.ylabel("Average Variance of Genome")
+        plt.grid(True)
         if filepath:
             plt.savefig(filepath)
         plt.show()
