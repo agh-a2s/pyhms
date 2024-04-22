@@ -276,9 +276,7 @@ class DemeTree:
         plt.show()
 
     def plot_deme_variance(
-        self,
-        filepath: str | None = None,
-        deme_id: str | None = "root",
+        self, filepath: str | None = None, deme_id: str | None = "root", selected_dimensions: list[int] | None = None
     ) -> None:
         """
         Plots the average variance of genes/dimensions across generations for a given deme
@@ -288,7 +286,7 @@ class DemeTree:
         To save the plot, provide the filepath argument.
         """
         deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
-        variance_per_gene = get_average_variance_per_generation(deme)
+        variance_per_gene = get_average_variance_per_generation(deme, selected_dimensions)
         variance_per_gene.plot()
         plt.plot(
             variance_per_gene.index,
