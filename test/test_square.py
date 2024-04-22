@@ -1,5 +1,6 @@
 import unittest
 
+from pyhms import minimize
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import (
@@ -13,7 +14,7 @@ from pyhms.sprout import (
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN, square
 
 
 class TestSquare(unittest.TestCase):
@@ -128,6 +129,12 @@ class TestSquare(unittest.TestCase):
         hms_tree.run()
         self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
         self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
+
+    def test_square_optimization_scipy_style(self):
+        max_iter = 5
+        result = minimize(square, SQUARE_PROBLEM_DOMAIN, log_level="DEBUG", maxiter=max_iter)
+        self.assertEqual(result.nit, max_iter)
+        self.assertLessEqual(result.fun, 1e-3, "Best fitness should be close to 0")
 
     def test_square_optimization_with_local_method(self):
         options = {"random_seed": 1}
