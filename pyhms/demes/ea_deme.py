@@ -1,7 +1,7 @@
 from pyhms.config import EALevelConfig
 from pyhms.core.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
-from pyhms.initializers import sample_normal
+from pyhms.initializers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
 
 
@@ -25,7 +25,11 @@ class EADeme(AbstractDeme):
         self._ea = config.ea_class.create(**ea_params)
 
         if sprout_seed is None:
-            starting_pop = self._ea.run()
+            starting_pop = Individual.create_population(
+                self._pop_size,
+                initialize=sample_uniform(bounds=self._bounds),
+                problem=self._problem,
+            )
         else:
             x = sprout_seed.genome
             starting_pop = Individual.create_population(
@@ -35,8 +39,8 @@ class EADeme(AbstractDeme):
             )
             seed_ind = Individual(x, problem=self._problem)
             starting_pop.append(seed_ind)
-            Individual.evaluate_population(starting_pop)
 
+        Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
 
     def run_metaepoch(self, tree) -> None:

@@ -3,8 +3,6 @@ from typing import Any
 
 import leap_ec.ops as lops
 from leap_ec.real_rep.ops import mutate_gaussian
-from leap_ec.representation import Representation
-from pyhms.initializers import sample_uniform
 
 from ...core.individual import Individual
 from ...core.problem import Problem
@@ -52,24 +50,14 @@ class SimpleEA(AbstractEA):
         pipeline: list[Any],
         generations: int | None = DEFAULT_GENERATIONS,
         k_elites: int | None = DEFAULT_K_ELITES,
-        representation: Representation | None = None,
     ) -> None:
         super().__init__(problem, pop_size)
         self.generations = generations
         self.pipeline = pipeline
         self.k_elites = k_elites
-        if representation is not None:
-            self.representation = representation
-        else:
-            self.representation = Representation(initialize=sample_uniform(bounds=problem.bounds))
 
     def run(self, parents: list[Individual] | None = None) -> list[Individual]:
-        if parents is None:
-            parents = self.representation.create_population(pop_size=self.pop_size, problem=self.problem)
-            parents = Individual.evaluate_population(parents)
-        else:
-            assert self.pop_size == len(parents)
-
+        assert self.pop_size == len(parents)
         return pipe(parents, *self.pipeline, lops.elitist_survival(parents=parents, k=self.k_elites))
 
 
@@ -84,7 +72,6 @@ class SEA(SimpleEA):
         pop_size: int,
         generations: int | None = DEFAULT_GENERATIONS,
         k_elites: int | None = DEFAULT_K_ELITES,
-        representation: Representation | None = None,
         mutation_std: float | None = DEFAULT_MUTATION_STD,
     ) -> None:
         super().__init__(
@@ -103,7 +90,6 @@ class SEA(SimpleEA):
             ],
             generations=generations,
             k_elites=k_elites,
-            representation=representation,
         )
 
     @classmethod
