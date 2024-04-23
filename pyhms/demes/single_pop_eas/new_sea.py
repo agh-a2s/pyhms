@@ -47,6 +47,29 @@ class GaussianMutation(VariationalOperator):
             raise ValueError(f"Unknown method: {method}")
 
 
+class UniformMutation(VariationalOperator):
+    def __init__(self, bounds: np.ndarray, probability: float) -> None:
+        self.lower_bounds = bounds[:, 0]
+        self.upper_bounds = bounds[:, 1]
+        self.probability = probability
+
+    def __call__(self, population: Population) -> Population:
+        population_copy = population.copy()
+        new_genomes = np.random.uniform(
+            self.lower_bounds,
+            self.upper_bounds,
+            size=(population.size, len(self.lower_bounds)),
+        )
+        new_genomes = np.where(
+            np.random.rand(*new_genomes.shape) < self.probability,
+            new_genomes,
+            population_copy.genomes,
+        )
+        population_copy.update_genome(new_genomes)
+        population_copy.evaluate()
+        return population_copy
+
+
 class TournamentSelection(VariationalOperator):
     def __init__(self, k: int = 2) -> None:
         self.k = k
