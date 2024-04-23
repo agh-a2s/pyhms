@@ -2,7 +2,7 @@ from .config import BaseLevelConfig, CMALevelConfig, DELevelConfig, EALevelConfi
 from .core.individual import Individual
 from .core.problem import EvalCutoffProblem, PrecisionCutoffProblem, Problem, StatsGatheringProblem
 from .demes.single_pop_eas.sea import SEA, SimpleEA
-from .hms import hms
+from .hms import hms, minimize
 from .sprout import get_NBC_sprout, get_simple_sprout
 from .stop_conditions import (
     AllChildrenStopped,
