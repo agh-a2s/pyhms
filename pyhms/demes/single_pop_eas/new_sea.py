@@ -23,10 +23,28 @@ class GaussianMutation(VariationalOperator):
         noise = np.random.normal(0, self.stds, size=new_population.genomes.shape)
         binary_mask = np.random.rand(*new_population.genomes.shape) < self.probability
         new_genomes = new_population.genomes + binary_mask * noise
-        new_genomes = np.clip(new_genomes, self.lower_bounds, self.upper_bounds)
+        # By default we use toroidal method, because it works the best for BBOB.
+        new_genomes = self.apply_bounds(new_genomes, method="toroidal")
         new_population.update_genome(new_genomes)
         new_population.evaluate()
         return new_population
+
+    def apply_bounds(self, genomes: np.ndarray, method: str = "clip"):
+        if method == "clip":
+            return np.clip(genomes, self.lower_bounds, self.upper_bounds)
+        elif method == "reflect":
+            broadcasted_lower_bounds = self.lower_bounds + np.zeros_like(genomes)
+            broadcasted_upper_bounds = self.upper_bounds + np.zeros_like(genomes)
+            over_upper = genomes > self.upper_bounds
+            genomes[over_upper] = 2 * broadcasted_upper_bounds[over_upper] - genomes[over_upper]
+            under_lower = genomes < self.lower_bounds
+            genomes[under_lower] = 2 * broadcasted_lower_bounds[under_lower] - genomes[under_lower]
+            return genomes
+        elif method == "toroidal":
+            range_size = self.upper_bounds - self.lower_bounds
+            return self.lower_bounds + (genomes - self.lower_bounds) % range_size
+        else:
+            raise ValueError(f"Unknown method: {method}")
 
 
 class TournamentSelection(VariationalOperator):

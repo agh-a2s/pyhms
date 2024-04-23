@@ -10,7 +10,7 @@ from .problem import Problem
 
 @total_ordering
 class Individual:
-    def __init__(self, genome: np.ndarray, problem: Problem, fitness: float | None = None):
+    def __init__(self, genome: np.ndarray, problem: Problem, fitness: float = np.nan):
         self.genome = genome
         self.fitness = fitness
         self.problem = problem
