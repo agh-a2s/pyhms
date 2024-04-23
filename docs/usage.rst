@@ -14,6 +14,38 @@ To use pyhms, first install it using pip:
 
 .. _usage:
 
+Quick start
+-----------
+
+The following example demonstrates how to use the pyhms library to perform optimization on a simple square function using the minimize method.
+
+.. code-block:: python
+
+    from pyhms import minimize
+    import numpy as np
+
+    fun = lambda x: sum(x**2)
+    bounds = np.array([(-20, 20), (-20, 20)])
+    solution = minimize(
+        fun=fun,
+        bounds=bounds,
+        maxfun=10000,
+        log_level="debug",
+        seed=42
+    )
+
+The output of the function is a OptimizeResult object:
+
+.. code-block:: python
+
+    @dataclass
+    class OptimizeResult:
+        x: np.ndarray
+        nfev: int
+        fun: float
+        nit: int
+
+
 Usage
 -----
 
@@ -22,7 +54,7 @@ Let's begin by defining a problem that we want to solve. We will use the followi
 .. code-block:: python
 
     import numpy as np
-    from leap_ec.problem import FunctionProblem
+    from pyhms import FunctionProblem
 
     square_bounds = np.array([(-20, 20), (-20, 20)])
     square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
@@ -39,16 +71,14 @@ To use HMS we need to define global stop condition, in this case we want to run 
 
 .. code-block:: python
 
-    from pyhms.stop_conditions import MetaepochLimit
+    from pyhms import MetaepochLimit
     global_stop_condition = MetaepochLimit(limit=10)
 
 Now we need to decide what should be the height of our tree (maximum number of levels) and what optimization algorithms to run on each level. We will use the following configuration:
 
 .. code-block:: python
 
-    from pyhms.config import EALevelConfig
-    from pyhms.stop_conditions import DontStop
-    from pyhms.demes.single_pop_eas.sea import SEA
+    from pyhms import EALevelConfig, DontStop, SEA
 
     config = [
         EALevelConfig(
@@ -76,13 +106,13 @@ Next step is to define sprout condition for our tree. We will use Nearest Better
 
 .. code-block:: python
 
-    from pyhms.sprout import get_NBC_sprout
+    from pyhms import get_NBC_sprout
     sprout_condition = get_NBC_sprout(level_limit=4)
 
 Finally we can run the algorithm:
 
 .. code-block:: python
 
-    from pyhms.hms import hms
+    from pyhms import hms
     hms_tree = hms(config, global_stop_condition, sprout_condition)
     print(f"Best fitness: {hms_tree.best_individual.fitness}")
