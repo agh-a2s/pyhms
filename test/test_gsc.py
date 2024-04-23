@@ -31,7 +31,6 @@ class TestGlobalStopCondition(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=problem,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -39,7 +38,6 @@ class TestGlobalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem,
-                bounds=SQUARE_BOUNDS,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
@@ -136,7 +134,6 @@ class TestGlobalStopCondition(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=problem_level1,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -144,7 +141,6 @@ class TestGlobalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem_level2,
-                bounds=SQUARE_BOUNDS,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
@@ -183,7 +179,6 @@ class TestGlobalStopCondition(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=problem_level1,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -191,7 +186,6 @@ class TestGlobalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem_level2,
-                bounds=SQUARE_BOUNDS,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),

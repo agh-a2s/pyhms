@@ -5,7 +5,7 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontRun, DontStop, MetaepochLimit, UniversalStopCondition
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROBLEM
+from .config import DEFAULT_SPROUT_COND, SQUARE_PROBLEM
 
 POPULATION_SIZE = 50
 
@@ -17,7 +17,6 @@ class TestUniversalStopCondition(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -25,7 +24,6 @@ class TestUniversalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_BOUNDS,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import leap_ec.ops as lops
-import numpy as np
 from leap_ec.real_rep.ops import mutate_gaussian
 from leap_ec.representation import Representation
 from pyhms.initializers import sample_uniform
@@ -25,12 +24,11 @@ class AbstractEA(ABC):
     def __init__(
         self,
         problem: Problem,
-        bounds: np.ndarray,
         pop_size: int,
     ) -> None:
         super().__init__()
         self.problem = problem
-        self.bounds = bounds
+        self.bounds = problem.bounds
         self.pop_size = pop_size
 
     @abstractmethod
@@ -38,8 +36,8 @@ class AbstractEA(ABC):
         raise NotImplementedError()
 
     @classmethod
-    def create(cls, problem: Problem, bounds: np.ndarray, pop_size: int, **kwargs):
-        return cls(problem=problem, bounds=bounds, pop_size=pop_size, **kwargs)
+    def create(cls, problem: Problem, pop_size: int, **kwargs):
+        return cls(problem=problem, pop_size=pop_size, **kwargs)
 
 
 class SimpleEA(AbstractEA):
@@ -50,21 +48,20 @@ class SimpleEA(AbstractEA):
     def __init__(
         self,
         problem: Problem,
-        bounds: np.ndarray,
         pop_size: int,
         pipeline: list[Any],
         generations: int | None = DEFAULT_GENERATIONS,
         k_elites: int | None = DEFAULT_K_ELITES,
         representation: Representation | None = None,
     ) -> None:
-        super().__init__(problem, bounds, pop_size)
+        super().__init__(problem, pop_size)
         self.generations = generations
         self.pipeline = pipeline
         self.k_elites = k_elites
         if representation is not None:
             self.representation = representation
         else:
-            self.representation = Representation(initialize=sample_uniform(bounds=bounds))
+            self.representation = Representation(initialize=sample_uniform(bounds=problem.bounds))
 
     def run(self, parents: list[Individual] | None = None) -> list[Individual]:
         if parents is None:
@@ -84,7 +81,6 @@ class SEA(SimpleEA):
     def __init__(
         self,
         problem: Problem,
-        bounds: np.ndarray,
         pop_size: int,
         generations: int | None = DEFAULT_GENERATIONS,
         k_elites: int | None = DEFAULT_K_ELITES,
@@ -93,12 +89,15 @@ class SEA(SimpleEA):
     ) -> None:
         super().__init__(
             problem,
-            bounds,
             pop_size,
             pipeline=[
                 lops.tournament_selection,
                 lops.clone,
-                mutate_gaussian(std=mutation_std, bounds=bounds, expected_num_mutations="isotropic"),
+                mutate_gaussian(
+                    std=mutation_std,
+                    bounds=problem.bounds,
+                    expected_num_mutations="isotropic",
+                ),
                 lops.evaluate,
                 lops.pool(size=pop_size),
             ],
@@ -108,10 +107,9 @@ class SEA(SimpleEA):
         )
 
     @classmethod
-    def create(cls, problem: Problem, bounds: np.ndarray, pop_size: int, **kwargs):
+    def create(cls, problem: Problem, pop_size: int, **kwargs):
         return cls(
             problem=problem,
-            bounds=bounds,
             pop_size=pop_size,
             generations=kwargs.get("generations", DEFAULT_GENERATIONS),
             k_elites=kwargs.get("k_elites", DEFAULT_K_ELITES),

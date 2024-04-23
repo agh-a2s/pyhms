@@ -19,6 +19,10 @@ class Problem(ABC):
     def worse_than(self, first_fitness: float, second_fitness: float):
         raise NotImplementedError
 
+    @property
+    def bounds(self) -> np.ndarray:
+        raise NotImplementedError
+
     def equivalent(self, first_fitness: float, second_fitness: float) -> bool:
         if type(first_fitness) == float and type(second_fitness) == float:
             return isclose(first_fitness, second_fitness)
@@ -29,7 +33,7 @@ class Problem(ABC):
 class FunctionProblem(Problem):
     def __init__(self, fitness_function: Callable, bounds: np.ndarray, maximize: bool) -> None:
         self.fitness_function = fitness_function
-        self.bounds = bounds
+        self._bounds = bounds
         self.maximize = maximize
 
     def evaluate(self, genome: np.ndarray, *args, **kwargs) -> np.ndarray:
@@ -47,8 +51,29 @@ class FunctionProblem(Problem):
         else:
             return first_fitness > second_fitness
 
+    @property
+    def bounds(self) -> np.ndarray:
+        return self._bounds
 
-class EvalCountingProblem(Problem):
+
+class ProblemWrapper(Problem):
+    def __init__(self, decorated_problem: Problem):
+        super().__init__()
+        self._inner: Problem = decorated_problem
+
+    def evaluate(self, phenome, *args, **kwargs):
+        ret_val = self._inner.evaluate(phenome, *args, **kwargs)
+        return ret_val
+
+    def worse_than(self, first_fitness, second_fitness):
+        return self._inner.worse_than(first_fitness, second_fitness)
+
+    @property
+    def bounds(self) -> np.ndarray:
+        return self._inner.bounds
+
+
+class EvalCountingProblem(ProblemWrapper):
     """
     A decorator for a Problem instance that counts the number of evaluations performed.
 
@@ -70,7 +95,7 @@ class EvalCountingProblem(Problem):
     """
 
     def __init__(self, decorated_problem: Problem):
-        super().__init__()
+        super().__init__(decorated_problem)
         self._inner: Problem = decorated_problem
         self._n_evals: int = 0
 
@@ -78,9 +103,6 @@ class EvalCountingProblem(Problem):
         ret_val = self._inner.evaluate(phenome, *args, **kwargs)
         self._n_evals += 1
         return ret_val
-
-    def worse_than(self, first_fitness, second_fitness):
-        return self._inner.worse_than(first_fitness, second_fitness)
 
     @property
     def n_evaluations(self) -> int:
@@ -167,7 +189,7 @@ class PrecisionCutoffProblem(EvalCountingProblem):
         return fitness
 
 
-class StatsGatheringProblem(Problem):
+class StatsGatheringProblem(ProblemWrapper):
     """
     A decorator for a Problem instance that gathers statistics about evaluation times.
 
@@ -188,7 +210,7 @@ class StatsGatheringProblem(Problem):
     """
 
     def __init__(self, decorated_problem: Problem):
-        super().__init__()
+        super().__init__(decorated_problem)
         self._inner: Problem = decorated_problem
         self._n_evals = 0
         self._durations: list[float] = []
@@ -200,9 +222,6 @@ class StatsGatheringProblem(Problem):
         self._n_evals += 1
         self._durations.append(end_time - start_time)
         return ret_val
-
-    def worse_than(self, first_fitness, second_fitness):
-        return self._inner.worse_than(first_fitness, second_fitness)
 
     @property
     def n_evaluations(self) -> int:

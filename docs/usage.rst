@@ -57,7 +57,7 @@ Let's begin by defining a problem that we want to solve. We will use the followi
     from pyhms import FunctionProblem
 
     square_bounds = np.array([(-20, 20), (-20, 20)])
-    square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
+    square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False, bounds=square_bounds)
 
 Our problem is to minimize the sum of the squares of the elements of a vector. The vector has two elements, and each element is bounded between -20 and 20.
 
@@ -85,7 +85,6 @@ Now we need to decide what should be the height of our tree (maximum number of l
             ea_class=SEA,
             generations=2,
             problem=square_problem,
-            bounds=square_bounds,
             pop_size=20,
             mutation_std=1.0,
             lsc=DontStop(),
@@ -94,7 +93,6 @@ Now we need to decide what should be the height of our tree (maximum number of l
             ea_class=SEA,
             generations=4,
             problem=square_problem,
-            bounds=square_bounds,
             pop_size=10,
             mutation_std=0.25,
             sample_std_dev=1.0,

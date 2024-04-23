@@ -2,10 +2,9 @@ from dataclasses import dataclass
 from typing import Callable, List
 
 import numpy as np
-from leap_ec.problem import FunctionProblem
 
 from .config import DEFAULT_OPTIONS, BaseLevelConfig, CMALevelConfig, EALevelConfig, Options, TreeConfig
-from .core.problem import EvalCutoffProblem
+from .core.problem import EvalCutoffProblem, FunctionProblem
 from .demes.single_pop_eas.sea import SEA
 from .logging_ import LoggingLevel, parse_log_level
 from .sprout import get_NBC_sprout
@@ -54,9 +53,8 @@ def minimize(
     # If neither maxfun nor maxiter are specified, default to maxfun=DEFAULT_MAX_FUN.
     if maxfun is None and maxiter is None:
         maxfun = DEFAULT_MAX_FUN
-    function_problem = FunctionProblem(fun, maximize=False)
-    if maxfun is not None:
-        function_problem = EvalCutoffProblem(function_problem, eval_cutoff=maxfun)
+    function_problem = FunctionProblem(fun, maximize=False, bounds=bounds)
+    wrapped_function_problem = EvalCutoffProblem(function_problem, eval_cutoff=maxfun) if maxfun else function_problem
     gsc: GlobalStopCondition | UniversalStopCondition = (
         SingularProblemEvalLimitReached(maxfun) if maxfun is not None else MetaepochLimit(maxiter)
     )
@@ -64,16 +62,14 @@ def minimize(
         EALevelConfig(
             ea_class=SEA,
             generations=get_default_generations(bounds, tree_level=0),
-            problem=function_problem,
-            bounds=bounds,
+            problem=wrapped_function_problem,
             pop_size=get_default_population_size(bounds, tree_level=0),
             mutation_std=get_default_mutation_std(bounds, tree_level=0),
             lsc=DontStop(),
         ),
         CMALevelConfig(
             generations=get_default_generations(bounds, tree_level=1),
-            problem=function_problem,
-            bounds=bounds,
+            problem=wrapped_function_problem,
             sigma0=None,
             lsc=FitnessSteadiness(),
         ),

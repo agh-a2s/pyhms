@@ -37,7 +37,6 @@ def get_default_tree_config() -> TreeConfig:
             ea_class=SEA,
             generations=2,
             problem=SQUARE_PROBLEM,
-            bounds=SQUARE_BOUNDS,
             pop_size=20,
             mutation_std=1.0,
             lsc=DEFAULT_LSC,
@@ -45,7 +44,6 @@ def get_default_tree_config() -> TreeConfig:
         CMALevelConfig(
             generations=4,
             problem=SQUARE_PROBLEM,
-            bounds=SQUARE_BOUNDS,
             sigma0=2.5,
             lsc=DEFAULT_LSC,
         ),

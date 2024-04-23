@@ -37,7 +37,6 @@ class TestSprout(unittest.TestCase):
                     ea_class=SEA,
                     generations=2,
                     problem=function_problem,
-                    bounds=EGG_HOLDER_BOUNDS,
                     pop_size=20,
                     mutation_std=50.0,
                     lsc=DontStop(),
@@ -45,7 +44,6 @@ class TestSprout(unittest.TestCase):
                 CMALevelConfig(
                     generations=2,
                     problem=function_problem,
-                    bounds=EGG_HOLDER_BOUNDS,
                     sigma0=2.5,
                     lsc=MetaepochLimit(limit=8),
                 ),
@@ -99,7 +97,6 @@ class TestSprout(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=function_problem,
-                bounds=EGG_HOLDER_BOUNDS,
                 pop_size=20,
                 mutation_std=50.0,
                 lsc=DontStop(),
@@ -107,7 +104,6 @@ class TestSprout(unittest.TestCase):
             CMALevelConfig(
                 generations=2,
                 problem=function_problem,
-                bounds=EGG_HOLDER_BOUNDS,
                 sigma0=2.5,
                 lsc=MetaepochLimit(limit=8),
             ),
@@ -163,7 +159,6 @@ class TestSprout(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=function_problem,
-                bounds=EGG_HOLDER_BOUNDS,
                 pop_size=20,
                 mutation_std=50.0,
                 lsc=DontStop(),
@@ -171,7 +166,6 @@ class TestSprout(unittest.TestCase):
             CMALevelConfig(
                 generations=2,
                 problem=function_problem,
-                bounds=EGG_HOLDER_BOUNDS,
                 sigma0=2.5,
                 lsc=MetaepochLimit(limit=8),
             ),

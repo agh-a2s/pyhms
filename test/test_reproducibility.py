@@ -6,7 +6,7 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROBLEM
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM
 
 
 class TestReproducibility(unittest.TestCase):
@@ -16,7 +16,6 @@ class TestReproducibility(unittest.TestCase):
             DELevelConfig(
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 dither=True,
                 crossover=0.9,
@@ -25,7 +24,6 @@ class TestReproducibility(unittest.TestCase):
             DELevelConfig(
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 dither=True,
                 crossover=0.9,
@@ -58,7 +56,6 @@ class TestReproducibility(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_BOUNDS,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -66,7 +63,6 @@ class TestReproducibility(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_BOUNDS,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),

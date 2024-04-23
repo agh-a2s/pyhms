@@ -50,15 +50,14 @@ from pyhms import (
     Problem,
 )
 
-square_problem = Problem(lambda x: sum(x**2), maximize=False)
 square_bounds = np.array([(-20, 20), (-20, 20)])
+square_problem = Problem(lambda x: sum(x**2), maximize=False, bounds=square_bounds)
 
 config = [
     EALevelConfig(
         ea_class=SEA,
         generations=2,
         problem=square_problem,
-        bounds=square_bounds,
         pop_size=20,
         mutation_std=1.0,
         lsc=DontStop(),
@@ -67,7 +66,6 @@ config = [
         ea_class=SEA,
         generations=4,
         problem=square_problem,
-        bounds=square_bounds,
         pop_size=10,
         mutation_std=0.25,
         sample_std_dev=1.0,
