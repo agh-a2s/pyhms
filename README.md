@@ -40,7 +40,15 @@ solution = minimize(
 
 ```python
 import numpy as np
-from pyhms import EALevelConfig, hms, get_NBC_sprout, DontStop, MetaepochLimit, SEA, Problem
+from pyhms import (
+    EALevelConfig,
+    hms,
+    get_NBC_sprout,
+    DontStop,
+    MetaepochLimit,
+    SEA,
+    Problem,
+)
 
 square_problem = Problem(lambda x: sum(x**2), maximize=False)
 square_bounds = np.array([(-20, 20), (-20, 20)])
