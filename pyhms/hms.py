@@ -5,9 +5,9 @@ import numpy as np
 from leap_ec.problem import FunctionProblem
 
 from .config import DEFAULT_OPTIONS, BaseLevelConfig, CMALevelConfig, EALevelConfig, Options, TreeConfig
+from .core.problem import EvalCutoffProblem
 from .demes.single_pop_eas.sea import SEA
 from .logging_ import LoggingLevel, parse_log_level
-from .problem import EvalCutoffProblem
 from .sprout import get_NBC_sprout
 from .stop_conditions import (
     DontStop,
