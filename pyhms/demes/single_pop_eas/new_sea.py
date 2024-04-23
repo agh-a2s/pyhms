@@ -19,13 +19,14 @@ class GaussianMutation(VariationalOperator):
         self.probability = probability
 
     def __call__(self, population: Population) -> Population:
-        noise = np.random.normal(0, self.stds, size=population.genomes.shape)
-        binary_mask = np.random.rand(*population.genomes.shape) < self.probability
-        new_genomes = population.genomes + binary_mask * noise
+        new_population = population.copy()
+        noise = np.random.normal(0, self.stds, size=new_population.genomes.shape)
+        binary_mask = np.random.rand(*new_population.genomes.shape) < self.probability
+        new_genomes = new_population.genomes + binary_mask * noise
         new_genomes = np.clip(new_genomes, self.lower_bounds, self.upper_bounds)
-        population.update_genome(new_genomes)
-        population.evaluate()
-        return population
+        new_population.update_genome(new_genomes)
+        new_population.evaluate()
+        return new_population
 
 
 class TournamentSelection(VariationalOperator):
@@ -33,17 +34,18 @@ class TournamentSelection(VariationalOperator):
         self.k = k
 
     def __call__(self, population: Population) -> Population:
-        num_individuals = len(population.fitnesses)
+        population_copy = population.copy()
+        num_individuals = len(population_copy.fitnesses)
         tournament_indices = np.random.randint(0, num_individuals, (num_individuals, self.k))
-        tournament_fitnesses = population.fitnesses[tournament_indices]
+        tournament_fitnesses = population_copy.fitnesses[tournament_indices]
         selected_indices = (
             np.argmax(tournament_fitnesses, axis=1)
-            if population.problem.maximize
+            if population_copy.problem.maximize
             else np.argmin(tournament_fitnesses, axis=1)
         )
         winners = tournament_indices[np.arange(num_individuals), selected_indices]
-        new_genomes = population.genomes[winners]
-        return Population(new_genomes, population.fitnesses[winners], population.problem)
+        new_genomes = population_copy.genomes[winners]
+        return Population(new_genomes, population_copy.fitnesses[winners], population_copy.problem)
 
 
 class SEA:

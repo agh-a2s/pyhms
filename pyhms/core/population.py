@@ -21,11 +21,17 @@ class Population:
         self.genomes[change_mask] = new_genome[change_mask]
         self.fitnesses[change_mask] = np.nan
 
+    def copy(self) -> "Population":
+        new_genomes = np.copy(self.genomes)
+        new_fitnesses = np.copy(self.fitnesses)
+        new_population = Population(new_genomes, new_fitnesses, self.problem)
+        return new_population
+
     @classmethod
     def from_individuals(cls, individuals: list[Individual]) -> "Population":
         population = cls(
-            np.array([ind.genome for ind in individuals]),
-            np.array([ind.fitness for ind in individuals]),
+            np.array([ind.genome for ind in individuals], dtype=float),
+            np.array([ind.fitness for ind in individuals], dtype=float),
             individuals[0].problem,
         )
         return population
