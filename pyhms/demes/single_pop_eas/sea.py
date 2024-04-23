@@ -56,7 +56,7 @@ class SimpleEA(AbstractEA):
         self.pipeline = pipeline
         self.k_elites = k_elites
 
-    def run(self, parents: list[Individual] | None = None) -> list[Individual]:
+    def run(self, parents: list[Individual]) -> list[Individual]:
         assert self.pop_size == len(parents)
         return pipe(parents, *self.pipeline, lops.elitist_survival(parents=parents, k=self.k_elites))
 
