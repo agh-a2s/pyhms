@@ -9,6 +9,7 @@ import numpy as np
 
 class Problem(ABC):
     def __init__(self):
+        super().__init__()
 
     @abstractmethod
     def evaluate(self, genome: np.ndarray, *args, **kwargs):

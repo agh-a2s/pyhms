@@ -1,5 +1,5 @@
-from typing import Callable
 import numpy as np
+
 from .individual import Individual
 from .problem import Problem
 
@@ -14,9 +14,7 @@ class Population:
         nan_mask = np.isnan(self.fitnesses)
         if np.any(nan_mask):
             for i, genome in enumerate(self.genomes[nan_mask]):
-                self.fitnesses[nan_mask][i] = self.problem.evaluate(
-                    genome, *args, **kwargs
-                )
+                self.fitnesses[nan_mask][i] = self.problem.evaluate(genome, *args, **kwargs)
 
     def update_genome(self, new_genome: np.ndarray) -> None:
         change_mask = np.any(new_genome != self.genomes, axis=1)
@@ -33,7 +31,4 @@ class Population:
         return population
 
     def to_individuals(self) -> list[Individual]:
-        return [
-            Individual(genome, fitness, self.problem)
-            for genome, fitness in zip(self.genomes, self.fitnesses)
-        ]
+        return [Individual(genome, self.problem, fitness) for genome, fitness in zip(self.genomes, self.fitnesses)]

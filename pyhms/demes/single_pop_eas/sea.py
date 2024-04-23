@@ -30,7 +30,7 @@ class AbstractEA(ABC):
         self.pop_size = pop_size
 
     @abstractmethod
-    def run(self, parents: list[Individual] | None = None):
+    def run(self, parents: list[Individual]):
         raise NotImplementedError()
 
     @classmethod

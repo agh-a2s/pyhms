@@ -1,7 +1,9 @@
-from ...core.population import Population
-from ...core.individual import Individual
-import numpy as np
 from typing import Protocol
+
+import numpy as np
+
+from ...core.individual import Individual
+from ...core.population import Population
 
 
 class VariationalOperator(Protocol):
@@ -32,9 +34,7 @@ class TournamentSelection(VariationalOperator):
 
     def __call__(self, population: Population) -> Population:
         num_individuals = len(population.fitnesses)
-        tournament_indices = np.random.randint(
-            0, num_individuals, (num_individuals, self.k)
-        )
+        tournament_indices = np.random.randint(0, num_individuals, (num_individuals, self.k))
         tournament_fitnesses = population.fitnesses[tournament_indices]
         selected_indices = (
             np.argmax(tournament_fitnesses, axis=1)
@@ -43,15 +43,11 @@ class TournamentSelection(VariationalOperator):
         )
         winners = tournament_indices[np.arange(num_individuals), selected_indices]
         new_genomes = population.genomes[winners]
-        return Population(
-            new_genomes, population.fitnesses[winners], population.problem
-        )
+        return Population(new_genomes, population.fitnesses[winners], population.problem)
 
 
 class SEA:
-    def __init__(
-        self, variational_operators_pipeline: list[VariationalOperator]
-    ) -> None:
+    def __init__(self, variational_operators_pipeline: list[VariationalOperator]) -> None:
         self.variational_operators_pipeline = variational_operators_pipeline
 
     def run(self, parents: list[Individual]) -> list[Individual]:
