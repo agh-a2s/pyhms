@@ -1,8 +1,8 @@
-from leap_ec import Individual
 from scipy import optimize as sopt
 from structlog.typing import FilteringBoundLogger
 
 from ..config import LocalOptimizationConfig
+from ..core.individual import Individual
 from .abstract_deme import AbstractDeme
 
 
