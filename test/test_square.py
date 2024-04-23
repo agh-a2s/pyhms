@@ -1,7 +1,14 @@
 import unittest
 
 from pyhms import minimize
-from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig, TreeConfig
+from pyhms.config import (
+    CMALevelConfig,
+    DELevelConfig,
+    EALevelConfig,
+    LHSLevelConfig,
+    LocalOptimizationConfig,
+    TreeConfig,
+)
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import (
     DemeLimit,
@@ -106,6 +113,28 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 dither=True,
                 crossover=0.9,
+                lsc=DontStop(),
+            ),
+            CMALevelConfig(
+                generations=4,
+                problem=SQUARE_PROBLEM,
+                sigma0=2.5,
+                lsc=DontStop(),
+            ),
+        ]
+
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND, options=options)
+        hms_tree = DemeTree(config)
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
+
+    def test_square_optimization_lhs(self):
+        options = {"random_seed": 1}
+        config = [
+            LHSLevelConfig(
+                problem=SQUARE_PROBLEM,
+                pop_size=20,
                 lsc=DontStop(),
             ),
             CMALevelConfig(

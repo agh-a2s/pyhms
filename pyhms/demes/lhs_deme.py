@@ -1,8 +1,9 @@
 from scipy.stats.qmc import LatinHypercube
-from .abstract_deme import AbstractDeme
+
 from ..config import LHSLevelConfig
-from ..logging_ import FilteringBoundLogger
 from ..core.individual import Individual
+from ..logging_ import FilteringBoundLogger
+from .abstract_deme import AbstractDeme
 
 
 class LHSDeme(AbstractDeme):
@@ -22,10 +23,7 @@ class LHSDeme(AbstractDeme):
         self.run()
 
     def run(self) -> None:
-        population = [
-            Individual(genome, problem=self._problem)
-            for genome in self.sampler.random(self._pop_size)
-        ]
+        population = [Individual(genome, problem=self._problem) for genome in self.sampler.random(self._pop_size)]
         Individual.evaluate_population(population)
         self._history.append([population])
 
@@ -33,10 +31,6 @@ class LHSDeme(AbstractDeme):
         self.run()
         if (gsc_value := tree._gsc(tree)) or self._lsc(self):
             self._active = False
-            message = (
-                "LHS Deme finished due to GSC"
-                if gsc_value
-                else "LHS Deme finished due to LSC"
-            )
+            message = "LHS Deme finished due to GSC" if gsc_value else "LHS Deme finished due to LSC"
             self.log(message)
             return
