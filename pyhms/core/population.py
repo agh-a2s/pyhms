@@ -10,6 +10,10 @@ class Population:
         self.fitnesses = fitnesses
         self.problem = problem
 
+    @property
+    def size(self) -> int:
+        return len(self.genomes)
+
     def evaluate(self, *args, **kwargs) -> None:
         nan_mask = np.isnan(self.fitnesses)
         if np.any(nan_mask):
@@ -38,3 +42,14 @@ class Population:
 
     def to_individuals(self) -> list[Individual]:
         return [Individual(genome, self.problem, fitness) for genome, fitness in zip(self.genomes, self.fitnesses)]
+
+    def topk(self, k: int) -> "Population":
+        topk_indices = (
+            np.argsort(self.fitnesses)[-k:] if self.problem.maximize else np.argsort(self.fitnesses)[:k][::-1]
+        )
+        return Population(self.genomes[topk_indices], self.fitnesses[topk_indices], self.problem)
+
+    def merge(self, other: "Population") -> "Population":
+        new_genomes = np.concatenate((self.genomes, other.genomes))
+        new_fitnesses = np.concatenate((self.fitnesses, other.fitnesses))
+        return Population(new_genomes, new_fitnesses, self.problem)
