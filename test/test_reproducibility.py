@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
-from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.demes.single_pop_eas.new_sea import SEA
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 

@@ -4,7 +4,7 @@ import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.problem import FunctionProblem
 from pyhms.demes.abstract_deme import compute_centroid
-from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.demes.single_pop_eas.new_sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
 from pyhms.sprout.sprout_generators import NBC_Generator
 from pyhms.sprout.sprout_mechanisms import SproutMechanism, get_NBC_sprout, get_simple_sprout

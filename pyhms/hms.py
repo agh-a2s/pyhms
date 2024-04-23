@@ -5,7 +5,7 @@ import numpy as np
 
 from .config import DEFAULT_OPTIONS, BaseLevelConfig, CMALevelConfig, EALevelConfig, Options, TreeConfig
 from .core.problem import EvalCutoffProblem, FunctionProblem
-from .demes.single_pop_eas.sea import SEA
+from .demes.single_pop_eas.new_sea import SEA
 from .logging_ import LoggingLevel, parse_log_level
 from .sprout import get_NBC_sprout
 from .stop_conditions import (
