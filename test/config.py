@@ -12,10 +12,8 @@ def square(x: np.ndarray) -> float:
     return sum(x**2)
 
 
-SQUARE_PROBLEM = FunctionProblem(square, maximize=False)
 SQUARE_BOUNDS = np.array([(-20, 20), (-20, 20)])
-
-SQUARE_PROBLEM = FunctionProblem(fitness_function=lambda x: sum(x**2), maximize=False, bounds=SQUARE_BOUNDS)
+SQUARE_PROBLEM = FunctionProblem(square, maximize=False, bounds=SQUARE_BOUNDS)
 
 NEGATIVE_SQUARE_PROBLEM = FunctionProblem(
     fitness_function=lambda x: -1 * sum(x**2), maximize=True, bounds=SQUARE_BOUNDS
