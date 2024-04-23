@@ -8,7 +8,6 @@ from ...core.individual import Individual
 from ...core.problem import Problem
 
 DEFAULT_K_ELITES = 1
-DEFAULT_GENERATIONS = 1
 DEFAULT_MUTATION_STD = 1.0
 
 
@@ -48,11 +47,9 @@ class SimpleEA(AbstractEA):
         problem: Problem,
         pop_size: int,
         pipeline: list[Any],
-        generations: int | None = DEFAULT_GENERATIONS,
         k_elites: int | None = DEFAULT_K_ELITES,
     ) -> None:
         super().__init__(problem, pop_size)
-        self.generations = generations
         self.pipeline = pipeline
         self.k_elites = k_elites
 
@@ -70,7 +67,6 @@ class SEA(SimpleEA):
         self,
         problem: Problem,
         pop_size: int,
-        generations: int | None = DEFAULT_GENERATIONS,
         k_elites: int | None = DEFAULT_K_ELITES,
         mutation_std: float | None = DEFAULT_MUTATION_STD,
     ) -> None:
@@ -88,7 +84,6 @@ class SEA(SimpleEA):
                 lops.evaluate,
                 lops.pool(size=pop_size),
             ],
-            generations=generations,
             k_elites=k_elites,
         )
 
@@ -97,7 +92,6 @@ class SEA(SimpleEA):
         return cls(
             problem=problem,
             pop_size=pop_size,
-            generations=kwargs.get("generations", DEFAULT_GENERATIONS),
             k_elites=kwargs.get("k_elites", DEFAULT_K_ELITES),
             mutation_std=kwargs.get("mutation_std", DEFAULT_MUTATION_STD),
         )

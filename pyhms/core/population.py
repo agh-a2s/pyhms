@@ -16,9 +16,8 @@ class Population:
 
     def evaluate(self, *args, **kwargs) -> None:
         nan_mask = np.isnan(self.fitnesses)
-        if np.any(nan_mask):
-            for i, genome in enumerate(self.genomes[nan_mask]):
-                self.fitnesses[nan_mask][i] = self.problem.evaluate(genome, *args, **kwargs)
+        fitness_values = [self.problem.evaluate(genome, *args, **kwargs) for genome in self.genomes[nan_mask]]
+        self.fitnesses[nan_mask] = fitness_values
 
     def update_genome(self, new_genome: np.ndarray) -> None:
         change_mask = np.any(new_genome != self.genomes, axis=1)
@@ -34,8 +33,8 @@ class Population:
     @classmethod
     def from_individuals(cls, individuals: list[Individual]) -> "Population":
         population = cls(
-            np.array([ind.genome for ind in individuals], dtype=float),
-            np.array([ind.fitness for ind in individuals], dtype=float),
+            np.array([ind.genome for ind in individuals], dtype=np.float64),
+            np.array([ind.fitness for ind in individuals], dtype=np.float64),
             individuals[0].problem,
         )
         return population
@@ -44,9 +43,7 @@ class Population:
         return [Individual(genome, self.problem, fitness) for genome, fitness in zip(self.genomes, self.fitnesses)]
 
     def topk(self, k: int) -> "Population":
-        topk_indices = (
-            np.argsort(self.fitnesses)[-k:] if self.problem.maximize else np.argsort(self.fitnesses)[:k][::-1]
-        )
+        topk_indices = np.argsort(self.fitnesses)[-k:] if self.problem.maximize else np.argsort(self.fitnesses)[:k]
         return Population(self.genomes[topk_indices], self.fitnesses[topk_indices], self.problem)
 
     def merge(self, other: "Population") -> "Population":

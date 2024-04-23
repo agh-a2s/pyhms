@@ -30,15 +30,13 @@ class GaussianMutation(VariationalOperator):
 
 
 class TournamentSelection(VariationalOperator):
-    def __init__(self, k: int = 5) -> None:
+    def __init__(self, k: int = 2) -> None:
         self.k = k
 
     def __call__(self, population: Population) -> Population:
         population_copy = population.copy()
         num_individuals = len(population_copy.fitnesses)
-        tournament_indices = np.random.randint(
-            0, num_individuals, (num_individuals, self.k)
-        )
+        tournament_indices = np.random.randint(0, num_individuals, (num_individuals, self.k))
         tournament_fitnesses = population_copy.fitnesses[tournament_indices]
         selected_indices = (
             np.argmax(tournament_fitnesses, axis=1)
@@ -47,14 +45,14 @@ class TournamentSelection(VariationalOperator):
         )
         winners = tournament_indices[np.arange(num_individuals), selected_indices]
         new_genomes = population_copy.genomes[winners]
-        return Population(
-            new_genomes, population_copy.fitnesses[winners], population_copy.problem
-        )
+        return Population(new_genomes, population_copy.fitnesses[winners], population_copy.problem)
 
 
 class SEA:
     def __init__(
-        self, variational_operators_pipeline: list[VariationalOperator], k: int = 1
+        self,
+        variational_operators_pipeline: list[VariationalOperator],
+        k: int = 1,
     ) -> None:
         self.variational_operators_pipeline = variational_operators_pipeline
         self.k = k
@@ -69,8 +67,13 @@ class SEA:
         return total_offspring_population.topk(parent_population.size).to_individuals()
 
     @classmethod
-    def create(self, *args, **kwargs) -> "SEA":
+    def create(self, **kwargs) -> "SEA":
+        problem = kwargs.get("problem")
+        mutation_std = kwargs.get("mutation_std")
         return SEA(
-            variational_operators_pipeline=[TournamentSelection(), GaussianMutation()],
+            variational_operators_pipeline=[
+                TournamentSelection(),
+                GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=1.0),
+            ],
             k=1,
         )
