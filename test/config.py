@@ -1,8 +1,8 @@
 import os
 
 import numpy as np
-from leap_ec.problem import FunctionProblem
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.problem import FunctionProblem
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions import DontStop, MetaepochLimit
@@ -12,12 +12,12 @@ def square(x: np.ndarray) -> float:
     return sum(x**2)
 
 
-SQUARE_PROBLEM = FunctionProblem(square, maximize=False)
 SQUARE_BOUNDS = np.array([(-20, 20), (-20, 20)])
+SQUARE_PROBLEM = FunctionProblem(square, maximize=False, bounds=SQUARE_BOUNDS)
 
-NEGATIVE_SQUARE_PROBLEM = FunctionProblem(lambda x: -1 * sum(x**2), maximize=True)
-
-SQUARE_PROBLEM_DOMAIN = np.array([(-20, 20), (-20, 20)])
+NEGATIVE_SQUARE_PROBLEM = FunctionProblem(
+    fitness_function=lambda x: -1 * sum(x**2), maximize=True, bounds=SQUARE_BOUNDS
+)
 
 DEFAULT_GSC = MetaepochLimit(limit=10)
 
@@ -37,7 +37,6 @@ def get_default_tree_config() -> TreeConfig:
             ea_class=SEA,
             generations=2,
             problem=SQUARE_PROBLEM,
-            bounds=SQUARE_PROBLEM_DOMAIN,
             pop_size=20,
             mutation_std=1.0,
             lsc=DEFAULT_LSC,
@@ -45,7 +44,6 @@ def get_default_tree_config() -> TreeConfig:
         CMALevelConfig(
             generations=4,
             problem=SQUARE_PROBLEM,
-            bounds=SQUARE_PROBLEM_DOMAIN,
             sigma0=2.5,
             lsc=DEFAULT_LSC,
         ),

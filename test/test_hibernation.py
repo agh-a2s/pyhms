@@ -5,7 +5,7 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM
 
 
 class TestHibernation(unittest.TestCase):
@@ -16,7 +16,6 @@ class TestHibernation(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -24,7 +23,6 @@ class TestHibernation(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),

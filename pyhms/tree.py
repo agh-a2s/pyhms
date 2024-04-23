@@ -2,14 +2,14 @@ import dill as pkl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import pandas as pd
-from leap_ec.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
+from .core.individual import Individual
+from .core.problem import StatsGatheringProblem
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
-from .problem import StatsGatheringProblem
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree

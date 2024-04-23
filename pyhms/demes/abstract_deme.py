@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from leap_ec.individual import Individual
-from leap_ec.problem import Problem
 from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
-from ..problem import EvalCountingProblem
+from ..core.individual import Individual
+from ..core.problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
 
@@ -31,7 +30,7 @@ class AbstractDeme(ABC):
         self._level = level
         self._config: BaseLevelConfig = config
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
-        self._problem: Problem = EvalCountingProblem(config.problem)
+        self._problem: EvalCountingProblem = EvalCountingProblem(config.problem)
         self._bounds: np.ndarray = config.bounds
         self._active: bool = True
         self._centroid: np.ndarray | None = None
@@ -135,7 +134,7 @@ class AbstractDeme(ABC):
 
     @property
     def best_fitness_by_metaepoch(self) -> dict[int, float]:
-        metaepoch_to_best_fitness = {}
+        metaepoch_to_best_fitness: dict[int, float] = {}
         for metaepoch_idx, metaepoch_history in enumerate(self._history):
             if not metaepoch_history:
                 continue

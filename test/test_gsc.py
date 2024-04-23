@@ -1,13 +1,11 @@
 import unittest
 
 import numpy as np
-from leap_ec.individual import Individual
-from leap_ec.problem import FunctionProblem
-from leap_ec.real_rep import create_real_vector
-from leap_ec.representation import Representation
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.individual import Individual
+from pyhms.core.problem import EvalCountingProblem, PrecisionCutoffProblem, Problem
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.problem import EvalCountingProblem, PrecisionCutoffProblem
+from pyhms.initializers import sample_uniform
 from pyhms.stop_conditions import (
     AllStopped,
     DontStop,
@@ -21,19 +19,18 @@ from pyhms.stop_conditions import (
 )
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN
+from .config import DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROBLEM
 
 POPULATION_SIZE = 50
 
 
 class TestGlobalStopCondition(unittest.TestCase):
-    def get_deme_tree(self, gsc: GlobalStopCondition, problem: FunctionProblem | None = SQUARE_PROBLEM) -> DemeTree:
+    def get_deme_tree(self, gsc: GlobalStopCondition, problem: Problem | None = SQUARE_PROBLEM) -> DemeTree:
         levels = [
             EALevelConfig(
                 ea_class=SEA,
                 generations=2,
                 problem=problem,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -41,7 +38,6 @@ class TestGlobalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
@@ -103,16 +99,19 @@ class TestGlobalStopCondition(unittest.TestCase):
         gsc = SingularProblemEvalLimitReached(LIMIT)
         deme_tree = self.get_deme_tree(gsc, SQUARE_PROBLEM)
         # Evaluate problem LIMIT - 1 times:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(
+        population = Individual.create_population(
             pop_size=LIMIT - deme_tree.root._problem.n_evaluations - 1,
             problem=deme_tree.root._problem,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
         )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=1, problem=deme_tree.root._problem)
+        population = Individual.create_population(
+            pop_size=1,
+            problem=deme_tree.root._problem,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
+        )
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))
 
@@ -135,7 +134,6 @@ class TestGlobalStopCondition(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=problem_level1,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -143,7 +141,6 @@ class TestGlobalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem_level2,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
@@ -156,15 +153,19 @@ class TestGlobalStopCondition(unittest.TestCase):
         )
         deme_tree = DemeTree(tree_config)
         # Evaluate problem (level 1) LIMIT - 1 times:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(
-            pop_size=LIMIT - problem_level1.n_evaluations - 1, problem=problem_level1
+        population = Individual.create_population(
+            pop_size=LIMIT - problem_level1.n_evaluations - 1,
+            problem=problem_level1,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
         )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem (level 2) 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=1, problem=problem_level2)
+        population = Individual.create_population(
+            pop_size=1,
+            problem=problem_level2,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
+        )
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))
 
@@ -178,7 +179,6 @@ class TestGlobalStopCondition(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=problem_level1,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -186,7 +186,6 @@ class TestGlobalStopCondition(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=problem_level2,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
@@ -199,19 +198,26 @@ class TestGlobalStopCondition(unittest.TestCase):
         )
         deme_tree = DemeTree(tree_config)
         # Evaluate problem (level 1) LIMIT - 1 times:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(
-            pop_size=LIMIT - problem_level1.n_evaluations - 1, problem=problem_level1
+        population = Individual.create_population(
+            pop_size=LIMIT - problem_level1.n_evaluations - 1,
+            problem=problem_level1,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
         )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem (level 2) 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=1, problem=problem_level2)
+        population = Individual.create_population(
+            pop_size=1,
+            problem=problem_level2,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
+        )
         Individual.evaluate_population(population)
         self.assertFalse(gsc(deme_tree))
         # Evaluate problem (level 1) 1 more time:
-        representation = Representation(initialize=create_real_vector(bounds=SQUARE_PROBLEM_DOMAIN))
-        population = representation.create_population(pop_size=1, problem=problem_level1)
+        population = Individual.create_population(
+            pop_size=1,
+            problem=problem_level1,
+            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
+        )
         Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))

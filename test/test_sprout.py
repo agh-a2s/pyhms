@@ -1,8 +1,8 @@
 import unittest
 
 import numpy as np
-from leap_ec.problem import FunctionProblem
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.problem import FunctionProblem
 from pyhms.demes.abstract_deme import compute_centroid
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, LevelLimit, NBC_FarEnough
@@ -10,6 +10,8 @@ from pyhms.sprout.sprout_generators import NBC_Generator
 from pyhms.sprout.sprout_mechanisms import SproutMechanism, get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions import DontStop, MetaepochLimit
 from pyhms.tree import DemeTree
+
+EGG_HOLDER_BOUNDS = np.array([(-512, 512), (-512, 512), (-512, 512)])
 
 
 class TestSprout(unittest.TestCase):
@@ -26,7 +28,7 @@ class TestSprout(unittest.TestCase):
     def test_simple_sprout(self):
         for limit in [2, 4, 8]:
             correct_sprout = True
-            function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
+            function_problem = FunctionProblem(lambda x: self.egg_holder(x), bounds=EGG_HOLDER_BOUNDS, maximize=False)
             gsc = MetaepochLimit(limit=20)
             sprout_cond = get_simple_sprout(10.0, limit)
 
@@ -35,7 +37,6 @@ class TestSprout(unittest.TestCase):
                     ea_class=SEA,
                     generations=2,
                     problem=function_problem,
-                    bounds=[(-512, 512), (-512, 512), (-512, 512)],
                     pop_size=20,
                     mutation_std=50.0,
                     lsc=DontStop(),
@@ -43,7 +44,6 @@ class TestSprout(unittest.TestCase):
                 CMALevelConfig(
                     generations=2,
                     problem=function_problem,
-                    bounds=[(-512, 512), (-512, 512), (-512, 512)],
                     sigma0=2.5,
                     lsc=MetaepochLimit(limit=8),
                 ),
@@ -87,7 +87,7 @@ class TestSprout(unittest.TestCase):
 
     def test_default_nbc_sprout(self):
         correct_sprout = True
-        function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
+        function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False, bounds=EGG_HOLDER_BOUNDS)
         gsc = MetaepochLimit(limit=20)
         sprout_cond = get_NBC_sprout()
         limit = 4
@@ -97,7 +97,6 @@ class TestSprout(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=function_problem,
-                bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 pop_size=20,
                 mutation_std=50.0,
                 lsc=DontStop(),
@@ -105,7 +104,6 @@ class TestSprout(unittest.TestCase):
             CMALevelConfig(
                 generations=2,
                 problem=function_problem,
-                bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 sigma0=2.5,
                 lsc=MetaepochLimit(limit=8),
             ),
@@ -147,7 +145,7 @@ class TestSprout(unittest.TestCase):
 
     def test_nbc_sprout_with_truncation(self):
         correct_sprout = True
-        function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False)
+        function_problem = FunctionProblem(lambda x: self.egg_holder(x), maximize=False, bounds=EGG_HOLDER_BOUNDS)
         gsc = MetaepochLimit(limit=20)
         sprout_cond = SproutMechanism(
             NBC_Generator(2.0, 0.4),
@@ -161,7 +159,6 @@ class TestSprout(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=function_problem,
-                bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 pop_size=20,
                 mutation_std=50.0,
                 lsc=DontStop(),
@@ -169,7 +166,6 @@ class TestSprout(unittest.TestCase):
             CMALevelConfig(
                 generations=2,
                 problem=function_problem,
-                bounds=[(-512, 512), (-512, 512), (-512, 512)],
                 sigma0=2.5,
                 lsc=MetaepochLimit(limit=8),
             ),

@@ -14,7 +14,7 @@ from pyhms.sprout import (
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, SQUARE_PROBLEM_DOMAIN, square
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROBLEM, square
 
 
 class TestSquare(unittest.TestCase):
@@ -25,7 +25,6 @@ class TestSquare(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -34,7 +33,6 @@ class TestSquare(unittest.TestCase):
                 ea_class=SEA,
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=10,
                 mutation_std=0.25,
                 sample_std_dev=1.0,
@@ -55,7 +53,6 @@ class TestSquare(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -63,7 +60,6 @@ class TestSquare(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=None,
                 lsc=DontStop(),
             ),
@@ -82,7 +78,6 @@ class TestSquare(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -90,7 +85,6 @@ class TestSquare(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=None,
                 set_stds=True,
                 lsc=DontStop(),
@@ -109,7 +103,6 @@ class TestSquare(unittest.TestCase):
             DELevelConfig(
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 dither=True,
                 crossover=0.9,
@@ -118,7 +111,6 @@ class TestSquare(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
@@ -132,7 +124,7 @@ class TestSquare(unittest.TestCase):
 
     def test_square_optimization_scipy_style(self):
         max_iter = 5
-        result = minimize(square, SQUARE_PROBLEM_DOMAIN, log_level="DEBUG", maxiter=max_iter)
+        result = minimize(square, SQUARE_BOUNDS, log_level="DEBUG", maxiter=max_iter)
         self.assertEqual(result.nit, max_iter)
         self.assertLessEqual(result.fun, 1e-3, "Best fitness should be close to 0")
 
@@ -143,7 +135,6 @@ class TestSquare(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
@@ -151,13 +142,11 @@ class TestSquare(unittest.TestCase):
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 sigma0=2.5,
                 lsc=DontStop(),
             ),
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
-                bounds=SQUARE_PROBLEM_DOMAIN,
                 lsc=DontStop(),
                 maxiter=10,
             ),

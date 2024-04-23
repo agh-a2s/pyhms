@@ -1,7 +1,8 @@
 import numpy as np
-from leap_ec.individual import Individual
 from treelib import Tree
 from treelib.exceptions import DuplicatedNodeIdError
+
+from ..core.individual import Individual
 
 
 def get_individual_id(individual: Individual) -> str:

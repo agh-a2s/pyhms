@@ -1,25 +1,93 @@
+import random
 import time
+from abc import ABC, abstractmethod
+from math import isclose, isnan
+from typing import Callable
 
 import numpy as np
-from leap_ec.problem import FunctionProblem, Problem
 
 
-class EvalCountingProblem(Problem):
+class Problem(ABC):
+    def __init__(self):
+        super().__init__()
+
+    @abstractmethod
+    def evaluate(self, genome: np.ndarray, *args, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    def worse_than(self, first_fitness: float, second_fitness: float):
+        raise NotImplementedError
+
+    @property
+    def bounds(self) -> np.ndarray:
+        raise NotImplementedError
+
+    def equivalent(self, first_fitness: float, second_fitness: float) -> bool:
+        if type(first_fitness) == float and type(second_fitness) == float:
+            return isclose(first_fitness, second_fitness)
+        else:
+            return first_fitness == second_fitness
+
+
+class FunctionProblem(Problem):
+    def __init__(self, fitness_function: Callable, bounds: np.ndarray, maximize: bool) -> None:
+        self.fitness_function = fitness_function
+        self._bounds = bounds
+        self.maximize = maximize
+
+    def evaluate(self, genome: np.ndarray, *args, **kwargs) -> np.ndarray:
+        return self.fitness_function(genome, *args, **kwargs)
+
+    def worse_than(self, first_fitness: float, second_fitness: float) -> bool:
+        if isnan(first_fitness):
+            if isnan(second_fitness):
+                return random.choice([True, False])
+            return True
+        elif isnan(second_fitness):
+            return False
+        if self.maximize:
+            return first_fitness < second_fitness
+        else:
+            return first_fitness > second_fitness
+
+    @property
+    def bounds(self) -> np.ndarray:
+        return self._bounds
+
+
+class ProblemWrapper(Problem):
+    def __init__(self, decorated_problem: Problem):
+        super().__init__()
+        self._inner: Problem = decorated_problem
+
+    def evaluate(self, phenome, *args, **kwargs):
+        ret_val = self._inner.evaluate(phenome, *args, **kwargs)
+        return ret_val
+
+    def worse_than(self, first_fitness, second_fitness):
+        return self._inner.worse_than(first_fitness, second_fitness)
+
+    @property
+    def bounds(self) -> np.ndarray:
+        return self._inner.bounds
+
+
+class EvalCountingProblem(ProblemWrapper):
     """
-    A decorator for a leap_ec.Problem instance that counts the number of evaluations performed.
+    A decorator for a Problem instance that counts the number of evaluations performed.
 
     This class wraps around any instance of `Problem` and counts how many times the
     `evaluate` method is called. This is useful for monitoring and limiting the computational
     cost of optimization processes.
 
-    :param leap_ec.Problem decorated_problem: The problem to be decorated.
+    :param Problem decorated_problem: The problem to be decorated.
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import EvalCountingProblem
+        >>> from pyhms import EvalCountingProblem, Problem
         >>> import numpy as np
-        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> problem = Problem(lambda x: -x**2, maximize=True)
         >>> counting_problem = EvalCountingProblem(problem)
         >>> counting_problem.evaluate(2.0)
         >>> print(counting_problem.n_evaluations)
@@ -27,7 +95,7 @@ class EvalCountingProblem(Problem):
     """
 
     def __init__(self, decorated_problem: Problem):
-        super().__init__()
+        super().__init__(decorated_problem)
         self._inner: Problem = decorated_problem
         self._n_evals: int = 0
 
@@ -36,19 +104,13 @@ class EvalCountingProblem(Problem):
         self._n_evals += 1
         return ret_val
 
-    def worse_than(self, first_fitness, second_fitness):
-        return self._inner.worse_than(first_fitness, second_fitness)
-
-    def equivalent(self, first_fitness, second_fitness):
-        return self._inner.equivalent(first_fitness, second_fitness)
-
     @property
     def n_evaluations(self) -> int:
         return self._n_evals
 
     def __str__(self) -> str:
-        if isinstance(self._inner, FunctionProblem):
-            inner_str = f"FunctionProblem({self._inner.__dict__})"
+        if isinstance(self._inner, Problem):
+            inner_str = f"Problem({self._inner.__dict__})"
         else:
             inner_str = str(self._inner)
         return f"EvalCountingProblem({inner_str})"
@@ -56,7 +118,7 @@ class EvalCountingProblem(Problem):
 
 class EvalCutoffProblem(EvalCountingProblem):
     """
-    A decorator for a leap_ec.Problem instance that imposes a cutoff on the number of evaluations.
+    A decorator for a Problem instance that imposes a cutoff on the number of evaluations.
 
     This class extends `EvalCountingProblem` by adding a functionality to stop evaluations
     once a specified cutoff limit is reached. Evaluations beyond this limit will return a
@@ -70,10 +132,9 @@ class EvalCutoffProblem(EvalCountingProblem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import EvalCutoffProblem
+        >>> from pyhms import EvalCutoffProblem, Problem
         >>> import numpy as np
-        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> problem = Problem(lambda x: -x**2, maximize=True)
         >>> cutoff_problem = EvalCutoffProblem(problem, eval_cutoff=1)
         >>> cutoff_problem.evaluate(2.0)
         >>> cutoff_problem.evaluate(1.0)
@@ -104,10 +165,9 @@ class PrecisionCutoffProblem(EvalCountingProblem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import PrecisionCutoffProblem
+        >>> from pyhms import PrecisionCutoffProblem, Problem
         >>> import numpy as np
-        >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
+        >>> problem = Problem(lambda x: -x**2, maximize=True)
         >>> precision_cutoff_problem = PrecisionCutoffProblem(problem, 0, 1e-4)
         >>> precision_cutoff_problem.evaluate(0)
         >>> print(precision_cutoff_problem.ETA)
@@ -129,9 +189,9 @@ class PrecisionCutoffProblem(EvalCountingProblem):
         return fitness
 
 
-class StatsGatheringProblem(Problem):
+class StatsGatheringProblem(ProblemWrapper):
     """
-    A decorator for a leap_ec.Problem instance that gathers statistics about evaluation times.
+    A decorator for a Problem instance that gathers statistics about evaluation times.
 
     This class wraps around any instance of `Problem` to record the duration of each
     evaluation performed on the decorated problem. It's particularly useful for performance
@@ -139,8 +199,7 @@ class StatsGatheringProblem(Problem):
 
     .. code-block:: python
 
-        >>> from leap_ec.problem import FunctionProblem
-        >>> from pyhms.problem import StatsGatheringProblem
+        >>> from pyhms import StatsGatheringProblem, Problem
         >>> import numpy as np
         >>> problem = FunctionProblem(lambda x: -x**2, maximize=True)
         >>> stats_gathering_problem = StatsGatheringProblem(problem)
@@ -151,7 +210,7 @@ class StatsGatheringProblem(Problem):
     """
 
     def __init__(self, decorated_problem: Problem):
-        super().__init__()
+        super().__init__(decorated_problem)
         self._inner: Problem = decorated_problem
         self._n_evals = 0
         self._durations: list[float] = []
@@ -163,12 +222,6 @@ class StatsGatheringProblem(Problem):
         self._n_evals += 1
         self._durations.append(end_time - start_time)
         return ret_val
-
-    def worse_than(self, first_fitness, second_fitness):
-        return self._inner.worse_than(first_fitness, second_fitness)
-
-    def equivalent(self, first_fitness, second_fitness):
-        return self._inner.equivalent(first_fitness, second_fitness)
 
     @property
     def n_evaluations(self) -> int:
@@ -183,8 +236,8 @@ class StatsGatheringProblem(Problem):
         return np.mean(self._durations), np.std(self._durations)
 
     def __str__(self) -> str:
-        if isinstance(self._inner, FunctionProblem):
-            inner_str = f"FunctionProblem({self._inner.__dict__})"
+        if isinstance(self._inner, Problem):
+            inner_str = f"Problem({self._inner.__dict__})"
         else:
             inner_str = str(self._inner)
         return f"StatsGatheringProblem({inner_str})"

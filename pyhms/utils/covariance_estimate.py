@@ -1,6 +1,6 @@
 import numpy as np
-from leap_ec import Individual
 
+from ..core.individual import Individual
 from ..demes.abstract_deme import AbstractDeme
 
 N_INDIVIDUALS_PER_DIMENSION = 25

@@ -1,19 +1,18 @@
 import numpy as np
-from leap_ec import Individual
 from pyhms.config import CMALevelConfig
+from pyhms.core.individual import Individual
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.logging_ import get_logger
 from pyhms.tree import DemeTree
 from pyhms.utils.print_tree import format_deme
 
-from .config import DEFAULT_LSC, SQUARE_BOUNDS, SQUARE_PROBLEM, get_default_tree_config
+from .config import DEFAULT_LSC, SQUARE_PROBLEM, get_default_tree_config
 
 
 def test_format_deme():
     logger = get_logger()
     config = CMALevelConfig(
         problem=SQUARE_PROBLEM,
-        bounds=SQUARE_BOUNDS,
         lsc=DEFAULT_LSC,
         sigma0=1.0,
         generations=1,

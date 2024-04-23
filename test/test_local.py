@@ -16,14 +16,12 @@ class TestLocalOptimization(unittest.TestCase):
                 ea_class=SEA,
                 generations=2,
                 problem=SQUARE_PROBLEM,
-                bounds=[(-20, 20), (-20, 20)],
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
             ),
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
-                bounds=[(-20, 20), (-20, 20)],
                 lsc=DontStop(),
             ),
         ]

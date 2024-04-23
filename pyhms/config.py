@@ -1,8 +1,8 @@
 from typing import TypedDict
 
 import numpy as np
-from leap_ec.problem import Problem
 
+from .core.problem import Problem
 from .logging_ import LoggingLevel
 from .stop_conditions import GlobalStopCondition, LocalStopCondition, UniversalStopCondition
 
@@ -11,15 +11,17 @@ class BaseLevelConfig:
     def __init__(
         self,
         problem: Problem,
-        bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
     ):
         self.problem = problem
-        self.bounds = bounds
         self.lsc = lsc
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__dict__})"
+
+    @property
+    def bounds(self) -> np.ndarray:
+        return self.problem.bounds
 
 
 class EALevelConfig(BaseLevelConfig):
@@ -28,13 +30,12 @@ class EALevelConfig(BaseLevelConfig):
         ea_class,
         pop_size: int,
         problem: Problem,
-        bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
         sample_std_dev: float = 1.0,
         **kwargs,
     ) -> None:
-        super().__init__(problem, bounds, lsc)
+        super().__init__(problem, lsc)
         self.ea_class = ea_class
         self.pop_size = pop_size
         self.generations = generations
@@ -47,7 +48,6 @@ class DELevelConfig(BaseLevelConfig):
         self,
         pop_size: int,
         problem: Problem,
-        bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
         sample_std_dev: float = 1.0,
@@ -55,7 +55,7 @@ class DELevelConfig(BaseLevelConfig):
         scaling: float = 0.8,
         crossover: float = 0.9,
     ):
-        super().__init__(problem, bounds, lsc)
+        super().__init__(problem, lsc)
         self.pop_size = pop_size
         self.generations = generations
         self.dither = dither
@@ -68,13 +68,12 @@ class CMALevelConfig(BaseLevelConfig):
     def __init__(
         self,
         problem: Problem,
-        bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
         sigma0: float | None,
         generations: int,
         **kwargs,
     ) -> None:
-        super().__init__(problem, bounds, lsc)
+        super().__init__(problem, lsc)
         self.sigma0 = sigma0
         self.generations = generations
         self.__dict__.update(kwargs)
@@ -84,12 +83,11 @@ class LocalOptimizationConfig(BaseLevelConfig):
     def __init__(
         self,
         problem: Problem,
-        bounds: np.ndarray,
         lsc: LocalStopCondition | UniversalStopCondition,
         method: str = "L-BFGS-B",
         **kwargs,
     ) -> None:
-        super().__init__(problem, bounds, lsc)
+        super().__init__(problem, lsc)
         self.method = method
         self.__dict__.update(kwargs)
 

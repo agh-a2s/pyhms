@@ -12,19 +12,25 @@ Let's consider Sphere function as an example for `N=5`.
 .. code-block:: python
 
     import numpy as np
-    from leap_ec.problem import FunctionProblem
-    from pyhms import EALevelConfig, hms, get_NBC_sprout, DontStop, MetaepochLimit, SEA
+    from pyhms import (
+        EALevelConfig,
+        hms,
+        get_NBC_sprout,
+        DontStop,
+        MetaepochLimit,
+        SEA,
+        FunctionProblem,
+    )
 
     N = 5
-    square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False)
     square_bounds = np.array([(-20, 20)] * N)
+    square_problem = FunctionProblem(lambda x: sum(x**2), maximize=False, bounds=square_bounds)
 
     config = [
         EALevelConfig(
             ea_class=SEA,
             generations=2,
             problem=square_problem,
-            bounds=square_bounds,
             pop_size=20,
             mutation_std=1.0,
             lsc=DontStop(),
@@ -33,7 +39,6 @@ Let's consider Sphere function as an example for `N=5`.
             ea_class=SEA,
             generations=4,
             problem=square_problem,
-            bounds=square_bounds,
             pop_size=10,
             mutation_std=0.25,
             sample_std_dev=1.0,
@@ -104,7 +109,7 @@ To change this behaviour, please specify the `dimensionality_reducer` parameter.
     from sklearn.decomposition import PCA
     hms_tree.animate(filepath="your_path.gif", dimensionality_reducer=PCA(n_components=2))
 
-In case of 2D problems, we can visualize the problem itself by `plot_problem`.
+In case of 2D problems, we can visualize the problem itself by `plot_problem_surface`.
 
 .. code-block:: python
 
