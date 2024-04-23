@@ -92,6 +92,19 @@ class LocalOptimizationConfig(BaseLevelConfig):
         self.__dict__.update(kwargs)
 
 
+class LHSLevelConfig(BaseLevelConfig):
+    def __init__(
+        self,
+        problem: Problem,
+        lsc: LocalStopCondition | UniversalStopCondition,
+        pop_size: int,
+        **kwargs,
+    ) -> None:
+        super().__init__(problem, lsc)
+        self.pop_size = pop_size
+        self.__dict__.update(kwargs)
+
+
 class Options(TypedDict, total=False):
     log_level: LoggingLevel | None  # Default value: "warning"
     hibernation: bool | None  # Default value: False

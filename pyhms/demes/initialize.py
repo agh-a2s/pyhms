@@ -1,4 +1,11 @@
-from pyhms.config import BaseLevelConfig, CMALevelConfig, DELevelConfig, EALevelConfig, LocalOptimizationConfig
+from pyhms.config import (
+    BaseLevelConfig,
+    CMALevelConfig,
+    DELevelConfig,
+    EALevelConfig,
+    LHSLevelConfig,
+    LocalOptimizationConfig,
+)
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
@@ -6,6 +13,7 @@ from .abstract_deme import AbstractDeme
 from .cma_deme import CMADeme
 from .de_deme import DEDeme
 from .ea_deme import EADeme
+from .lhs_deme import LHSDeme
 from .local_deme import LocalDeme
 
 
@@ -44,4 +52,7 @@ def init_from_config(
         child = CMADeme(**args)
     elif isinstance(config, LocalOptimizationConfig):
         child = LocalDeme(**args)
+    elif isinstance(config, LHSLevelConfig):
+        args["random_seed"] = random_seed
+        child = LHSDeme(**args)
     return child
