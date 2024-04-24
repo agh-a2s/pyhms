@@ -11,8 +11,6 @@ from pyhms.sprout.sprout_filters import (
 from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator, SproutCandidatesGenerator
 
 
-
-
 class SproutMechanism:
     def __init__(
         self,

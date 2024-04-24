@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy.linalg as nla
-from pyhms.sprout.sprout_candidates import DemeCandidates
 from pyhms.demes.abstract_deme import AbstractDeme
+from pyhms.sprout.sprout_candidates import DemeCandidates
 
 
 class DemeLevelCandidatesFilter(ABC):
@@ -113,7 +113,9 @@ class LevelLimit(TreeLevelCandidatesFilter):
                 cutoff = self.limit - currently_active_level_below
                 fitness_cutoff = level_candidates[cutoff].fitness
                 for deme in level_demes:
-                    candidates[deme].individuals = list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme].individuals))  # type: ignore
+                    candidates[deme].individuals = list(
+                        filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme].individuals)  # type: ignore
+                    )
         return candidates
 
 
