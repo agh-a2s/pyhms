@@ -4,7 +4,7 @@ import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
 from pyhms.core.problem import EvalCountingProblem, PrecisionCutoffProblem, Problem
-from pyhms.demes.single_pop_eas.new_sea import SEA
+from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.initializers import sample_uniform
 from pyhms.stop_conditions import (
     AllStopped,
