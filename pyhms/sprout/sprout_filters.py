@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy.linalg as nla
+from pyhms.core.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.sprout.sprout_candidates import DemeCandidates
 
@@ -32,19 +33,19 @@ class FarEnough(DemeLevelCandidatesFilter):
         self.min_distance = min_distance
         self.norm_ord = norm_ord
 
+    def _is_far_enough(self, ind: Individual, centroid: np.ndarray):
+        return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance
+
     def __call__(
         self,
         candidates: dict[AbstractDeme, DemeCandidates],
         tree,
     ) -> dict[AbstractDeme, DemeCandidates]:
-        def simple_dist(ind, centroid):
-            return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance
-
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
             child_seeds = candidates[deme].individuals
             for sibling in child_siblings:
-                child_seeds = [ind for ind in child_seeds if simple_dist(ind, sibling.centroid)]
+                child_seeds = [ind for ind in child_seeds if self._is_far_enough(ind, sibling.centroid)]
             candidates[deme].individuals = child_seeds
         return candidates
 
@@ -55,18 +56,17 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         self.min_distance_factor = min_distance_factor
         self.norm_ord = norm_ord
 
+    def _is_nbc_far_enough(self, ind: Individual, centroid: np.ndarray, mean_dist: np.float64 | float):
+        return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance_factor * mean_dist
+
     def __call__(
         self,
         candidates: dict[AbstractDeme, DemeCandidates],
         tree,
     ) -> dict[AbstractDeme, DemeCandidates]:
         assert all(
-            [cand.features.NBC_mean_distance is not None for cand in candidates.values()]
-        ), "NBC_FarEnough filter requires NBC_mean_distance feature in candidates added throuhg NBC_Generator"
-
-        def nbc_dist(ind, centroid, mean_dist):
-            return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance_factor * mean_dist
-
+            [cand.features.nbc_mean_distance is not None for cand in candidates.values()]
+        ), "NBC_FarEnough filter requires nbc_mean_distance feature in candidates added through NBC_Generator"
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
             child_seeds = candidates[deme].individuals
@@ -74,7 +74,7 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
                 child_seeds = [
                     ind
                     for ind in child_seeds
-                    if nbc_dist(ind, sibling.centroid, candidates[deme].features.NBC_mean_distance)
+                    if self._is_nbc_far_enough(ind, sibling.centroid, candidates[deme].features.nbc_mean_distance)
                 ]
             candidates[deme].individuals = child_seeds
         return candidates

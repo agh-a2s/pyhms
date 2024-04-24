@@ -41,7 +41,7 @@ class NBC_Generator(SproutCandidatesGenerator):
                     deme_candidate_inds = nbc.cluster()
                     candidates[deme] = DemeCandidates(
                         individuals=deme_candidate_inds,
-                        features=DemeFeatures(NBC_mean_distance=np.mean(nbc.distances)),
+                        features=DemeFeatures(nbc_mean_distance=np.mean(nbc.distances)),
                     )
         return candidates  # type: ignore[return-value]
 
@@ -65,7 +65,7 @@ class NBCGeneratorWithLocalMethod(SproutCandidatesGenerator):
                     deme_candidate_inds = nbc.cluster()
                     candidates[deme] = DemeCandidates(
                         individuals=deme_candidate_inds,
-                        features=DemeFeatures(NBC_mean_distance=np.mean(nbc.distances)),
+                        features=DemeFeatures(nbc_mean_distance=np.mean(nbc.distances)),
                     )
         for deme in tree.levels[-2]:
             if not deme.is_active and deme.started_at + len(deme.history) == tree.metaepoch_count:
