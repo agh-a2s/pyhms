@@ -1,7 +1,7 @@
 import random
 import time
 from abc import ABC, abstractmethod
-from math import isclose, isnan
+from math import isnan
 from typing import Callable
 
 import numpy as np
@@ -28,10 +28,7 @@ class Problem(ABC):
         raise NotImplementedError
 
     def equivalent(self, first_fitness: float, second_fitness: float) -> bool:
-        if type(first_fitness) == float and type(second_fitness) == float:
-            return isclose(first_fitness, second_fitness)
-        else:
-            return first_fitness == second_fitness
+        return first_fitness == second_fitness
 
 
 class FunctionProblem(Problem):
