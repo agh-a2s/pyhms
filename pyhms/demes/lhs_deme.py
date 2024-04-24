@@ -20,10 +20,15 @@ class LHSDeme(AbstractDeme):
         super().__init__(id, level, config, logger, started_at, sprout_seed)
         self._pop_size = config.pop_size
         self.sampler = LatinHypercube(d=len(config.bounds), seed=random_seed)
+        self.lower_bounds = config.bounds[:, 0]
+        self.upper_bounds = config.bounds[:, 1]
         self.run()
 
     def run(self) -> None:
-        population = [Individual(genome, problem=self._problem) for genome in self.sampler.random(self._pop_size)]
+        sample = self.sampler.random(self._pop_size)
+        # LHS samples need to be scaled to the bounds
+        genomes = self.lower_bounds + sample * (self.upper_bounds - self.lower_bounds)
+        population = [Individual(genome, problem=self._problem) for genome in genomes]
         Individual.evaluate_population(population)
         self._history.append([population])
 
