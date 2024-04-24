@@ -85,7 +85,7 @@ class DemeTree:
 
     @property
     def best_individual(self) -> Individual:
-        return max(deme.best_individual for level in self._levels for deme in level)
+        return max(deme.best_individual for level in self._levels for deme in level if deme.best_individual)
 
     def run(self) -> None:
         self._logger.debug(
