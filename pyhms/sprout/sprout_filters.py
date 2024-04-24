@@ -37,15 +37,15 @@ class FarEnough(DemeLevelCandidatesFilter):
         candidates: dict[AbstractDeme, DemeCandidates],
         tree,
     ) -> dict[AbstractDeme, DemeCandidates]:
+        def simple_dist(ind, centroid):
+            return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance
+
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
+            child_seeds = candidates[deme].individuals
             for sibling in child_siblings:
-                candidates[deme].individuals = list(
-                    filter(
-                        lambda ind: nla.norm(ind.genome - sibling.centroid, ord=self.norm_ord) > self.min_distance,
-                        candidates[deme].individuals,
-                    )
-                )
+                child_seeds = [ind for ind in child_seeds if simple_dist(ind, sibling.centroid)]
+            candidates[deme].individuals = child_seeds
         return candidates
 
 
@@ -60,20 +60,23 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         candidates: dict[AbstractDeme, DemeCandidates],
         tree,
     ) -> dict[AbstractDeme, DemeCandidates]:
-        assert (
-            "NBC_mean_distance" in next(iter(candidates.values())).features
+        assert all(
+            [cand.features.NBC_mean_distance is not None for cand in candidates.values()]
         ), "NBC_FarEnough filter requires NBC_mean_distance feature in candidates added throuhg NBC_Generator"
+
+        def nbc_dist(ind, centroid, mean_dist):
+            return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance_factor * mean_dist
 
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
+            child_seeds = candidates[deme].individuals
             for sibling in child_siblings:
-                candidates[deme].individuals = list(
-                    filter(
-                        lambda ind: nla.norm(ind.genome - sibling.centroid, ord=self.norm_ord)
-                        > self.min_distance_factor * candidates[deme].features["NBC_mean_distance"],
-                        candidates[deme].individuals,
-                    )
-                )
+                child_seeds = [
+                    ind
+                    for ind in child_seeds
+                    if nbc_dist(ind, sibling.centroid, candidates[deme].features.NBC_mean_distance)
+                ]
+            candidates[deme].individuals = child_seeds
         return candidates
 
 
@@ -89,8 +92,9 @@ class DemeLimit(DemeLevelCandidatesFilter):
     ) -> dict[AbstractDeme, DemeCandidates]:
         for deme in candidates.keys():
             if len(candidates[deme].individuals) > self.limit:
-                candidates[deme].individuals.sort(key=lambda ind: ind.fitness)
-                candidates[deme].individuals = candidates[deme].individuals[: self.limit]
+                candidates[deme].individuals = sorted(candidates[deme].individuals, key=lambda ind: ind.fitness)[
+                    : self.limit
+                ]
         return candidates
 
 
@@ -113,9 +117,9 @@ class LevelLimit(TreeLevelCandidatesFilter):
                 cutoff = self.limit - currently_active_level_below
                 fitness_cutoff = level_candidates[cutoff].fitness
                 for deme in level_demes:
-                    candidates[deme].individuals = list(
-                        filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme].individuals)  # type: ignore
-                    )
+                    candidates[deme].individuals = [
+                        ind for ind in candidates[deme].individuals if ind.fitness < fitness_cutoff  # type: ignore
+                    ]
         return candidates
 
 
