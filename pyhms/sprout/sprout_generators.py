@@ -1,26 +1,24 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple
 
 import numpy as np
+from pyhms.sprout.sprout_candidates import DemeCandidates
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.utils.clusterization import NearestBetterClustering
-
-from ..core.individual import Individual
-
-# Would be nice to have a type alias for this. Although it requires python 3.12
-# type SproutCandidates = Dict[AbstractDeme: (Dict[str: float], List[Individual])]
 
 
 class SproutCandidatesGenerator(ABC):
     @abstractmethod
-    def __call__(self, tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    def __call__(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         raise NotImplementedError()
 
 
 class BestPerDeme(SproutCandidatesGenerator):
-    def __call__(self, tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    def __call__(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         return {
-            deme: ({}, [deme.best_current_individual]) for level in tree.levels[:-1] for deme in level if deme.is_active
+            deme: DemeCandidates(individuals=[deme.best_current_individual], features={})
+            for level in tree.levels[:-1]
+            for deme in level
+            if deme.is_active
         }
 
 
@@ -30,7 +28,7 @@ class NBC_Generator(SproutCandidatesGenerator):
         self.truncation_factor = truncation_factor
         super().__init__()
 
-    def __call__(self, tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    def __call__(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         candidates = {}
         for level in tree.levels[:-1]:
             for deme in level:
@@ -40,10 +38,10 @@ class NBC_Generator(SproutCandidatesGenerator):
                         self.distance_factor,
                         self.truncation_factor,
                     )
-                    deme_candidates = nbc.cluster()
+                    deme_candidate_inds = nbc.cluster()
                     candidates[deme] = (
-                        {"NBC_mean_distance": np.mean(nbc.distances)},
-                        deme_candidates,
+                        DemeCandidates(individuals=deme_candidate_inds, 
+                                       features={"NBC_mean_distance": np.mean(nbc.distances)})
                     )
         return candidates  # type: ignore[return-value]
 
@@ -54,7 +52,7 @@ class NBCGeneratorWithLocalMethod(SproutCandidatesGenerator):
         self.truncation_factor = truncation_factor
         super().__init__()
 
-    def __call__(self, tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    def __call__(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         candidates = {}
         for level in tree.levels[:-2]:
             for deme in level:
@@ -64,12 +62,12 @@ class NBCGeneratorWithLocalMethod(SproutCandidatesGenerator):
                         self.distance_factor,
                         self.truncation_factor,
                     )
-                    deme_candidates = nbc.cluster()
+                    deme_candidate_inds = nbc.cluster()
                     candidates[deme] = (
-                        {"NBC_mean_distance": np.mean(nbc.distances)},
-                        deme_candidates,
+                        DemeCandidates(individuals=deme_candidate_inds, 
+                                       features={"NBC_mean_distance": np.mean(nbc.distances)})
                     )
         for deme in tree.levels[-2]:
             if not deme.is_active and deme.started_at + len(deme.history) == tree.metaepoch_count:
-                candidates[deme] = ({}, [deme.best_individual])
+                candidates[deme] = DemeCandidates(individuals=[deme.best_individual], features={})
         return candidates  # type: ignore[return-value]

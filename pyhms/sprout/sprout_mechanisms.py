@@ -1,6 +1,5 @@
-from typing import Dict, List, Tuple
-
 from pyhms.demes.abstract_deme import AbstractDeme
+from pyhms.sprout.sprout_candidates import DemeCandidates
 from pyhms.sprout.sprout_filters import (
     DemeLevelCandidatesFilter,
     DemeLimit,
@@ -11,41 +10,41 @@ from pyhms.sprout.sprout_filters import (
 )
 from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator, SproutCandidatesGenerator
 
-from ..core.individual import Individual
+
 
 
 class SproutMechanism:
     def __init__(
         self,
         candidates_generator: SproutCandidatesGenerator,
-        deme_filter_chain: List[DemeLevelCandidatesFilter],
-        tree_filter_chain: List[TreeLevelCandidatesFilter],
+        deme_filter_chain: list[DemeLevelCandidatesFilter],
+        tree_filter_chain: list[TreeLevelCandidatesFilter],
     ) -> None:
         super().__init__()
         self.candidates_generator = candidates_generator
         self.deme_filter_chain = deme_filter_chain
         self.tree_filter_chain = tree_filter_chain
 
-    def get_seeds(self, tree) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    def get_seeds(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         candidates = self.candidates_generator(tree)
         candidates = self.apply_deme_filters(candidates, tree)
         candidates = self.apply_tree_filters(candidates, tree)
-        return {k: v for k, v in candidates.items() if len(candidates[k][1]) > 0}
+        return {k: v for k, v in candidates.items() if len(candidates[k].individuals) > 0}
 
     def apply_deme_filters(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         for filter in self.deme_filter_chain:
             candidates = filter(candidates, tree)
         return candidates
 
     def apply_tree_filters(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         for filter in self.tree_filter_chain:
             candidates = filter(candidates, tree)
         return candidates

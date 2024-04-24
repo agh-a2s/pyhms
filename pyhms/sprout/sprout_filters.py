@@ -1,20 +1,18 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple
 
 import numpy as np
 import numpy.linalg as nla
+from pyhms.sprout.sprout_candidates import DemeCandidates
 from pyhms.demes.abstract_deme import AbstractDeme
-
-from ..core.individual import Individual
 
 
 class DemeLevelCandidatesFilter(ABC):
     @abstractmethod
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         raise NotImplementedError()
 
 
@@ -22,9 +20,9 @@ class TreeLevelCandidatesFilter(ABC):
     @abstractmethod
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         raise NotImplementedError()
 
 
@@ -36,17 +34,16 @@ class FarEnough(DemeLevelCandidatesFilter):
 
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
-            child_seeds = candidates[deme][1]
             for sibling in child_siblings:
-                child_seeds = list(
+                candidates[deme].individuals = list(
                     filter(
                         lambda ind: nla.norm(ind.genome - sibling.centroid, ord=self.norm_ord) > self.min_distance,
-                        child_seeds,
+                        candidates[deme].individuals,
                     )
                 )
         return candidates
@@ -60,25 +57,23 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
 
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         assert (
-            "NBC_mean_distance" in next(iter(candidates.values()))[0]
+            "NBC_mean_distance" in next(iter(candidates.values())).features
         ), "NBC_FarEnough filter requires NBC_mean_distance feature in candidates added throuhg NBC_Generator"
 
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
-            child_seeds = candidates[deme][1]
             for sibling in child_siblings:
-                child_seeds = list(
+                candidates[deme].individuals = list(
                     filter(
                         lambda ind: nla.norm(ind.genome - sibling.centroid, ord=self.norm_ord)
-                        > self.min_distance_factor * candidates[deme][0]["NBC_mean_distance"],
-                        child_seeds,
+                        > self.min_distance_factor * candidates[deme].features["NBC_mean_distance"],
+                        candidates[deme].individuals,
                     )
                 )
-                candidates[deme] = (candidates[deme][0], child_seeds)
         return candidates
 
 
@@ -89,16 +84,13 @@ class DemeLimit(DemeLevelCandidatesFilter):
 
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         _,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         for deme in candidates.keys():
-            candidates[deme][1].sort(key=lambda ind: ind.fitness)
-            if len(candidates[deme][1]) > self.limit:
-                candidates[deme] = (
-                    candidates[deme][0],
-                    candidates[deme][1][: self.limit],
-                )
+            if len(candidates[deme].individuals) > self.limit:
+                candidates[deme].individuals.sort(key=lambda ind: ind.fitness)
+                candidates[deme].individuals = candidates[deme].individuals[: self.limit]
         return candidates
 
 
@@ -109,22 +101,19 @@ class LevelLimit(TreeLevelCandidatesFilter):
 
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         for level in range(len(tree.levels[:-1])):
             level_demes = [deme for deme in candidates.keys() if deme.level == level]
-            level_candidates = [candidate for deme in level_demes for candidate in candidates[deme][1]]
+            level_candidates = [candidate for deme in level_demes for candidate in candidates[deme].individuals]
             level_candidates.sort(key=lambda ind: ind.fitness)
             currently_active_level_below = len([deme for deme in tree.levels[level + 1] if deme.is_active])
             if currently_active_level_below + len(level_candidates) > self.limit:
                 cutoff = self.limit - currently_active_level_below
                 fitness_cutoff = level_candidates[cutoff].fitness
                 for deme in level_demes:
-                    candidates[deme] = (
-                        candidates[deme][0],
-                        list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme][1])),  # type: ignore
-                    )
+                    candidates[deme].individuals = list(filter(lambda ind: ind.fitness < fitness_cutoff, candidates[deme].individuals))  # type: ignore
         return candidates
 
 
@@ -134,9 +123,9 @@ class SkipSameSprout(TreeLevelCandidatesFilter):
 
     def __call__(
         self,
-        candidates: Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]],
+        candidates: dict[AbstractDeme, DemeCandidates],
         tree,
-    ) -> Dict[AbstractDeme, Tuple[Dict[str, float], List[Individual]]]:
+    ) -> dict[AbstractDeme, DemeCandidates]:
         for deme in candidates.keys():
             if not deme.children:
                 continue
@@ -145,8 +134,8 @@ class SkipSameSprout(TreeLevelCandidatesFilter):
             )
             not_equal_candidate_sprouts = [
                 ind
-                for ind in candidates[deme][1]
+                for ind in candidates[deme].individuals
                 if not np.any(np.all(np.isclose(children_sprout_genomes, ind.genome), axis=1))
             ]
-            candidates[deme] = (candidates[deme][0], not_equal_candidate_sprouts)
+            candidates[deme].individuals = not_equal_candidate_sprouts
         return candidates
