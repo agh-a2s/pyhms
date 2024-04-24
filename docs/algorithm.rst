@@ -11,7 +11,8 @@ HMS can utilize various optimization algorithms as deme engines. Currently we su
 * Differential Evolution (DE),
 * Covariance Matrix Adaptation Evolution Strategy (CMA-ES),
 * Simple Evolutionary Algorithm (SEA),
-* Local Optimization Method (e.g. L-BFGS-B).
+* Local Optimization Method (e.g. L-BFGS-B),
+* Latin Hypercube Sampling (LHS).
 
 The strategy is designed to be flexible and easy to extend. It is possible to add new deme engines or modify the existing ones.
 HMS is designed to perform chaotic search on high levels (e.g. at the root level) to look for promising regions and high-precision search on the lower levels.
