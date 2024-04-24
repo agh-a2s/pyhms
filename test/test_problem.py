@@ -17,9 +17,9 @@ class TestProblemDecorator(unittest.TestCase):
             genome=np.array([1.0, 1.0]),
             problem=eval_counting_problem,
         )
-        self.assertIsNone(
-            individual.fitness,
-            "Fitness should be None before evaluation",
+        self.assertTrue(
+            np.isnan(individual.fitness),
+            "Fitness should be NaN before evaluation",
         )
         self.assertEqual(
             eval_counting_problem.n_evaluations,

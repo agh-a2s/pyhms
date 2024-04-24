@@ -4,7 +4,6 @@ structlog>=24.1.0
 # Algorithmic core
 cma>=3.2.2
 numpy>=1.22.2
-leap-ec>=0.8.1
 scipy>=1.8.0
 toolz>=0.11.2
 treelib>=1.7.0

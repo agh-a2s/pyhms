@@ -10,9 +10,9 @@ from .problem import Problem
 
 @total_ordering
 class Individual:
-    def __init__(self, genome: np.ndarray, problem: Problem):
+    def __init__(self, genome: np.ndarray, problem: Problem, fitness: float = np.nan):
         self.genome = genome
-        self.fitness = None
+        self.fitness = fitness
         self.problem = problem
         self.uuid = uuid.uuid4()
         self.parents: set[uuid.UUID] = set()

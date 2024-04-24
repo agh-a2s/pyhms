@@ -1,117 +1,128 @@
-from abc import ABC, abstractmethod
-from typing import Any
+from typing import Protocol
 
-import leap_ec.ops as lops
-from leap_ec.real_rep.ops import mutate_gaussian
-from leap_ec.representation import Representation
-from pyhms.initializers import sample_uniform
+import numpy as np
 
 from ...core.individual import Individual
-from ...core.problem import Problem
+from ...core.population import Population
 
-DEFAULT_K_ELITES = 1
-DEFAULT_GENERATIONS = 1
+DEFAULT_P_MUTATION = 1.0
 DEFAULT_MUTATION_STD = 1.0
+DEFAULT_K_ELITES = 1
 
 
-def pipe(data, *funcs):
-    for func in funcs:
-        data = func(data)
-    return data
+class VariationalOperator(Protocol):
+    def __call__(self, population: Population) -> Population:
+        pass
 
 
-class AbstractEA(ABC):
-    def __init__(
-        self,
-        problem: Problem,
-        pop_size: int,
-    ) -> None:
-        super().__init__()
-        self.problem = problem
-        self.bounds = problem.bounds
-        self.pop_size = pop_size
+class GaussianMutation(VariationalOperator):
+    def __init__(self, std: float, bounds: np.ndarray, probability: float) -> None:
+        self.stds = np.full(len(bounds), std)
+        self.lower_bounds = bounds[:, 0]
+        self.upper_bounds = bounds[:, 1]
+        self.probability = probability
 
-    @abstractmethod
-    def run(self, parents: list[Individual] | None = None):
-        raise NotImplementedError()
+    def __call__(self, population: Population) -> Population:
+        new_population = population.copy()
+        noise = np.random.normal(0, self.stds, size=new_population.genomes.shape)
+        binary_mask = np.random.rand(*new_population.genomes.shape) < self.probability
+        new_genomes = new_population.genomes + binary_mask * noise
+        # By default we use toroidal method, because it works the best for BBOB.
+        new_genomes = self.apply_bounds(new_genomes, method="toroidal")
+        new_population.update_genome(new_genomes)
+        new_population.evaluate()
+        return new_population
 
-    @classmethod
-    def create(cls, problem: Problem, pop_size: int, **kwargs):
-        return cls(problem=problem, pop_size=pop_size, **kwargs)
-
-
-class SimpleEA(AbstractEA):
-    """
-    A simple single population EA (SEA skeleton).
-    """
-
-    def __init__(
-        self,
-        problem: Problem,
-        pop_size: int,
-        pipeline: list[Any],
-        generations: int | None = DEFAULT_GENERATIONS,
-        k_elites: int | None = DEFAULT_K_ELITES,
-        representation: Representation | None = None,
-    ) -> None:
-        super().__init__(problem, pop_size)
-        self.generations = generations
-        self.pipeline = pipeline
-        self.k_elites = k_elites
-        if representation is not None:
-            self.representation = representation
+    def apply_bounds(self, genomes: np.ndarray, method: str = "clip"):
+        if method == "clip":
+            return np.clip(genomes, self.lower_bounds, self.upper_bounds)
+        elif method == "reflect":
+            broadcasted_lower_bounds = self.lower_bounds + np.zeros_like(genomes)
+            broadcasted_upper_bounds = self.upper_bounds + np.zeros_like(genomes)
+            over_upper = genomes > self.upper_bounds
+            genomes[over_upper] = 2 * broadcasted_upper_bounds[over_upper] - genomes[over_upper]
+            under_lower = genomes < self.lower_bounds
+            genomes[under_lower] = 2 * broadcasted_lower_bounds[under_lower] - genomes[under_lower]
+            return genomes
+        elif method == "toroidal":
+            range_size = self.upper_bounds - self.lower_bounds
+            return self.lower_bounds + (genomes - self.lower_bounds) % range_size
         else:
-            self.representation = Representation(initialize=sample_uniform(bounds=problem.bounds))
-
-    def run(self, parents: list[Individual] | None = None) -> list[Individual]:
-        if parents is None:
-            parents = self.representation.create_population(pop_size=self.pop_size, problem=self.problem)
-            parents = Individual.evaluate_population(parents)
-        else:
-            assert self.pop_size == len(parents)
-
-        return pipe(parents, *self.pipeline, lops.elitist_survival(parents=parents, k=self.k_elites))
+            raise ValueError(f"Unknown method: {method}")
 
 
-class SEA(SimpleEA):
-    """
-    An implementation of SEA using LEAP.
-    """
+class UniformMutation(VariationalOperator):
+    def __init__(self, bounds: np.ndarray, probability: float) -> None:
+        self.lower_bounds = bounds[:, 0]
+        self.upper_bounds = bounds[:, 1]
+        self.probability = probability
 
-    def __init__(
-        self,
-        problem: Problem,
-        pop_size: int,
-        generations: int | None = DEFAULT_GENERATIONS,
-        k_elites: int | None = DEFAULT_K_ELITES,
-        representation: Representation | None = None,
-        mutation_std: float | None = DEFAULT_MUTATION_STD,
-    ) -> None:
-        super().__init__(
-            problem,
-            pop_size,
-            pipeline=[
-                lops.tournament_selection,
-                lops.clone,
-                mutate_gaussian(
-                    std=mutation_std,
-                    bounds=problem.bounds,
-                    expected_num_mutations="isotropic",
-                ),
-                lops.evaluate,
-                lops.pool(size=pop_size),
-            ],
-            generations=generations,
-            k_elites=k_elites,
-            representation=representation,
+    def __call__(self, population: Population) -> Population:
+        population_copy = population.copy()
+        new_genomes = np.random.uniform(
+            self.lower_bounds,
+            self.upper_bounds,
+            size=(population.size, len(self.lower_bounds)),
         )
+        new_genomes = np.where(
+            np.random.rand(*new_genomes.shape) < self.probability,
+            new_genomes,
+            population_copy.genomes,
+        )
+        population_copy.update_genome(new_genomes)
+        population_copy.evaluate()
+        return population_copy
+
+
+class TournamentSelection(VariationalOperator):
+    def __init__(self, tournament_size: int = 2) -> None:
+        self.tournament_size = tournament_size
+
+    def __call__(self, population: Population) -> Population:
+        population_copy = population.copy()
+        num_individuals = len(population_copy.fitnesses)
+        tournament_indices = np.random.randint(0, num_individuals, (num_individuals, self.tournament_size))
+        tournament_fitnesses = population_copy.fitnesses[tournament_indices]
+        selected_indices = (
+            np.argmax(tournament_fitnesses, axis=1)
+            if population_copy.problem.maximize
+            else np.argmin(tournament_fitnesses, axis=1)
+        )
+        winners = tournament_indices[np.arange(num_individuals), selected_indices]
+        new_genomes = population_copy.genomes[winners]
+        return Population(new_genomes, population_copy.fitnesses[winners], population_copy.problem)
+
+
+class SEA:
+    def __init__(
+        self,
+        variational_operators_pipeline: list[VariationalOperator],
+        k_elites: int,
+    ) -> None:
+        self.variational_operators_pipeline = variational_operators_pipeline
+        self.k_elites = k_elites
+
+    def run(self, parents: list[Individual]) -> list[Individual]:
+        parent_population = Population.from_individuals(parents)
+        offspring_population = parent_population.copy()
+        for variational_operator in self.variational_operators_pipeline:
+            offspring_population = variational_operator(offspring_population)
+        return self.select_new_population(parent_population, offspring_population).to_individuals()
+
+    def select_new_population(self, parent_population: Population, offspring_population: Population) -> Population:
+        top_k_parent_population = parent_population.topk(self.k_elites)
+        return offspring_population.merge(top_k_parent_population).topk(parent_population.size)
 
     @classmethod
-    def create(cls, problem: Problem, pop_size: int, **kwargs):
-        return cls(
-            problem=problem,
-            pop_size=pop_size,
-            generations=kwargs.get("generations", DEFAULT_GENERATIONS),
-            k_elites=kwargs.get("k_elites", DEFAULT_K_ELITES),
-            mutation_std=kwargs.get("mutation_std", DEFAULT_MUTATION_STD),
+    def create(self, **kwargs) -> "SEA":
+        problem = kwargs.get("problem")
+        mutation_std = kwargs.get("mutation_std", DEFAULT_MUTATION_STD)
+        p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
+        k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
+        return SEA(
+            variational_operators_pipeline=[
+                TournamentSelection(),
+                GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
+            ],
+            k_elites=k_elites,
         )
