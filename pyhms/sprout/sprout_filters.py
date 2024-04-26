@@ -92,9 +92,7 @@ class DemeLimit(DemeLevelCandidatesFilter):
     ) -> dict[AbstractDeme, DemeCandidates]:
         for deme in candidates.keys():
             if len(candidates[deme].individuals) > self.limit:
-                candidates[deme].individuals = sorted(candidates[deme].individuals, key=lambda ind: ind.fitness)[
-                    : self.limit
-                ]
+                candidates[deme].individuals = sorted(candidates[deme].individuals)[: self.limit]
         return candidates
 
 
