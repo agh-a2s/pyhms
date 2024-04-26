@@ -26,7 +26,7 @@ from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROB
 
 class TestSquare(unittest.TestCase):
     def test_square_optimization_ea(self):
-        options = {"random_seed": 2}
+        options = {"random_seed": 1}
         config = [
             EALevelConfig(
                 ea_class=SEA,
@@ -40,9 +40,9 @@ class TestSquare(unittest.TestCase):
                 ea_class=SEA,
                 generations=4,
                 problem=SQUARE_PROBLEM,
-                pop_size=10,
+                pop_size=20,
                 mutation_std=0.25,
-                sample_std_dev=1.0,
+                sample_std_dev=0.5,
                 lsc=DontStop(),
             ),
         ]

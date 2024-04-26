@@ -10,6 +10,7 @@ from .core.problem import StatsGatheringProblem
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
+from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
@@ -132,11 +133,11 @@ class DemeTree:
                         self._logger.debug("Deme started hibernating", deme=deme.id)
                     deme._hibernating = True
 
-    def _do_sprout(self, deme_seeds: dict[AbstractDeme, tuple[dict[str, float], list[Individual]]]) -> None:
-        for deme, info in deme_seeds.items():
+    def _do_sprout(self, deme_seeds: dict[AbstractDeme, DemeCandidates]) -> None:
+        for deme, deme_candidates in deme_seeds.items():
             target_level = deme.level + 1
 
-            for ind in info[1]:
+            for ind in deme_candidates.individuals:
                 new_id = self._next_child_id(deme)
                 config = self.config.levels[target_level]
 
