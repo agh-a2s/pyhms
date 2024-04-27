@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.random as nrand
+from scipy.stats import norm
 
 
 def sample_uniform(bounds: np.ndarray):
@@ -69,3 +70,30 @@ def sample_normal(
         return x
 
     return create
+
+
+def sample_trunc_normal(center: np.ndarray, std_dev: float, bounds: np.ndarray):
+    """
+    Sample points from a truncated multivariate normal distribution.
+
+    :param np.array center: The mean of the distribution.
+    :param float std_dev: The standard deviation for each dimension of the distribution.
+        The covariance matrix is assumed to be diagonal, with each diagonal
+        element being `std_dev**2`, indicating identical variance for each dimension
+        and no covariance between dimensions.
+    :param bounds: Min and max bounds for each dimension. It can be a numpy array, or None.
+    :type bounds: np.array or None
+    :return: A function that creates a sample from the distribution.
+    :rtype: function
+    """
+    lower = bounds[:, 0]
+    upper = bounds[:, 1]
+    lower_cdf = norm.cdf((lower - center) / std_dev)
+    upper_cdf = norm.cdf((upper - center) / std_dev)
+
+    def sample():
+        uniform_samples = np.random.uniform(low=lower_cdf, high=upper_cdf, size=len(lower))
+        normal_samples = norm.ppf(uniform_samples, loc=center, scale=std_dev)
+        return normal_samples[0]
+
+    return sample
