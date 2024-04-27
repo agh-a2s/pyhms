@@ -278,8 +278,11 @@ class DemeTree:
         """
         pd.concat(
             [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
-        ).T.plot()
+        ).T.plot(marker="o", linestyle="-")
         plt.title("Best fitness by metaepoch")
+        plt.xlabel("Metaepoch")
+        plt.ylabel("Best Fitness")
+        plt.grid(True)
         if filepath:
             plt.savefig(filepath)
         plt.show()
