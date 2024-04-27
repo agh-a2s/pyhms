@@ -21,6 +21,8 @@ def tree_animation(
     ax.autoscale(enable=False, tight=True)
     ax.scatter([], [])
 
+    dimensionality_reducer.fit(np.array([ind.genome for ind in tree.all_individuals]))
+
     def animate(frame):
         ax.clear()
         ax.autoscale(enable=False, tight=True)
@@ -39,7 +41,7 @@ def tree_animation(
             if deme_marker is not None:
                 deme_pop = deme.history[deme_epoch]
                 X = np.array([ind.genome for ind in deme_pop])
-                X_reduced = dimensionality_reducer.fit_transform(X)
+                X_reduced = dimensionality_reducer.transform(X)
                 ax.scatter(
                     X_reduced[:, 0],
                     X_reduced[:, 1],

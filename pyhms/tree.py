@@ -88,6 +88,13 @@ class DemeTree:
     def best_individual(self) -> Individual:
         return max(deme.best_individual for level in self._levels for deme in level if deme.best_individual)
 
+    @property
+    def all_individuals(self) -> list[Individual]:
+        individuals_from_all_demes = []
+        for _, deme in self.all_demes:
+            individuals_from_all_demes.extend(deme.all_individuals)
+        return individuals_from_all_demes
+
     def run(self) -> None:
         self._logger.debug(
             "Starting HMS",
