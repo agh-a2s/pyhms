@@ -1,10 +1,11 @@
 import unittest
 
 import numpy as np
-from pyhms.core.population import Population
 from pyhms.core.individual import Individual
-from .config import SQUARE_PROBLEM
+from pyhms.core.population import Population
 from pyhms.core.problem import EvalCountingProblem
+
+from .config import SQUARE_PROBLEM
 
 
 class TestPopulation(unittest.TestCase):
@@ -40,10 +41,6 @@ class TestPopulation(unittest.TestCase):
         population.update_genome(new_genomes)
         self.assertFalse(np.array_equal(population.genomes, population_copy.genomes))
         self.assertTrue(np.array_equal(population.genomes, new_genomes))
-        self.assertTrue(
-            np.array_equal(
-                population.fitnesses, np.array([np.nan, 2.0]), equal_nan=True
-            )
-        )
+        self.assertTrue(np.array_equal(population.fitnesses, np.array([np.nan, 2.0]), equal_nan=True))
         population.evaluate()
         self.assertEqual(problem.n_evaluations, len(genomes) + 1)
