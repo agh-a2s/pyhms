@@ -6,6 +6,7 @@ from ...core.individual import Individual
 from ...core.population import Population
 
 DEFAULT_P_MUTATION = 1.0
+DEFAULT_P_CROSSOVER = 0.7
 DEFAULT_MUTATION_STD = 1.0
 DEFAULT_K_ELITES = 1
 
@@ -74,6 +75,34 @@ class UniformMutation(VariationalOperator):
         return population_copy
 
 
+class ArithmeticCrossover(VariationalOperator):
+    def __init__(self, probability: float, evaluate_fitness: bool) -> None:
+        self.evaluate_fitness = evaluate_fitness
+        self.probability = probability
+
+    def __call__(self, population: Population) -> Population:
+        population_copy = population.copy()
+        num_individuals = len(population_copy.fitnesses)
+        genomes = population_copy.genomes
+        new_genomes = np.zeros_like(genomes)
+        for i in range(0, num_individuals, 2):
+            # If the number of individuals is odd, we just copy the last individual.
+            if i == num_individuals - 1:
+                new_genomes[i] = genomes[i]
+                break
+            if np.random.rand() < self.probability:
+                alpha = np.random.rand()
+                new_genomes[i] = alpha * genomes[i] + (1 - alpha) * genomes[i + 1]
+                new_genomes[i + 1] = (1 - alpha) * genomes[i] + alpha * genomes[i + 1]
+            else:
+                new_genomes[i] = genomes[i]
+                new_genomes[i + 1] = genomes[i + 1]
+        population_copy.update_genome(new_genomes)
+        if self.evaluate_fitness:
+            population_copy.evaluate()
+        return population_copy
+
+
 class TournamentSelection(VariationalOperator):
     def __init__(self, tournament_size: int = 2) -> None:
         self.tournament_size = tournament_size
@@ -93,7 +122,7 @@ class TournamentSelection(VariationalOperator):
         return Population(new_genomes, population_copy.fitnesses[winners], population_copy.problem)
 
 
-class SEA:
+class BaseSEA:
     def __init__(
         self,
         variational_operators_pipeline: list[VariationalOperator],
@@ -113,6 +142,8 @@ class SEA:
         top_k_parent_population = parent_population.topk(self.k_elites)
         return offspring_population.merge(top_k_parent_population).topk(parent_population.size)
 
+
+class SEA(BaseSEA):
     @classmethod
     def create(self, **kwargs) -> "SEA":
         problem = kwargs.get("problem")
@@ -123,6 +154,41 @@ class SEA:
             variational_operators_pipeline=[
                 TournamentSelection(),
                 GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
+            ],
+            k_elites=k_elites,
+        )
+
+
+class SEAWithCrossover(BaseSEA):
+    @classmethod
+    def create(self, **kwargs) -> "SEAWithCrossover":
+        problem = kwargs.get("problem")
+        mutation_std = kwargs.get("mutation_std", DEFAULT_MUTATION_STD)
+        p_crossover = kwargs.get("p_crossover", DEFAULT_P_CROSSOVER)
+        p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
+        k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
+        return SEAWithCrossover(
+            variational_operators_pipeline=[
+                TournamentSelection(),
+                ArithmeticCrossover(probability=p_crossover, evaluate_fitness=False),
+                GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
+            ],
+            k_elites=k_elites,
+        )
+
+
+class GAStyleSEA(BaseSEA):
+    @classmethod
+    def create(self, **kwargs) -> "GAStyleSEA":
+        problem = kwargs.get("problem")
+        p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
+        p_crossover = kwargs.get("p_crossover", DEFAULT_P_CROSSOVER)
+        k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
+        return GAStyleSEA(
+            variational_operators_pipeline=[
+                TournamentSelection(),
+                ArithmeticCrossover(probability=p_crossover, evaluate_fitness=False),
+                UniformMutation(bounds=problem.bounds, probability=p_mutation),
             ],
             k_elites=k_elites,
         )
