@@ -86,6 +86,10 @@ class ArithmeticCrossover(VariationalOperator):
         genomes = population_copy.genomes
         new_genomes = np.zeros_like(genomes)
         for i in range(0, num_individuals, 2):
+            # If the number of individuals is odd, we just copy the last individual.
+            if i == num_individuals - 1:
+                new_genomes[i] = genomes[i]
+                break
             if np.random.rand() < self.probability:
                 alpha = np.random.rand()
                 new_genomes[i] = alpha * genomes[i] + (1 - alpha) * genomes[i + 1]
