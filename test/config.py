@@ -7,16 +7,35 @@ from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions import DontStop, MetaepochLimit
 
+DEFAULT_CENTERS = np.array([[-5.0, -5.0], [5.0, 5.0], [-5.0, 5.0], [5.0, -5.0]])
+
 
 def square(x: np.ndarray) -> float:
     return sum(x**2)
 
 
+class FunnelProblem:
+    def __init__(self, centers: np.ndarray | None = DEFAULT_CENTERS):
+        self.centers = centers
+
+    def __call__(self, x: np.ndarray) -> float:
+        return np.min([np.sum((x - center) ** 2) for center in self.centers])
+
+
+four_funnels = FunnelProblem()
+
+
 SQUARE_BOUNDS = np.array([(-20, 20), (-20, 20)])
+FOUR_FUNNEL_BOUNDS = np.array([(-10.0, 10.0)] * 2)
+
 SQUARE_PROBLEM = FunctionProblem(square, maximize=False, bounds=SQUARE_BOUNDS)
+FOUR_FUNNELS_PROBLEM = FunctionProblem(four_funnels, maximize=False, bounds=FOUR_FUNNEL_BOUNDS)
 
 NEGATIVE_SQUARE_PROBLEM = FunctionProblem(
     fitness_function=lambda x: -1 * sum(x**2), maximize=True, bounds=SQUARE_BOUNDS
+)
+NEGATIVE_FOUR_FUNNELS_PROBLEM = FunctionProblem(
+    fitness_function=lambda x: -1 * four_funnels(x), maximize=True, bounds=FOUR_FUNNEL_BOUNDS
 )
 
 DEFAULT_GSC = MetaepochLimit(limit=10)
