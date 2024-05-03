@@ -36,10 +36,6 @@ class SobolDeme(AbstractDeme):
         self.run()
         if (gsc_value := tree._gsc(tree)) or self._lsc(self):
             self._active = False
-            message = (
-                "Sobol Deme finished due to GSC"
-                if gsc_value
-                else "Sobol Deme finished due to LSC"
-            )
+            message = "Sobol Deme finished due to GSC" if gsc_value else "Sobol Deme finished due to LSC"
             self.log(message)
             return
