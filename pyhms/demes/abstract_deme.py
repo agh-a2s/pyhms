@@ -72,7 +72,7 @@ class AbstractDeme(ABC):
         return [generation for metaepoch_generations in self._history for generation in metaepoch_generations]
 
     @property
-    def all_individuals(self) -> list:
+    def all_individuals(self) -> list[Individual]:
         return [ind for pop in self.history for ind in pop]
 
     @property
