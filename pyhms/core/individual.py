@@ -25,7 +25,8 @@ class Individual:
         return population
 
     def evaluate(self) -> "Individual":
-        self.fitness = self.problem.evaluate(self.genome)
+        if np.isnan(self.fitness):
+            self.fitness = self.problem.evaluate(self.genome)
         return self
 
     def __lt__(self, other) -> bool:
