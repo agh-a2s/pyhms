@@ -5,6 +5,7 @@ from pyhms.config import (
     EALevelConfig,
     LHSLevelConfig,
     LocalOptimizationConfig,
+    SobolLevelConfig,
 )
 from structlog.typing import FilteringBoundLogger
 
@@ -15,6 +16,7 @@ from .de_deme import DEDeme
 from .ea_deme import EADeme
 from .lhs_deme import LHSDeme
 from .local_deme import LocalDeme
+from .sobol_deme import SobolDeme
 
 
 def init_root(config: BaseLevelConfig, logger: FilteringBoundLogger) -> AbstractDeme:
@@ -55,4 +57,7 @@ def init_from_config(
     elif isinstance(config, LHSLevelConfig):
         args["random_seed"] = random_seed
         child = LHSDeme(**args)
+    elif isinstance(config, SobolLevelConfig):
+        args["random_seed"] = random_seed
+        child = SobolDeme(**args)
     return child

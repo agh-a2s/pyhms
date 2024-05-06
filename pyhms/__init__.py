@@ -5,6 +5,7 @@ from .config import (
     EALevelConfig,
     LHSLevelConfig,
     LocalOptimizationConfig,
+    SobolLevelConfig,
     TreeConfig,
 )
 from .core.individual import Individual
