@@ -1,9 +1,14 @@
 # pyhms
-![GitHub Test Badge][1] [![codecov][2]](https://codecov.io/gh/agh-a2s/pyhms) [![Documentation Status][3]](https://pyhms.readthedocs.io/en/latest/?badge=latest)
+![GitHub Test Badge][1] [![codecov][2]](https://codecov.io/gh/agh-a2s/pyhms) [![Documentation Status][3]](https://pyhms.readthedocs.io/en/latest/?badge=latest) [![pypi.org][4]][5] [![versions][6]][7] ![license][8]
 
 [1]: https://github.com/agh-a2s/pyhms/actions/workflows/pytest.yml/badge.svg "GitHub CI Badge"
 [2]: https://codecov.io/gh/agh-a2s/pyhms/graph/badge.svg?token=srsivvv2ff
 [3]: https://readthedocs.org/projects/pyhms/badge/?version=latest
+[4]: https://img.shields.io/pypi/v/pyhms.svg "Pypi Latest Version Badge"
+[5]: https://pypi.python.org/pypi/pyhms "Pypi site"
+[6]: https://img.shields.io/pypi/pyversions/pyhms.svg
+[7]: https://github.com/agh-a2s/pyhms
+[8]: https://img.shields.io/github/license/agh-a2s/pyhms 
 
 `pyhms` is a Python implementation of Hierarchic Memetic Strategy (HMS).
 
