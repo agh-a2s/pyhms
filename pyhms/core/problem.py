@@ -6,6 +6,8 @@ from typing import Callable
 
 import numpy as np
 
+from ..utils.cache import NumpyCache
+
 
 class Problem(ABC):
     def __init__(self):
@@ -32,13 +34,25 @@ class Problem(ABC):
 
 
 class FunctionProblem(Problem):
-    def __init__(self, fitness_function: Callable, bounds: np.ndarray, maximize: bool) -> None:
+    def __init__(
+        self,
+        fitness_function: Callable,
+        bounds: np.ndarray,
+        maximize: bool,
+        use_cache: bool = False,
+    ) -> None:
         self.fitness_function = fitness_function
         self._bounds = bounds
         self._maximize = maximize
+        self._cache = NumpyCache() if use_cache else None
 
-    def evaluate(self, genome: np.ndarray, *args, **kwargs) -> np.ndarray:
-        return self.fitness_function(genome, *args, **kwargs)
+    def evaluate(self, genome: np.ndarray, *args, **kwargs) -> float:
+        if self._cache and (cached_value := self._cache.get(genome)):
+            return cached_value
+        result = self.fitness_function(genome, *args, **kwargs)
+        if self._cache:
+            self._cache.set(genome, result)
+        return result
 
     def worse_than(self, first_fitness: float, second_fitness: float) -> bool:
         if isnan(first_fitness):
