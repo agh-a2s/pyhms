@@ -8,7 +8,7 @@
 [5]: https://pypi.python.org/pypi/pyhms "Pypi site"
 [6]: https://img.shields.io/pypi/pyversions/pyhms.svg
 [7]: https://github.com/agh-a2s/pyhms
-[8]: https://img.shields.io/github/license/agh-a2s/pyhms 
+[8]: https://img.shields.io/github/license/agh-a2s/pyhms
 
 `pyhms` is a Python implementation of Hierarchic Memetic Strategy (HMS).
 
