@@ -37,9 +37,8 @@ class BinaryMutationWithDither(VariationalOperator):
 
 
 class Crossover:
-    def __init__(self, probability: float, evaluate_fitness: bool) -> None:
+    def __init__(self, probability: float) -> None:
         self.probability = probability
-        self.evaluate_fitness = evaluate_fitness
 
     def __call__(self, population: Population, mutated_population: Population) -> Population:
         chosen = np.random.rand(*population.genomes.shape)
@@ -52,20 +51,19 @@ class Crossover:
             np.nan,
         )
         new_population = Population(new_genomes, new_fitness, population.problem)
-        if self.evaluate_fitness:
-            new_population.evaluate()
         return new_population
 
 
 class DE:
     def __init__(self, use_dither: bool, crossover_probability: float, f: float | None = None) -> None:
         self._mutation = BinaryMutationWithDither() if use_dither else BinaryMutation(f=f)
-        self._crossover = Crossover(crossover_probability, evaluate_fitness=True)
+        self._crossover = Crossover(crossover_probability)
 
     def run(self, parents: list[Individual]) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
         offspring_population = parent_population.copy()
         offspring_population = self._mutation(offspring_population)
         offspring_population = self._crossover(parent_population, offspring_population)
+        offspring_population.evaluate()
         total_population = parent_population.merge(offspring_population)
         return total_population.topk(parent_population.size).to_individuals()
