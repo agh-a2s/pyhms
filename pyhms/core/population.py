@@ -50,3 +50,6 @@ class Population:
         new_genomes = np.concatenate((self.genomes, other.genomes))
         new_fitnesses = np.concatenate((self.fitnesses, other.fitnesses))
         return Population(new_genomes, new_fitnesses, self.problem)
+
+    def __getitem__(self, index: np.ndarray) -> "Population":
+        return Population(self.genomes[index], self.fitnesses[index], self.problem)
