@@ -7,9 +7,7 @@ from .common import VariationalOperator, apply_bounds
 
 
 def get_randoms(population: Population) -> np.ndarray:
-    return population.genomes[
-        np.random.randint(0, population.size, size=(population.size, 2))
-    ]
+    return population.genomes[np.random.randint(0, population.size, size=(population.size, 2))]
 
 
 class BinaryMutation(VariationalOperator):
@@ -32,9 +30,7 @@ class BinaryMutationWithDither(VariationalOperator):
     def __call__(self, population: Population) -> Population:
         randoms = get_randoms(population)
         scaling = np.random.uniform(0.5, 1, size=population.size)
-        scaling = np.repeat(
-            scaling[:, np.newaxis], len(population.problem.bounds), axis=1
-        )
+        scaling = np.repeat(scaling[:, np.newaxis], len(population.problem.bounds), axis=1)
         donor = population.genomes + scaling * (randoms[:, 0] - randoms[:, 1])
         new_genomes = apply_bounds(donor, population.problem.bounds, "reflect")
         new_fitness = np.where(
@@ -61,9 +57,7 @@ class CurrentToPBestMutation(VariationalOperator):
         )
         p_best = []
         for p_i in self.p:
-            best_index = sorted_fitness_indexes[
-                : max(2, int(round(p_i * population.size)))
-            ]
+            best_index = sorted_fitness_indexes[: max(2, int(round(p_i * population.size)))]
             p_best.append(np.random.choice(best_index))
         p_best_np = np.array(p_best)
         randoms = get_randoms(population)
@@ -72,9 +66,7 @@ class CurrentToPBestMutation(VariationalOperator):
             + self.f * (population.genomes[p_best_np] - population.genomes)
             + self.f * (randoms[:, 0] - randoms[:, 1])
         )
-        new_genomes = apply_bounds(
-            mutated_genomes, population.problem.bounds, "reflect"
-        )
+        new_genomes = apply_bounds(mutated_genomes, population.problem.bounds, "reflect")
         new_fitness = np.where(
             np.all(new_genomes == population.genomes, axis=1),
             population.fitnesses,
@@ -90,16 +82,12 @@ class Crossover:
     def __init__(self, probability: np.ndarray | None) -> None:
         self.probability = probability
 
-    def __call__(
-        self, population: Population, mutated_population: Population
-    ) -> Population:
+    def __call__(self, population: Population, mutated_population: Population) -> Population:
         assert self.probability is not None
         chosen = np.random.rand(*population.genomes.shape)
         j_rand = np.random.randint(0, population.size)
         chosen[j_rand :: population.size] = 0  # noqa: E203
-        new_genomes = np.where(
-            chosen <= self.probability, mutated_population.genomes, population.genomes
-        )
+        new_genomes = np.where(chosen <= self.probability, mutated_population.genomes, population.genomes)
         new_fitness = np.where(
             np.all(new_genomes == population.genomes, axis=1),
             population.fitnesses,
@@ -113,12 +101,8 @@ class Crossover:
 
 
 class DE:
-    def __init__(
-        self, use_dither: bool, crossover_probability: float, f: float | None = None
-    ) -> None:
-        self._mutation = (
-            BinaryMutationWithDither() if use_dither else BinaryMutation(f=f)
-        )
+    def __init__(self, use_dither: bool, crossover_probability: float, f: float | None = None) -> None:
+        self._mutation = BinaryMutationWithDither() if use_dither else BinaryMutation(f=f)
         self._crossover = Crossover(crossover_probability)
 
     def run(self, parents: list[Individual]) -> list[Individual]:
@@ -158,10 +142,7 @@ class SHADE:
         new_population = total_population.topk(parent_population.size)
         new_individuals = new_population.to_individuals()
         updated_indexes = np.array(
-            [
-                new_individual != parent_individual
-                for new_individual, parent_individual in zip(new_individuals, parents)
-            ]
+            [new_individual != parent_individual for new_individual, parent_individual in zip(new_individuals, parents)]
         )
         if updated_indexes.any():
             self._update_memory(
@@ -183,9 +164,7 @@ class SHADE:
         f[f > 1] = 0
         while sum(f <= 0) != 0:
             r = np.random.choice(self._all_indexes, sum(f <= 0))
-            f[f <= 0] = scipy.stats.cauchy.rvs(
-                loc=self._m_f[r], scale=0.1, size=sum(f <= 0)
-            )
+            f[f <= 0] = scipy.stats.cauchy.rvs(loc=self._m_f[r], scale=0.1, size=sum(f <= 0))
         return cr, f
 
     def _update_memory(
@@ -198,14 +177,10 @@ class SHADE:
     ):
         weights = np.abs(fitness[indexes] - c_fitness[indexes])
         weights /= np.sum(weights)
-        self._m_cr[self._k] = np.sum(weights * cr[indexes] ** 2) / np.sum(
-            weights * cr[indexes]
-        )
+        self._m_cr[self._k] = np.sum(weights * cr[indexes] ** 2) / np.sum(weights * cr[indexes])
         if np.isnan(self._m_cr[self._k]):
             self._m_cr[self._k] = 1
-        self._m_f[self._k] = np.sum(weights * f[indexes] ** 2) / np.sum(
-            weights * f[indexes]
-        )
+        self._m_f[self._k] = np.sum(weights * f[indexes] ** 2) / np.sum(weights * f[indexes])
         self._k += 1
         if self._k == self._memory_size:
             self._k = 0

@@ -5,9 +5,9 @@ from .config import (
     EALevelConfig,
     LHSLevelConfig,
     LocalOptimizationConfig,
+    SHADELevelConfig,
     SobolLevelConfig,
     TreeConfig,
-    SHADELevelConfig,
 )
 from .core.individual import Individual
 from .core.problem import EvalCutoffProblem, FunctionProblem, PrecisionCutoffProblem, Problem, StatsGatheringProblem

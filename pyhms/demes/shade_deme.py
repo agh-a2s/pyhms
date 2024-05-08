@@ -1,13 +1,10 @@
-import numpy as np
-import numpy.typing as npt
-import scipy
-from ..config import SHADELevelConfig
-from .abstract_deme import AbstractDeme
-from ..initializers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
-from .single_pop_eas.de import SHADE
 
+from ..config import SHADELevelConfig
 from ..core.individual import Individual
+from ..initializers import sample_normal, sample_uniform
+from .abstract_deme import AbstractDeme
+from .single_pop_eas.de import SHADE
 
 
 class SHADEDeme(AbstractDeme):
