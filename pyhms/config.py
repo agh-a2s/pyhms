@@ -64,6 +64,23 @@ class DELevelConfig(BaseLevelConfig):
         self.sample_std_dev = sample_std_dev
 
 
+class SHADELevelConfig(BaseLevelConfig):
+    def __init__(
+        self,
+        pop_size: int,
+        problem: Problem,
+        lsc: LocalStopCondition | UniversalStopCondition,
+        generations: int,
+        memory_size: int,
+        sample_std_dev: float = 1.0,
+    ):
+        super().__init__(problem, lsc)
+        self.pop_size = pop_size
+        self.generations = generations
+        self.memory_size = memory_size
+        self.sample_std_dev = sample_std_dev
+
+
 class CMALevelConfig(BaseLevelConfig):
     def __init__(
         self,

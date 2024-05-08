@@ -6,6 +6,7 @@ from pyhms.config import (
     LHSLevelConfig,
     LocalOptimizationConfig,
     SobolLevelConfig,
+    SHADELevelConfig,
 )
 from structlog.typing import FilteringBoundLogger
 
@@ -17,6 +18,7 @@ from .ea_deme import EADeme
 from .lhs_deme import LHSDeme
 from .local_deme import LocalDeme
 from .sobol_deme import SobolDeme
+from .shade_deme import SHADEDeme
 
 
 def init_root(config: BaseLevelConfig, logger: FilteringBoundLogger) -> AbstractDeme:
@@ -44,6 +46,8 @@ def init_from_config(
     child: AbstractDeme
     if isinstance(config, DELevelConfig):
         child = DEDeme(**args)
+    elif isinstance(config, SHADELevelConfig):
+        child = SHADEDeme(**args)
     elif isinstance(config, EALevelConfig):
         child = EADeme(**args)
     elif isinstance(config, CMALevelConfig):

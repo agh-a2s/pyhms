@@ -7,6 +7,7 @@ from .config import (
     LocalOptimizationConfig,
     SobolLevelConfig,
     TreeConfig,
+    SHADELevelConfig,
 )
 from .core.individual import Individual
 from .core.problem import EvalCutoffProblem, FunctionProblem, PrecisionCutoffProblem, Problem, StatsGatheringProblem
