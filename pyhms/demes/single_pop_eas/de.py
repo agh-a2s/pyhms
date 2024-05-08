@@ -7,7 +7,9 @@ from .common import VariationalOperator, apply_bounds
 
 
 def get_randoms(population: Population) -> np.ndarray:
-    return population.genomes[np.random.randint(0, population.size, size=(population.size, 3))]
+    all_indices = np.arange(population.size)
+    indices = np.array([np.random.choice(all_indices, size=3, replace=False) for _ in range(population.size)])
+    return population.genomes[indices]
 
 
 class BinaryMutation(VariationalOperator):
