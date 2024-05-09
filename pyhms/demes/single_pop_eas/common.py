@@ -16,13 +16,17 @@ def apply_bounds(genomes: np.ndarray, bounds: np.ndarray, method: str) -> np.nda
     if method == "clip":
         return np.clip(genomes, bounds[:, 0], bounds[:, 1])
     elif method == "reflect":
-        broadcasted_lower_bounds = lower_bounds + np.zeros_like(genomes)
-        broadcasted_upper_bounds = upper_bounds + np.zeros_like(genomes)
-        over_upper = genomes > upper_bounds
-        genomes[over_upper] = 2 * broadcasted_upper_bounds[over_upper] - genomes[over_upper]
-        under_lower = genomes < lower_bounds
-        genomes[under_lower] = 2 * broadcasted_lower_bounds[under_lower] - genomes[under_lower]
-        return genomes
+        range_size = upper_bounds - lower_bounds
+        # Normalize genomes to start from zero and find the number of "flips" needed
+        normalized_genomes = genomes - lower_bounds
+        flips = np.floor_divide(normalized_genomes, range_size)
+        # Calculate the position within the range after even number of flips (mirroring effect)
+        mod_genomes = np.mod(normalized_genomes, range_size)
+        # Even flips mean the value is within the range, odd flips mean it should be mirrored
+        is_odd_flip = np.mod(flips, 2) == 1
+        reflected_genomes = np.where(is_odd_flip, range_size - mod_genomes, mod_genomes)
+        # Return genomes to their original positions with bounds applied
+        return lower_bounds + reflected_genomes
     elif method == "toroidal":
         range_size = upper_bounds - lower_bounds
         return lower_bounds + (genomes - lower_bounds) % range_size
