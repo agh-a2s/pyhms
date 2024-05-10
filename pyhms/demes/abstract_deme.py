@@ -9,7 +9,9 @@ from ..core.problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
 
-def compute_centroid(population: list[Individual]) -> np.ndarray:
+def compute_centroid(population: list[Individual]) -> np.ndarray | None:
+    if not population:
+        return None
     return np.mean([ind.genome for ind in population], axis=0)
 
 
@@ -85,7 +87,7 @@ class AbstractDeme(ABC):
 
     @property
     def best_current_individual(self) -> Individual:
-        return max(self.current_population)
+        return max(self.current_population) if self.current_population else None
 
     @property
     def best_individual(self) -> Individual | None:
@@ -111,11 +113,13 @@ class AbstractDeme(ABC):
         raise NotImplementedError()
 
     def log(self, message: str) -> None:
+        best_fitness = self.best_current_individual.fitness if self.best_current_individual else None
+        best_genome = self.best_current_individual.genome if self.best_current_individual else None
         self._logger.info(
             message,
             id=self._id,
-            best_fitness=self.best_current_individual.fitness,
-            best_individual=self.best_current_individual.genome,
+            best_fitness=best_fitness,
+            best_individual=best_genome,
             n_evals=self.n_evaluations,
             centroid=self.centroid,
         )
