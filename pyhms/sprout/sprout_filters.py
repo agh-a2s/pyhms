@@ -64,6 +64,9 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         candidates: dict[AbstractDeme, DemeCandidates],
         tree,
     ) -> dict[AbstractDeme, DemeCandidates]:
+        assert all(
+            [cand.features.nbc_mean_distance is not None for cand in candidates.values()]
+        ), "NBC_FarEnough filter requires nbc_mean_distance feature in candidates added through NBC_Generator"
         for deme in candidates.keys():
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
             child_seeds = candidates[deme].individuals
@@ -71,8 +74,7 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
                 child_seeds = [
                     ind
                     for ind in child_seeds
-                    if candidates[deme].features.nbc_mean_distance is None
-                    or self._is_nbc_far_enough(
+                    if self._is_nbc_far_enough(
                         ind,
                         sibling.centroid,
                         candidates[deme].features.nbc_mean_distance,
