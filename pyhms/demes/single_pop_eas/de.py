@@ -7,8 +7,19 @@ from .common import VariationalOperator, apply_bounds
 
 
 def get_randoms(population: Population) -> np.ndarray:
-    all_indices = np.arange(population.size)
-    indices = np.array([np.random.choice(all_indices, size=3, replace=False) for _ in range(population.size)])
+    choices = np.indices((population.size, population.size))[1]
+
+    # Create a mask to exclude self from selections
+    mask = np.ones(choices.shape, dtype=bool)
+    np.fill_diagonal(mask, 0)
+
+    # Apply mask to choices to exclude self-indices
+    filtered_choices = choices[mask].reshape(population.size, population.size - 1)
+
+    # For each individual, select 3 random indices (without replacing)
+    indices = np.array([np.random.choice(row, size=3, replace=False) for row in filtered_choices])
+
+    # Select the genomes based on these indices
     return population.genomes[indices]
 
 
@@ -88,8 +99,8 @@ class Crossover:
         probability: np.ndarray | float,
     ) -> Population:
         chosen = np.random.rand(*population.genomes.shape)
-        j_rand = np.random.randint(0, population.size)
-        chosen[j_rand :: population.size] = 0  # noqa: E203
+        j_rand = np.random.randint(0, population.genomes.shape[1])
+        chosen[j_rand :: population.genomes.shape[1]] = 0  # noqa: E203
         new_genomes = np.where(chosen <= probability, mutated_population.genomes, population.genomes)
         new_fitness = np.where(
             np.all(new_genomes == population.genomes, axis=1),
