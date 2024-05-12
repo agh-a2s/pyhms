@@ -133,44 +133,6 @@ class DE:
         )
 
 
-class CustomDE:
-    def __init__(self, dither: bool, scaling: float, crossover_prob: float):
-        self._dither = dither
-        self._scaling = scaling
-        self._crossover_prob = crossover_prob
-
-    def run(self, parents: list[Individual]) -> list[Individual]:
-        problem = parents[0].problem
-        bounds = problem.bounds
-        donors = self._create_donor_vectors(np.array([ind.genome for ind in parents]), bounds)
-        donors_pop = [Individual(donor, problem=problem) for donor in donors]
-        Individual.evaluate_population(donors_pop)
-        offspring = [self._crossover(parent, donor) for parent, donor in zip(parents, donors_pop)]
-        return offspring
-
-    def _create_donor_vectors(self, parents: np.ndarray, bounds: np.ndarray) -> np.ndarray:
-        randoms = parents[np.random.randint(0, len(parents), size=(len(parents), 2))]
-        if self._dither:
-            scaling = np.random.uniform(0.5, 1, size=len(parents))
-            scaling = np.repeat(scaling[:, np.newaxis], len(bounds), axis=1)
-            donor = parents + scaling * (randoms[:, 0] - randoms[:, 1])
-        else:
-            donor = parents + self._scaling * (randoms[:, 0] - randoms[:, 1])
-
-        return apply_bounds(donor, bounds, "reflect")
-
-    def _crossover(self, parent: Individual, donor: Individual) -> Individual:
-        if parent > donor:
-            return parent
-        else:
-            genome = np.array(
-                [p if np.random.uniform() < self._crossover_prob else d for p, d in zip(parent.genome, donor.genome)]
-            )
-            offspring = Individual(genome, problem=parent.problem)
-            offspring.evaluate()
-            return offspring
-
-
 class SHADE:
     def __init__(self, memory_size: int, population_size: int):
         self._memory_size = memory_size
