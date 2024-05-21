@@ -69,5 +69,9 @@ class NBCGeneratorWithLocalMethod(SproutCandidatesGenerator):
                     )
         for deme in tree.levels[-2]:
             if not deme.is_active and deme.started_at + len(deme.history) == tree.metaepoch_count:
-                candidates[deme] = DemeCandidates(individuals=[deme.best_individual], features=DemeFeatures())
+                candidates[deme] = DemeCandidates(
+                    individuals=[deme.best_individual],
+                    # Use 0.0 to make sure that it works with the NBC_FarEnough filter.
+                    features=DemeFeatures(nbc_mean_distance=0.0),
+                )
         return candidates  # type: ignore[return-value]
