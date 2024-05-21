@@ -58,7 +58,7 @@ class CurrentToPBestMutation:
     def __call__(
         self,
         population: Population,
-        archive: Population,
+        archive: Population | None,
         f: np.ndarray,
         p: np.ndarray,
     ) -> Population:
