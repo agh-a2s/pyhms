@@ -1,8 +1,8 @@
-from typing import TypedDict, Type
+from typing import Type, TypedDict
 
 import numpy as np
 
-from .core.initializers import PopInitializer, SeededPopInitializer, InjectionInitializer, UniformGlobalInitializer
+from .core.initializers import InjectionInitializer, PopInitializer, SeededPopInitializer, UniformGlobalInitializer
 from .core.problem import Problem
 from .logging_ import LoggingLevel
 from .stop_conditions import GlobalStopCondition, LocalStopCondition, UniversalStopCondition

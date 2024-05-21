@@ -2,7 +2,6 @@ from pyhms.config import EALevelConfig
 from pyhms.core.individual import Individual
 from pyhms.core.initializers import PopInitializer
 from pyhms.demes.abstract_deme import AbstractDeme
-from pyhms.utils.samplers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
 
 
@@ -31,6 +30,8 @@ class RandomDeme(AbstractDeme):
         self.run()
         if (gsc_value := tree._gsc(tree)) or self._lsc(self):
             self._active = False
-            message = "Random sampler Deme finished due to GSC" if gsc_value else "Random sampler Deme finished due to LSC"
+            message = (
+                "Random sampler Deme finished due to GSC" if gsc_value else "Random sampler Deme finished due to LSC"
+            )
             self.log(message)
             return

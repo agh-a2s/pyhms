@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializer
 from pyhms.core.problem import FunctionProblem
-from pyhms.core.initializers import GaussianInitializerWithSeedInject, UniformGlobalInitializer, InjectionInitializer
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions import DontStop, MetaepochLimit

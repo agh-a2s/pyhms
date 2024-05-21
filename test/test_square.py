@@ -5,11 +5,16 @@ from pyhms.config import (
     CMALevelConfig,
     DELevelConfig,
     EALevelConfig,
-    RandomLEvelConfig,
     LocalOptimizationConfig,
+    RandomLEvelConfig,
     TreeConfig,
 )
-from pyhms.core.initializers import LHSGlobalInitializer, UniformGlobalInitializer, InjectionInitializer, GaussianInitializerWithSeedInject
+from pyhms.core.initializers import (
+    GaussianInitializerWithSeedInject,
+    InjectionInitializer,
+    LHSGlobalInitializer,
+    UniformGlobalInitializer,
+)
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import (
     DemeLimit,

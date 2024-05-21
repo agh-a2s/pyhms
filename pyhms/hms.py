@@ -4,8 +4,8 @@ from typing import Callable, List
 import numpy as np
 
 from .config import DEFAULT_OPTIONS, BaseLevelConfig, CMALevelConfig, EALevelConfig, Options, TreeConfig
+from .core.initializers import InjectionInitializer, UniformGlobalInitializer
 from .core.problem import EvalCutoffProblem, FunctionProblem
-from .core.initializers import GaussianInitializerWithSeedInject, UniformGlobalInitializer, InjectionInitializer
 from .demes.single_pop_eas.sea import SEA
 from .logging_ import LoggingLevel, parse_log_level
 from .sprout import get_NBC_sprout

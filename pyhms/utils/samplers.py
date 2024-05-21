@@ -65,6 +65,6 @@ def sample_normal(
         return x
 
     def create(size: int) -> np.ndarray:
-        return [sample() for _ in range(size)]
+        return np.array([sample() for _ in range(size)])
 
     return create

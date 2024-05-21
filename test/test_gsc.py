@@ -3,10 +3,9 @@ import unittest
 import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
-from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializer
+from pyhms.core.initializers import UniformGlobalInitializer
 from pyhms.core.problem import EvalCountingProblem, PrecisionCutoffProblem, Problem
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.utils.samplers import sample_uniform
 from pyhms.stop_conditions import (
     AllStopped,
     DontStop,
@@ -19,6 +18,7 @@ from pyhms.stop_conditions import (
     WeightingStrategy,
 )
 from pyhms.tree import DemeTree
+from pyhms.utils.samplers import sample_uniform
 
 from .config import DEFAULT_SPROUT_COND, SQUARE_BOUNDS, SQUARE_PROBLEM
 

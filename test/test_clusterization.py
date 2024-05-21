@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 from pyhms.core.individual import Individual
-from pyhms.utils.samplers import sample_uniform
 from pyhms.utils.clusterization import NearestBetterClustering, get_individual_id
+from pyhms.utils.samplers import sample_uniform
 
 from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
 

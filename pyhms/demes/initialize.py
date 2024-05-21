@@ -3,13 +3,22 @@ from pyhms.config import (
     CMALevelConfig,
     DELevelConfig,
     EALevelConfig,
-    RandomLEvelConfig,
     LocalOptimizationConfig,
+    RandomLEvelConfig,
 )
+from pyhms.utils.parameter_calculation import get_default_mutation_std
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
-from ..core.initializers import *
+from ..core.initializers import (
+    GaussianInitializer,
+    GaussianInitializerWithSeedInject,
+    InjectionInitializer,
+    LHSGlobalInitializer,
+    PopInitializer,
+    SobolGlobalInitializer,
+    UniformGlobalInitializer,
+)
 from .abstract_deme import AbstractDeme
 from .cma_deme import CMADeme
 from .de_deme import DEDeme
@@ -37,12 +46,18 @@ def init_from_config(
     if config.pop_initializer_class == UniformGlobalInitializer:
         child_initializer = UniformGlobalInitializer(config.bounds)
     elif config.pop_initializer_class == GaussianInitializer:
-        child_initializer = GaussianInitializer(
-            seed=sprout_seed.genome, std_dev=config.sample_std_dev, bounds=config.bounds
-        )
+        if hasattr(config, "sample_std_dev"):
+            sample_std_dev = config.sample_std_dev
+        else:
+            sample_std_dev = get_default_mutation_std(config.bounds, target_level)
+        child_initializer = GaussianInitializer(seed=sprout_seed.genome, std_dev=sample_std_dev, bounds=config.bounds)
     elif config.pop_initializer_class == GaussianInitializerWithSeedInject:
+        if hasattr(config, "sample_std_dev"):
+            sample_std_dev = config.sample_std_dev
+        else:
+            sample_std_dev = get_default_mutation_std(config.bounds, target_level)
         child_initializer = GaussianInitializerWithSeedInject(
-            seed=sprout_seed, std_dev=config.sample_std_dev, bounds=config.bounds
+            seed=sprout_seed, std_dev=sample_std_dev, bounds=config.bounds
         )
     elif config.pop_initializer_class == LHSGlobalInitializer:
         child_initializer = LHSGlobalInitializer(config.bounds, random_seed)

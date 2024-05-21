@@ -35,7 +35,7 @@ class AbstractDeme(ABC):
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
         self._problem: EvalCountingProblem = EvalCountingProblem(config.problem)
         self._bounds: np.ndarray = config.bounds
-        
+
         self._sprout_seed: Individual | None = None
         if isinstance(initializer, SeededPopInitializer):
             self._sprout_seed = initializer.get_seed(self._problem)
