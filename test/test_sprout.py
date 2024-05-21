@@ -6,7 +6,7 @@ from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, FarEnough, LevelLimit, NBC_FarEnough
-from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator
+from pyhms.sprout.sprout_generators import BestPerDeme, NBCGenerator
 from pyhms.sprout.sprout_mechanisms import SproutMechanism
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
@@ -96,7 +96,7 @@ class TestSprout(unittest.TestCase):
     def test_nbc_sprout_candidates(self):
         tree = DemeTree(self.minimize_config)
         sprout = SproutMechanism(
-            NBC_Generator(2.0, 0.8),
+            NBCGenerator(2.0, 0.8),
             [NBC_FarEnough(2.0, 2), DemeLimit(1)],
             [LevelLimit(2)],
         )
@@ -151,7 +151,7 @@ class TestSprout(unittest.TestCase):
     def test_nbc_sprout_candidates_maximization(self):
         tree = DemeTree(self.maximize_config)
         sprout = SproutMechanism(
-            NBC_Generator(2.0, 0.8),
+            NBCGenerator(2.0, 0.8),
             [NBC_FarEnough(2.0, 2), DemeLimit(1)],
             [LevelLimit(2)],
         )

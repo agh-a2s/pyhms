@@ -8,7 +8,7 @@ from pyhms.sprout.sprout_filters import (
     NBC_FarEnough,
     TreeLevelCandidatesFilter,
 )
-from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator, SproutCandidatesGenerator
+from pyhms.sprout.sprout_generators import BestPerDeme, NBCGenerator, SproutCandidatesGenerator
 
 
 class SproutMechanism:
@@ -52,7 +52,7 @@ def get_NBC_sprout(
     gen_dist_factor: float = 3.0, trunc_factor: float = 0.7, fil_dist_factor: float = 3.0, level_limit: int = 4
 ) -> SproutMechanism:
     return SproutMechanism(
-        NBC_Generator(gen_dist_factor, trunc_factor),
+        NBCGenerator(gen_dist_factor, trunc_factor),
         [NBC_FarEnough(fil_dist_factor, 2), DemeLimit(1)],
         [LevelLimit(level_limit)],
     )

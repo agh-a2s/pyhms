@@ -40,12 +40,14 @@ class NearestBetterClustering:
         evaluated_individuals: list[Individual],
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
+        rule_two_correction_factor: float | None = 3.0,
     ) -> None:
         sorted_individuals = sorted(evaluated_individuals, reverse=True)
         self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
         self.distances: list[float] = []
         self.distance_factor = distance_factor
+        self.rule_two_correction_factor = rule_two_correction_factor
 
     def cluster(self) -> list[Individual]:
         self._prepare_spanning_tree()
@@ -53,6 +55,19 @@ class NearestBetterClustering:
         mean_distance = np.mean(self.distances)
         root_nodes = filter(lambda x: x.data["distance"] > mean_distance * self.distance_factor, nodes)
         root_individuals = [node.data["individual"] for node in root_nodes]
+        return root_individuals
+    
+    def two_rule_cluster(self) -> list[Individual]:
+        self._prepare_spanning_tree()
+        nodes = self.tree.all_nodes()
+        mean_distance = np.mean(self.distances)
+        rule_one_root_nodes = set(filter(lambda x: x.data["distance"] > mean_distance * self.distance_factor, nodes))
+        rule_two_nodes = filter(lambda x: len(self.tree.children(x.identifier)) >= 3 and x.parent is not None, nodes)
+        rule_two_root_nodes = set(filter(
+            lambda x: x.data["distance"] / np.median([child.data["distance"] for child in self.tree.children(x.identifier)]) >= self.rule_two_correction_factor,
+            rule_two_nodes))
+        
+        root_individuals = [node.data["individual"] for node in rule_one_root_nodes | rule_two_root_nodes]
         return root_individuals
 
     def _prepare_spanning_tree(self) -> None:

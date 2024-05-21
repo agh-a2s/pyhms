@@ -4,6 +4,7 @@ import numpy as np
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.sprout.sprout_candidates import DemeCandidates, DemeFeatures
 from pyhms.utils.clusterization import NearestBetterClustering
+from pyhms.utils.parameter_initializer import get_default_nbc_rule_two_correction_factor
 
 
 class SproutCandidatesGenerator(ABC):
@@ -22,7 +23,7 @@ class BestPerDeme(SproutCandidatesGenerator):
         }
 
 
-class NBC_Generator(SproutCandidatesGenerator):
+class NBCGenerator(SproutCandidatesGenerator):
     def __init__(self, distance_factor: float, truncation_factor: float) -> None:
         self.distance_factor = distance_factor
         self.truncation_factor = truncation_factor
@@ -44,6 +45,37 @@ class NBC_Generator(SproutCandidatesGenerator):
                         features=DemeFeatures(nbc_mean_distance=np.mean(nbc.distances)),
                     )
         return candidates  # type: ignore[return-value]
+
+
+class TwoRuleNBCGenerator(SproutCandidatesGenerator):
+    def __init__(self, distance_factor: float, truncation_factor: float, rule_two_correction_factor: float | None = 3.0) -> None:
+        self.distance_factor = distance_factor
+        self.truncation_factor = truncation_factor
+        self.rule_two_correction_factor = rule_two_correction_factor
+        super().__init__()
+
+    def __call__(self, tree) -> dict[AbstractDeme, DemeCandidates]:
+        candidates = {}
+        for level in tree.levels[:-1]:
+            for deme in level:
+                if deme.is_active:
+                    if self.rule_two_correction_factor is None:
+                        rule_two_correction_factor = get_default_nbc_rule_two_correction_factor(len(deme._bounds), deme.current_population)
+                    else:
+                        rule_two_correction_factor = self.rule_two_correction_factor
+                    nbc = NearestBetterClustering(
+                        deme.current_population,
+                        self.distance_factor,
+                        self.truncation_factor,
+                        rule_two_correction_factor,
+                    )
+                    deme_candidate_inds = nbc.two_rule_cluster()
+                    candidates[deme] = DemeCandidates(
+                        individuals=deme_candidate_inds,
+                        features=DemeFeatures(nbc_mean_distance=np.mean(nbc.distances)),
+                    )
+        return candidates  # type: ignore[return-value]
+
 
 
 class NBCGeneratorWithLocalMethod(SproutCandidatesGenerator):

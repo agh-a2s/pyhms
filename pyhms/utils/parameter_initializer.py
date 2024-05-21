@@ -20,3 +20,8 @@ def get_default_population_size(bounds: np.ndarray, tree_level: int) -> int:
 
 def get_default_generations(bounds: np.ndarray, tree_level: int) -> int:
     return DEFAULT_GENERATIONS_BY_LEVEL.get(tree_level, DEFAULT_GENERATIONS)
+
+
+def get_default_nbc_rule_two_correction_factor(dimensions: int, popsize: int) -> float:
+    return (-4.69e-4 * dimensions**2 + 0.0263 * dimensions + 3.66 / dimensions - 0.457)*np.log10(popsize)\
+          + 7.51e-4 * dimensions**2 - 0.0421 * dimensions - 2.26 / dimensions + 1.83
