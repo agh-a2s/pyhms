@@ -6,7 +6,7 @@ from ...core.population import Population
 from .common import VariationalOperator, apply_bounds
 
 
-def get_randoms(population: Population) -> np.ndarray:
+def select_parents(population: Population) -> np.ndarray:
     choices = np.indices((population.size, population.size))[1]
 
     # Create a mask to exclude self from selections
@@ -28,7 +28,7 @@ class BinaryMutation(VariationalOperator):
         self.f = f
 
     def __call__(self, population: Population) -> Population:
-        randoms = get_randoms(population)
+        randoms = select_parents(population)
         donor = randoms[:, 0] + self.f * (randoms[:, 1] - randoms[:, 2])
         new_genomes = apply_bounds(donor, population.problem.bounds, "reflect")
         new_fitness = np.where(
@@ -41,7 +41,7 @@ class BinaryMutation(VariationalOperator):
 
 class BinaryMutationWithDither(VariationalOperator):
     def __call__(self, population: Population) -> Population:
-        randoms = get_randoms(population)
+        randoms = select_parents(population)
         scaling = np.random.uniform(0.5, 1, size=population.size)
         scaling = np.repeat(scaling[:, np.newaxis], len(population.problem.bounds), axis=1)
         donor = randoms[:, 0] + scaling * (randoms[:, 1] - randoms[:, 2])
@@ -74,8 +74,8 @@ class CurrentToPBestMutation:
             best_index = sorted_fitness_indexes[: max(2, int(round(p_i * population.size)))]
             p_best.append(np.random.choice(best_index))
         p_best_np = np.array(p_best)
-        randoms = get_randoms(population)
-        randoms_with_archive = get_randoms(population.merge(archive)) if archive is not None else randoms
+        randoms = select_parents(population)
+        randoms_with_archive = select_parents(population.merge(archive)) if archive is not None else randoms
         randoms_with_archive = randoms_with_archive[: len(randoms)]
         mutated_genomes = (
             population.genomes
