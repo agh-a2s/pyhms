@@ -154,6 +154,7 @@ class DemeTree:
                     target_level,
                     self.metaepoch_count,
                     sprout_seed=ind,
+                    injected_population=None,
                     logger=self._logger,
                     random_seed=self._random_seed,
                     parent_deme=deme,
@@ -162,7 +163,7 @@ class DemeTree:
                 self._levels[target_level].append(child)
                 self._logger.debug(
                     "Sprouted new child",
-                    seed=child._sprout_seed.genome,
+                    seed=ind,
                     id=new_id,
                     tree_level=target_level,
                 )

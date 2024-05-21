@@ -3,6 +3,7 @@ import pathlib as pl
 import unittest
 
 from pyhms.config import CMALevelConfig, DELevelConfig, TreeConfig
+from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializer
 from pyhms.stop_conditions import DontStop, MetaepochLimit
 from pyhms.tree import DemeTree
 
@@ -25,12 +26,14 @@ class TestPersistance(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 
@@ -54,12 +57,14 @@ class TestPersistance(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 

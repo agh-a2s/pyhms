@@ -1,6 +1,7 @@
 import unittest
 
 from pyhms.config import EALevelConfig, LocalOptimizationConfig, TreeConfig
+from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializer
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
@@ -19,10 +20,12 @@ class TestLocalOptimization(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
         tree_config = TreeConfig(
