@@ -71,8 +71,7 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
                 child_seeds = [
                     ind
                     for ind in child_seeds
-                    if candidates[deme].features.nbc_mean_distance is None
-                    or self._is_nbc_far_enough(
+                    if self._is_nbc_far_enough(
                         ind,
                         sibling.centroid,
                         candidates[deme].features.nbc_mean_distance,
