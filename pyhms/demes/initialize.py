@@ -35,23 +35,23 @@ def init_from_config(
 ) -> AbstractDeme:
     child_initializer: PopInitializer
     if config.pop_initializer_class == UniformGlobalInitializer:
-        child_initializer = UniformGlobalInitializer(config.problem, config.bounds)
+        child_initializer = UniformGlobalInitializer(config.bounds)
     elif config.pop_initializer_class == GaussianInitializer:
         child_initializer = GaussianInitializer(
-            seed=sprout_seed.genome, std_dev=config.sample_std_dev, problem=config.problem, bounds=config.bounds
+            seed=sprout_seed.genome, std_dev=config.sample_std_dev, bounds=config.bounds
         )
     elif config.pop_initializer_class == GaussianInitializerWithSeedInject:
         child_initializer = GaussianInitializerWithSeedInject(
-            seed=sprout_seed, std_dev=config.sample_std_dev, problem=config.problem, bounds=config.bounds
+            seed=sprout_seed, std_dev=config.sample_std_dev, bounds=config.bounds
         )
     elif config.pop_initializer_class == LHSGlobalInitializer:
-        child_initializer = LHSGlobalInitializer(config.problem, config.bounds, random_seed)
+        child_initializer = LHSGlobalInitializer(config.bounds, random_seed)
     elif config.pop_initializer_class == SobolGlobalInitializer:
-        child_initializer = SobolGlobalInitializer(config.problem, config.bounds, random_seed)
+        child_initializer = SobolGlobalInitializer(config.bounds, random_seed)
     elif config.pop_initializer_class == InjectionInitializer:
         if injected_population is None and sprout_seed is not None:
             injected_population = [sprout_seed]
-        child_initializer = InjectionInitializer(injected_population, config.problem, config.bounds)
+        child_initializer = InjectionInitializer(injected_population, config.bounds)
 
     args = {
         "id": new_id,

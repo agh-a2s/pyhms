@@ -30,14 +30,15 @@ class AbstractDeme(ABC):
         self._initializer = initializer
         self._logger: FilteringBoundLogger = logger
         self._started_at = started_at
-        self._sprout_seed: Individual | None = None
-        if isinstance(initializer, SeededPopInitializer):
-            self._sprout_seed = initializer.get_seed()
 
         self._config: BaseLevelConfig = config
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
         self._problem: EvalCountingProblem = EvalCountingProblem(config.problem)
         self._bounds: np.ndarray = config.bounds
+        
+        self._sprout_seed: Individual | None = None
+        if isinstance(initializer, SeededPopInitializer):
+            self._sprout_seed = initializer.get_seed(self._problem)
 
         self._active: bool = True
         self._centroid: np.ndarray | None = None

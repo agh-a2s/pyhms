@@ -19,7 +19,7 @@ class LocalDeme(AbstractDeme):
     ) -> None:
         super().__init__(id, level, config, initializer, logger, started_at)
         self._method = config.method
-        self._sprout_seed = initializer.get_seed()
+        self._sprout_seed = initializer.get_seed(self._problem)
         self._n_evals = 0
         starting_pop = [self._sprout_seed]
         self._history.append([starting_pop])

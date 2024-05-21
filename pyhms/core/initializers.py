@@ -7,16 +7,15 @@ from scipy.stats.qmc import LatinHypercube, Sobol
 
 class PopInitializer(ABC):
 
-    def __init__(self, problem: Problem, bounds: np.ndarray | None = None):
-        self._problem = problem
+    def __init__(self, bounds: np.ndarray | None = None):
         self._bounds = bounds
 
     @abstractmethod
-    def sample_pop(self, pop_size: int | None) -> list[Individual]:
+    def sample_pop(self, pop_size: int | None, problem: Problem) -> list[Individual]:
         pass
 
-    def __call__(self, pop_size):
-        return self.sample_pop(pop_size)
+    def __call__(self, pop_size: int | None, problem: Problem):
+        return self.sample_pop(pop_size, problem)
 
 class SeededPopInitializer(PopInitializer):
 
@@ -26,82 +25,87 @@ class SeededPopInitializer(PopInitializer):
 
 class UniformGlobalInitializer(PopInitializer):
 
-    def __init__(self, problem: Problem, bounds: np.ndarray):
-        super().__init__(problem, bounds)
+    def __init__(self, bounds: np.ndarray):
+        super().__init__(bounds)
         self.sampler = sample_uniform(bounds)
 
-    def sample_pop(self, pop_size: int) -> list[Individual]:
-        return [Individual(genome=genome, problem=self._problem) for genome in self.sampler(pop_size)]
+    def sample_pop(self, pop_size: int, problem: Problem) -> list[Individual]:
+        return [Individual(genome=genome, problem=problem) for genome in self.sampler(pop_size)]
 
 class LHSGlobalInitializer(PopInitializer):
 
-    def __init__(self, problem: Problem, bounds: np.ndarray, random_seed: int = None):
-        super().__init__(problem, bounds)
+    def __init__(self, bounds: np.ndarray, random_seed: int = None):
+        super().__init__(bounds)
         self.sampler = LatinHypercube(d=len(bounds), seed=random_seed)
         self.lower_bounds = bounds[:, 0]
         self.upper_bounds = bounds[:, 1]
 
-    def sample_pop(self, pop_size: int) -> list[Individual]:
+    def sample_pop(self, pop_size: int, problem: Problem) -> list[Individual]:
         sample = self.sampler.random(pop_size)
         genomes = self.lower_bounds + sample * (self.upper_bounds - self.lower_bounds)
-        return [Individual(genome, problem=self._problem) for genome in genomes]
+        return [Individual(genome, problem=problem) for genome in genomes]
 
 class SobolGlobalInitializer(PopInitializer):
 
-    def __init__(self, problem: Problem, bounds: np.ndarray, random_seed: int = None):
-        super().__init__(problem, bounds)
+    def __init__(self, bounds: np.ndarray, random_seed: int = None):
+        super().__init__(bounds)
         self.sampler = Sobol(d=len(bounds), scramble=True, seed=random_seed)
         self.lower_bounds = bounds[:, 0]
         self.upper_bounds = bounds[:, 1]
 
-    def sample_pop(self, pop_size: int) -> list[Individual]:
+    def sample_pop(self, pop_size: int, problem: Problem) -> list[Individual]:
         sample = self.sampler.random(pop_size)
         genomes = self.lower_bounds + sample * (self.upper_bounds - self.lower_bounds)
-        return [Individual(genome, problem=self._problem) for genome in genomes]
+        return [Individual(genome, problem=problem) for genome in genomes]
 
 class GaussianInitializer(PopInitializer):
 
-    def __init__(self, seed: np.ndarray, std_dev: float, problem: Problem, bounds: np.ndarray | None = None):
-        super().__init__(problem, bounds)
+    def __init__(self, seed: np.ndarray, std_dev: float, bounds: np.ndarray | None = None):
+        super().__init__(bounds)
         self.sampler = sample_normal(seed, std_dev, bounds)
         self._seed = seed
 
-    def sample_pop(self, pop_size: int) -> list[Individual]:
-        return [Individual(genome=genome, problem=self._problem) for genome in self.sampler(pop_size)]
+    def sample_pop(self, pop_size: int, problem: Problem) -> list[Individual]:
+        return [Individual(genome=genome, problem=problem) for genome in self.sampler(pop_size)]
 
 class GaussianInitializerWithSeedInject(SeededPopInitializer):
 
-    def __init__(self, seed: Individual, std_dev: float, problem: Problem, bounds: np.ndarray | None = None):
-        super().__init__(problem, bounds)
+    def __init__(self, seed: Individual, std_dev: float, bounds: np.ndarray | None = None, preserve_fitness: bool = True):
+        super().__init__(bounds)
         self.sampler = sample_normal(seed.genome, std_dev, bounds)
-        if seed.problem == problem:
-            self._seed_ind = seed
+        self._preserve_fitness = preserve_fitness
+        self._seed_ind = seed
+
+    def get_seed(self, problem: Problem) -> Individual:
+        if self._preserve_fitness:
+            return Individual(genome=self._seed_ind.genome, problem=problem, fitness=self._seed_ind.fitness)
         else:
-            self._seed_ind = Individual(genome=seed.genome, problem=problem)
+            return Individual(genome=self._seed_ind.genome, problem=problem)
 
-    def sample_pop(self, pop_size: int) -> list[Individual]:
-        return [Individual(genome=genome, problem=self._problem) for genome in self.sampler(pop_size-1)] + [self._seed_ind]
+    def sample_pop(self, pop_size: int, problem: Problem) -> list[Individual]:
+        return [Individual(genome=genome, problem=problem) for genome in self.sampler(pop_size-1)] + [self.get_seed(problem)]
 
-    def get_seed(self) -> Individual:
-        return self._seed_ind
 
 class InjectionInitializer(SeededPopInitializer):
 
-    def __init__(self, injected_population: list[Individual], problem: Problem, bounds: np.ndarray | None = None):
-        super().__init__(problem, bounds)
-        if injected_population[0].problem == problem:
-            self.injected_population = injected_population
-        else:
-            self.injected_population = [Individual(genome=ind.genome, problem=problem) for ind in injected_population]
+    def __init__(self, injected_population: list[Individual], bounds: np.ndarray | None = None, preserve_fitness: bool = True):
+        super().__init__(bounds)
+        self._preserve_fitness = preserve_fitness
+        self.injected_population = injected_population
 
-    def sample_pop(self, pop_size: int | None) -> list[Individual]:
-        if pop_size is None:
-            return self.injected_population
+    def sample_pop(self, pop_size: int | None, problem: Problem) -> list[Individual]:
+        if self._preserve_fitness:
+            to_inject = [Individual(genome=ind.genome, problem=problem, fitness=ind.fitness) for ind in self.injected_population]
         else:
-            if any(ind.fitness is None for ind in self.injected_population):
-                return np.random.choice(self.injected_population, pop_size, replace=False).tolist()
+            to_inject = [Individual(genome=ind.genome, problem=problem) for ind in self.injected_population]
+        
+        if pop_size is None or pop_size >= len(self.injected_population):
+            return to_inject
+        else:
+            if self._preserve_fitness:
+                return sorted(to_inject, reverse=True)[:pop_size]
             else:
-                return sorted(self.injected_population, reverse=True)[:pop_size]
-    
-    def get_seed(self) -> Individual:
-        return self.sample_pop(1)[0]
+                return np.random.choice(to_inject, pop_size, replace=False).tolist()
+
+    def get_seed(self, problem: Problem) -> Individual:
+        return self.sample_pop(1, problem)[0]

@@ -26,7 +26,7 @@ class CMADeme(AbstractDeme):
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
         opts = {"bounds": [lb, ub], "verbose": -9}
-        x0 = initializer.get_seed()
+        x0 = initializer.get_seed(self._problem)
         if random_seed is not None:
             opts["randn"] = np.random.randn
             opts["seed"] = random_seed + self._started_at

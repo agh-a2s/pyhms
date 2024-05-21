@@ -23,7 +23,7 @@ class RandomDeme(AbstractDeme):
         self.run()
 
     def run(self) -> None:
-        population = self._sampler.sample_pop(self._pop_size)
+        population = self._sampler.sample_pop(self._pop_size, self._problem)
         Individual.evaluate_population(population)
         self._history.append([population])
 
