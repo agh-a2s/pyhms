@@ -3,6 +3,7 @@ import os
 import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.problem import FunctionProblem
+from pyhms.core.initializers import GaussianInitializerWithSeedInject, UniformGlobalInitializer, InjectionInitializer
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import get_NBC_sprout, get_simple_sprout
 from pyhms.stop_conditions import DontStop, MetaepochLimit
@@ -59,12 +60,14 @@ def get_default_tree_config() -> TreeConfig:
             pop_size=20,
             mutation_std=1.0,
             lsc=DEFAULT_LSC,
+            pop_initializer_type=UniformGlobalInitializer,
         ),
         CMALevelConfig(
             generations=4,
             problem=SQUARE_PROBLEM,
             sigma0=2.5,
             lsc=DEFAULT_LSC,
+            pop_initializer_type=InjectionInitializer,
         ),
     ]
     return TreeConfig(levels, DEFAULT_GSC, DEFAULT_SPROUT_COND, options={})

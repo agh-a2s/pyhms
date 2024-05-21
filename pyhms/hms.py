@@ -5,6 +5,7 @@ import numpy as np
 
 from .config import DEFAULT_OPTIONS, BaseLevelConfig, CMALevelConfig, EALevelConfig, Options, TreeConfig
 from .core.problem import EvalCutoffProblem, FunctionProblem
+from .core.initializers import GaussianInitializerWithSeedInject, UniformGlobalInitializer, InjectionInitializer
 from .demes.single_pop_eas.sea import SEA
 from .logging_ import LoggingLevel, parse_log_level
 from .sprout import get_NBC_sprout
@@ -17,7 +18,7 @@ from .stop_conditions import (
     UniversalStopCondition,
 )
 from .tree import DemeTree
-from .utils.parameter_initializer import get_default_generations, get_default_mutation_std, get_default_population_size
+from .utils.parameter_calculation import get_default_generations, get_default_mutation_std, get_default_population_size
 
 DEFAULT_MAX_FUN = 10000
 
@@ -66,12 +67,14 @@ def minimize(
             pop_size=get_default_population_size(bounds, tree_level=0),
             mutation_std=get_default_mutation_std(bounds, tree_level=0),
             lsc=DontStop(),
+            pop_initializer_type=UniformGlobalInitializer,
         ),
         CMALevelConfig(
             generations=get_default_generations(bounds, tree_level=1),
             problem=wrapped_function_problem,
             sigma0=None,
             lsc=FitnessSteadiness(),
+            pop_initializer_type=InjectionInitializer,
         ),
     ]
     sprout_condition = get_NBC_sprout()

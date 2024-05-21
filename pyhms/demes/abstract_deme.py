@@ -5,6 +5,7 @@ from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
+from ..core.initializers import PopInitializer, SeededPopInitializer
 from ..core.problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 
@@ -19,19 +20,25 @@ class AbstractDeme(ABC):
         id: str,
         level: int,
         config: BaseLevelConfig,
+        initializer: PopInitializer,
         logger: FilteringBoundLogger,
         started_at: int = 0,
-        sprout_seed: Individual = None,
     ) -> None:
         super().__init__()
         self._id = id
-        self._started_at = started_at
-        self._sprout_seed = sprout_seed
         self._level = level
+        self._initializer = initializer
+        self._logger: FilteringBoundLogger = logger
+        self._started_at = started_at
+        self._sprout_seed: Individual | None = None
+        if isinstance(initializer, SeededPopInitializer):
+            self._sprout_seed = initializer.get_seed()
+
         self._config: BaseLevelConfig = config
         self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
         self._problem: EvalCountingProblem = EvalCountingProblem(config.problem)
         self._bounds: np.ndarray = config.bounds
+
         self._active: bool = True
         self._centroid: np.ndarray | None = None
         # History of populations is a nested list, where each element is a list of individuals.
@@ -39,7 +46,6 @@ class AbstractDeme(ABC):
         # and for some algorithms (e.g. CMA-ES) HMS can run multiple generations during one metaepoch.
         self._history: list[list[list[Individual]]] = []
         self._children: list[AbstractDeme] = []
-        self._logger: FilteringBoundLogger = logger
 
         # Additional low-level options
         self._hibernating: bool = False
@@ -122,11 +128,7 @@ class AbstractDeme(ABC):
 
     def __str__(self) -> str:
         best_fitness = self.best_current_individual.fitness
-        if self._sprout_seed is None:
-            return f"Root deme {self.id} with best achieved fitness {best_fitness}"
-        else:
-            return f"""Deme {self.id}, metaepoch {self.started_at} and
-            seed {self._sprout_seed.genome} with best {best_fitness}"""
+        return f"""Deme {self.id}, started at metaepoch {self.started_at} with best achieved fitness {best_fitness}"""
 
     @property
     def name(self) -> str:

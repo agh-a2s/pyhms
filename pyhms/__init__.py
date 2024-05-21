@@ -3,9 +3,8 @@ from .config import (
     CMALevelConfig,
     DELevelConfig,
     EALevelConfig,
-    LHSLevelConfig,
+    RandomLEvelConfig,
     LocalOptimizationConfig,
-    SobolLevelConfig,
     TreeConfig,
 )
 from .core.individual import Individual

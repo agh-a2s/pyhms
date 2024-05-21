@@ -3,9 +3,10 @@ import unittest
 import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
+from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializer
 from pyhms.core.problem import EvalCountingProblem, PrecisionCutoffProblem, Problem
 from pyhms.demes.single_pop_eas.sea import SEA
-from pyhms.initializers import sample_uniform
+from pyhms.utils.samplers import sample_uniform
 from pyhms.stop_conditions import (
     AllStopped,
     DontStop,
@@ -34,6 +35,7 @@ class TestGlobalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
@@ -137,6 +139,7 @@ class TestGlobalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
@@ -182,6 +185,7 @@ class TestGlobalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,

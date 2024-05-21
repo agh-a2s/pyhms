@@ -3,6 +3,7 @@ from structlog.typing import FilteringBoundLogger
 
 from ..config import LocalOptimizationConfig
 from ..core.individual import Individual
+from ..core.initializers import InjectionInitializer
 from .abstract_deme import AbstractDeme
 
 
@@ -12,13 +13,13 @@ class LocalDeme(AbstractDeme):
         id: str,
         level: int,
         config: LocalOptimizationConfig,
+        initializer: InjectionInitializer,
         logger: FilteringBoundLogger,
-        sprout_seed: Individual,
         started_at=0,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at)
+        super().__init__(id, level, config, initializer, logger, started_at)
         self._method = config.method
-        self._sprout_seed = sprout_seed
+        self._sprout_seed = initializer.get_seed()
         self._n_evals = 0
         starting_pop = [self._sprout_seed]
         self._history.append([starting_pop])

@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.initializers import GaussianInitializerWithSeedInject, InjectionInitializer, UniformGlobalInitializer
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
@@ -20,6 +21,7 @@ class TestReproducibility(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             DELevelConfig(
                 generations=2,
@@ -28,6 +30,7 @@ class TestReproducibility(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
+                pop_initializer_type=GaussianInitializerWithSeedInject,
             ),
         ]
 
@@ -59,12 +62,14 @@ class TestReproducibility(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 

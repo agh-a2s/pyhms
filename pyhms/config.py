@@ -1,7 +1,8 @@
-from typing import TypedDict
+from typing import TypedDict, Type
 
 import numpy as np
 
+from .core.initializers import PopInitializer, SeededPopInitializer, InjectionInitializer, UniformGlobalInitializer
 from .core.problem import Problem
 from .logging_ import LoggingLevel
 from .stop_conditions import GlobalStopCondition, LocalStopCondition, UniversalStopCondition
@@ -12,9 +13,11 @@ class BaseLevelConfig:
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
+        pop_initializer_type: Type[PopInitializer],
     ):
         self.problem = problem
         self.lsc = lsc
+        self.pop_initializer_class = pop_initializer_type
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__dict__})"
@@ -32,10 +35,11 @@ class EALevelConfig(BaseLevelConfig):
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
+        pop_initializer_type: Type[PopInitializer] = UniformGlobalInitializer,
         sample_std_dev: float = 1.0,
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer_type)
         self.ea_class = ea_class
         self.pop_size = pop_size
         self.generations = generations
@@ -50,12 +54,13 @@ class DELevelConfig(BaseLevelConfig):
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
+        pop_initializer_type: Type[PopInitializer] = UniformGlobalInitializer,
         sample_std_dev: float = 1.0,
         dither: bool = False,
         scaling: float = 0.8,
         crossover: float = 0.9,
     ):
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer_type)
         self.pop_size = pop_size
         self.generations = generations
         self.dither = dither
@@ -71,9 +76,10 @@ class CMALevelConfig(BaseLevelConfig):
         lsc: LocalStopCondition | UniversalStopCondition,
         sigma0: float | None,
         generations: int,
+        pop_initializer_type: Type[SeededPopInitializer] = InjectionInitializer,
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer_type)
         self.sigma0 = sigma0
         self.generations = generations
         self.__dict__.update(kwargs)
@@ -84,36 +90,25 @@ class LocalOptimizationConfig(BaseLevelConfig):
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
+        pop_initializer_type: Type[SeededPopInitializer] = InjectionInitializer,
         method: str = "L-BFGS-B",
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer_type)
         self.method = method
         self.__dict__.update(kwargs)
 
 
-class LHSLevelConfig(BaseLevelConfig):
+class RandomLEvelConfig(BaseLevelConfig):
     def __init__(
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
+        pop_initializer_type: Type[PopInitializer],
         pop_size: int,
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
-        self.pop_size = pop_size
-        self.__dict__.update(kwargs)
-
-
-class SobolLevelConfig(BaseLevelConfig):
-    def __init__(
-        self,
-        problem: Problem,
-        lsc: LocalStopCondition | UniversalStopCondition,
-        pop_size: int,
-        **kwargs,
-    ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer_type)
         self.pop_size = pop_size
         self.__dict__.update(kwargs)
 

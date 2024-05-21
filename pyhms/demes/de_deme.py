@@ -2,10 +2,10 @@ import numpy as np
 import numpy.typing as npt
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
-from pyhms.initializers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
+from ..core.initializers import PopInitializer
 
 
 class DEDeme(AbstractDeme):
@@ -14,11 +14,11 @@ class DEDeme(AbstractDeme):
         id: str,
         level: int,
         config: DELevelConfig,
+        initializer: PopInitializer,
         logger: FilteringBoundLogger,
         started_at: int = 0,
-        sprout_seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, sprout_seed)
+        super().__init__(id, level, config, initializer, logger, started_at)
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._dither = config.dither
@@ -26,22 +26,7 @@ class DEDeme(AbstractDeme):
         self._crossover_prob = config.crossover
         self._sample_std_dev = config.sample_std_dev
 
-        if sprout_seed is None:
-            starting_pop = Individual.create_population(
-                self._pop_size,
-                initialize=sample_uniform(bounds=self._bounds),
-                problem=self._problem,
-            )
-        else:
-            x = sprout_seed.genome
-            starting_pop = Individual.create_population(
-                self._pop_size - 1,
-                initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
-                problem=self._problem,
-            )
-            seed_ind = Individual(x, problem=self._problem)
-            starting_pop.append(seed_ind)
-
+        starting_pop = self._initializer.sample_pop(self._pop_size)
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
 

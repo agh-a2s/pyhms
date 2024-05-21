@@ -13,8 +13,8 @@ def sample_uniform(bounds: np.ndarray):
     :return: A sample from the distribution.
     """
 
-    def create():
-        return np.random.uniform(bounds[:, 0], bounds[:, 1], size=len(bounds))
+    def create(size: int) -> np.ndarray:
+        return np.random.uniform(bounds[:, 0], bounds[:, 1], size=(size, len(bounds)))
 
     return create
 
@@ -59,13 +59,12 @@ def sample_normal(
             return np.all(x >= bounds[:, 0]) and np.all(x <= bounds[:, 1])
 
     def sample() -> np.ndarray:
-        return nrand.multivariate_normal(center, std_dev**2 * np.eye(len(center)))
-
-    def create() -> np.ndarray:
-        x = sample()
+        x = nrand.multivariate_normal(center, std_dev**2 * np.eye(len(center)))
         while not in_bounds(x):
-            x = sample()
-
+            x = nrand.multivariate_normal(center, std_dev**2 * np.eye(len(center)))
         return x
+
+    def create(size: int) -> np.ndarray:
+        return [sample() for _ in range(size)]
 
     return create

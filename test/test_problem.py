@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from pyhms.core.individual import Individual
 from pyhms.core.problem import EvalCountingProblem, EvalCutoffProblem, PrecisionCutoffProblem, StatsGatheringProblem
-from pyhms.initializers import sample_uniform
+from pyhms.utils.samplers import sample_uniform
 
 from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
 

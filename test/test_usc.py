@@ -1,5 +1,6 @@
 import unittest
 
+from pyhms.core.initializers import GaussianInitializerWithSeedInject, UniformGlobalInitializer, InjectionInitializer
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontRun, DontStop, MetaepochLimit, UniversalStopCondition
@@ -20,12 +21,14 @@ class TestUniversalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
         tree_config = TreeConfig(

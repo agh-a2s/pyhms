@@ -5,10 +5,11 @@ from pyhms.config import (
     CMALevelConfig,
     DELevelConfig,
     EALevelConfig,
-    LHSLevelConfig,
+    RandomLEvelConfig,
     LocalOptimizationConfig,
     TreeConfig,
 )
+from pyhms.core.initializers import LHSGlobalInitializer, UniformGlobalInitializer, InjectionInitializer, GaussianInitializerWithSeedInject
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout import (
     DemeLimit,
@@ -35,6 +36,7 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             EALevelConfig(
                 ea_class=SEA,
@@ -44,6 +46,7 @@ class TestSquare(unittest.TestCase):
                 mutation_std=0.25,
                 sample_std_dev=0.5,
                 lsc=DontStop(),
+                pop_initializer_type=GaussianInitializerWithSeedInject,
             ),
         ]
 
@@ -63,12 +66,14 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=None,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 
@@ -88,6 +93,7 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
@@ -95,6 +101,7 @@ class TestSquare(unittest.TestCase):
                 sigma0=None,
                 set_stds=True,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 
@@ -114,12 +121,14 @@ class TestSquare(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 
@@ -132,16 +141,18 @@ class TestSquare(unittest.TestCase):
     def test_square_optimization_lhs(self):
         options = {"random_seed": 1}
         config = [
-            LHSLevelConfig(
+            RandomLEvelConfig(
                 problem=SQUARE_PROBLEM,
                 pop_size=20,
                 lsc=DontStop(),
+                pop_initializer_type=LHSGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 
@@ -167,17 +178,20 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+                pop_initializer_type=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
+                pop_initializer_type=InjectionInitializer,
             ),
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
                 lsc=DontStop(),
                 maxiter=10,
+                pop_initializer_type=InjectionInitializer,
             ),
         ]
 
