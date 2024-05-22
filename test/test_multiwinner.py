@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from pyhms.demes.single_pop_eas.multiwinner import BlocVoting, BordaVoting, SNTVoting, get_positions_in_preferences
+from pyhms.demes.single_pop_eas.multiwinner import BlocPolicy, BordaPolicy, SNTVPolicy, get_positions_in_preferences
 
 
 class TestVotingSchemes(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestVotingSchemes(unittest.TestCase):
         preferences = np.array([[0, 1, 2, 3], [1, 2, 0, 3], [2, 0, 1, 3], [2, 1, 3, 0]])
         k = 2
         target_winners = np.array([1, 2])
-        voting = BlocVoting()
+        voting = BlocPolicy()
         winners = voting(preferences, k)
         self.assertTrue(np.array_equal(winners, target_winners))
 
@@ -17,7 +17,7 @@ class TestVotingSchemes(unittest.TestCase):
         preferences = np.array([[0, 1, 2, 3], [1, 2, 0, 3], [2, 0, 1, 3], [2, 1, 3, 0]])
         k = 2
         target_winners = np.array([2, 1])
-        voting = BordaVoting()
+        voting = BordaPolicy()
         winners = voting(preferences, k)
         self.assertTrue(np.array_equal(winners, target_winners))
 
@@ -25,7 +25,7 @@ class TestVotingSchemes(unittest.TestCase):
         preferences = np.array([[0, 1, 2, 3], [0, 2, 1, 3], [0, 2, 1, 3], [2, 1, 3, 0]])
         k = 2
         target_winners = np.array([0, 2])
-        voting = SNTVoting()
+        voting = SNTVPolicy()
         winners = voting(preferences, k)
         self.assertTrue(np.array_equal(winners, target_winners))
 
