@@ -28,16 +28,19 @@ class UtilityFunction:
         candidate_fitness: float,
         problem: Problem,
     ) -> float:
-        self.h = (lambda x: x) if problem.maximize else (lambda x: -1 * x)
+        self.h = (lambda x: x) if problem.maximize else (lambda x: 1 / (1 + x))
         reversed_fitness = self.h(candidate_fitness)
         distance_value = self.distance(voter_genome, candidate_genome)
         return self.gamma(reversed_fitness) * self.delta(distance_value)
 
     def evaluate_population(self, population: Population) -> np.ndarray:
+        # Multiwinner behavior depends on the sign of the fitness values.
+        # In order to use 1/(1+x) as a reversal function, fitness values must be different than -1.
+        positive_fitnesses = population.fitnesses - np.min(population.fitnesses)
         scores = []
         for voter_genome in population.genomes:
             candidate_scores = []
-            for candidate_genome, candidate_fitness in zip(population.genomes, population.fitnesses):
+            for candidate_genome, candidate_fitness in zip(population.genomes, positive_fitnesses):
                 if np.array_equal(voter_genome, candidate_genome):
                     candidate_scores.append(-np.inf)
                 else:
