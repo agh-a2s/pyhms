@@ -169,3 +169,21 @@ class GAStyleSEA(BaseSEA):
             ],
             k_elites=k_elites,
         )
+
+
+class MWEA(BaseSEA):
+    # TODO: improve, it's not correct
+    def __init__(
+        self,
+        variational_operators_pipeline: list[VariationalOperator],
+        selection: VariationalOperator,
+    ) -> None:
+        self.variational_operators_pipeline = variational_operators_pipeline
+        self.selection = selection
+
+    def run(self, parents: list[Individual]) -> list[Individual]:
+        parent_population = Population.from_individuals(parents)
+        offspring_population = parent_population.copy()
+        for variational_operator in self.variational_operators_pipeline:
+            offspring_population = variational_operator(offspring_population)
+        return self.selection(parent_population.merge(offspring_population)).to_individuals()
