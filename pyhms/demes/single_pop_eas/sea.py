@@ -3,11 +3,13 @@ import numpy as np
 from ...core.individual import Individual
 from ...core.population import Population
 from .common import VariationalOperator, apply_bounds
+from .multiwinner import CCGreedyPolicy, MultiwinnerRepeatedSelection, UtilityFunction
 
 DEFAULT_P_MUTATION = 1.0
 DEFAULT_P_CROSSOVER = 0.7
 DEFAULT_MUTATION_STD = 1.0
 DEFAULT_K_ELITES = 1
+DEFAULT_ELECTION_GROUP_SIZE = 10
 
 
 class GaussianMutation(VariationalOperator):
@@ -172,18 +174,38 @@ class GAStyleSEA(BaseSEA):
 
 
 class MWEA(BaseSEA):
-    # TODO: improve, it's not correct
     def __init__(
         self,
         variational_operators_pipeline: list[VariationalOperator],
-        selection: VariationalOperator,
     ) -> None:
         self.variational_operators_pipeline = variational_operators_pipeline
-        self.selection = selection
 
     def run(self, parents: list[Individual]) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
         offspring_population = parent_population.copy()
         for variational_operator in self.variational_operators_pipeline:
             offspring_population = variational_operator(offspring_population)
-        return self.selection(parent_population.merge(offspring_population)).to_individuals()
+        return offspring_population.to_individuals()
+
+    @classmethod
+    def create(self, **kwargs) -> "MWEA":
+        problem = kwargs.get("problem")
+        mutation_std = kwargs.get("mutation_std", DEFAULT_MUTATION_STD)
+        p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
+        k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
+        election_group_size = kwargs.get("election_group_size", DEFAULT_ELECTION_GROUP_SIZE)
+        return MWEA(
+            variational_operators_pipeline=[
+                MultiwinnerRepeatedSelection(
+                    utility_function=UtilityFunction(
+                        distance=lambda x, y: np.sum(np.abs(x - y)),
+                        gamma=lambda x: x**6,
+                        delta=lambda x: 1 / x,
+                    ),
+                    voting_scheme=CCGreedyPolicy(),
+                    k=k_elites,
+                    election_group_size=election_group_size,
+                ),
+                GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
+            ],
+        )

@@ -159,3 +159,32 @@ class MultiwinnerSelection(VariationalOperator):
         preferences = self.utility_function.get_preferences(population)
         selected_indices = self.voting_scheme(preferences, self.k)
         return population[selected_indices]
+
+
+class MultiwinnerRepeatedSelection(VariationalOperator):
+    def __init__(
+        self,
+        utility_function: UtilityFunction,
+        voting_scheme: MWPolicy,
+        k: int,
+        election_group_size: int,
+    ) -> None:
+        self.utility_function = utility_function
+        self.voting_scheme = voting_scheme
+        self.k = k
+        self.election_group_size = election_group_size
+
+    def __call__(self, population: Population) -> Population:
+        new_population: Population | None = None
+        for _ in range(population.size // self.k + 1):
+            election_group_indices = np.random.choice(population.size, self.election_group_size, replace=False)
+            election_group_population = population[election_group_indices]
+            preferences = self.utility_function.get_preferences(election_group_population)
+            selected_indices = self.voting_scheme(preferences, self.k)
+            if new_population is None:
+                new_population = election_group_population[selected_indices]
+            else:
+                new_population = new_population.merge(election_group_population[selected_indices])
+        if new_population.size > population.size:
+            new_population = new_population.topk(population.size)
+        return new_population
