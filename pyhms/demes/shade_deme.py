@@ -1,31 +1,28 @@
-from pyhms.config import DELevelConfig
-from pyhms.demes.abstract_deme import AbstractDeme
-from pyhms.demes.single_pop_eas.de import DE
-from pyhms.initializers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
 
+from ..config import SHADELevelConfig
 from ..core.individual import Individual
+from ..initializers import sample_normal, sample_uniform
+from .abstract_deme import AbstractDeme
+from .single_pop_eas.de import SHADE
 
 
-class DEDeme(AbstractDeme):
+class SHADEDeme(AbstractDeme):
     def __init__(
         self,
         id: str,
         level: int,
-        config: DELevelConfig,
+        config: SHADELevelConfig,
         logger: FilteringBoundLogger,
         started_at: int = 0,
         sprout_seed: Individual = None,
     ) -> None:
         super().__init__(id, level, config, logger, started_at, sprout_seed)
+        self._init_pop_size = config.pop_size
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._sample_std_dev = config.sample_std_dev
-        self._de = DE(
-            use_dither=config.dither,
-            crossover_probability=config.crossover,
-            f=config.scaling,
-        )
+        self._shade = SHADE(config.memory_size, config.pop_size)
 
         if sprout_seed is None:
             starting_pop = Individual.create_population(
@@ -50,7 +47,7 @@ class DEDeme(AbstractDeme):
         epoch_counter = 0
         metaepoch_generations = []
         while epoch_counter < self._generations:
-            offspring = self._de.run(self.current_population)
+            offspring = self._shade.run(self.current_population)
 
             epoch_counter += 1
             metaepoch_generations.append(offspring)
@@ -58,9 +55,9 @@ class DEDeme(AbstractDeme):
             if tree._gsc(tree):
                 self._history.append(metaepoch_generations)
                 self._active = False
-                self.log("DE Deme finished due to GSC")
+                self.log("SHADE Deme finished due to GSC")
                 return
         self._history.append(metaepoch_generations)
         if self._lsc(self):
-            self.log("DE Deme finished due to LSC")
+            self.log("SHADE Deme finished due to LSC")
             self._active = False

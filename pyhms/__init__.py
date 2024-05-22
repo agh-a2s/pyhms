@@ -5,6 +5,7 @@ from .config import (
     EALevelConfig,
     LHSLevelConfig,
     LocalOptimizationConfig,
+    SHADELevelConfig,
     SobolLevelConfig,
     TreeConfig,
 )
