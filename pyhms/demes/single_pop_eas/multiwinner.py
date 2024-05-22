@@ -41,6 +41,9 @@ class UtilityFunction:
         for voter_genome in population.genomes:
             candidate_scores = []
             for candidate_genome, candidate_fitness in zip(population.genomes, positive_fitnesses):
+                # I decided to adjust original implementation.
+                # Each voter should not vote for itself.
+                # This way SNTVPolicy makes more sense.
                 if np.array_equal(voter_genome, candidate_genome):
                     candidate_scores.append(-np.inf)
                 else:
@@ -64,13 +67,7 @@ def get_positions_in_preferences(preferences: np.ndarray) -> np.ndarray:
     """
     i-th index of the j-th row of the output array is the position of the i-th candidate in the j-th preference list.
     """
-    assert preferences.ndim == 2, "Input must be a 2D array"
-    assert preferences.shape[0] == preferences.shape[1], "Input must be a square matrix"
-    N = preferences.shape[0]
-    positions_in_sorted_array = np.empty_like(preferences)
-    row_indices = np.arange(N)[:, None]
-    positions_in_sorted_array[row_indices, preferences] = np.tile(np.arange(N), (N, 1))
-    return positions_in_sorted_array
+    return np.argsort(preferences)
 
 
 class MWPolicy(Protocol):
@@ -116,6 +113,35 @@ class BlocPolicy(MWPolicy):
         top_k = preferences[:, :k].flatten()
         unique_candidate_indices, counts = np.unique(top_k, return_counts=True)
         return unique_candidate_indices[np.argsort(-counts)[:k]]
+
+
+class CCGreedyPolicy(MWPolicy):
+    """
+    Chamberlin-Courant greedy algorithm by Lu and Boutilier.
+    """
+
+    def __call__(self, preferences: np.ndarray, k: int) -> np.ndarray:
+        N = preferences.shape[1]
+        positions_in_sorted_array = get_positions_in_preferences(preferences)
+        all_borda_scores = N - positions_in_sorted_array
+        winner_indices: list[int] = []
+        candidate_indices = np.arange(N)
+        np.random.shuffle(candidate_indices)
+        for _ in range(k):
+            best_score = -np.inf
+            best_candidate_index = None
+            np.random.shuffle(candidate_indices)
+            for candidate_index in candidate_indices:
+                if candidate_index in winner_indices:
+                    continue
+                new_winner_indices = winner_indices + [candidate_index]
+                scores_to_consider = all_borda_scores[new_winner_indices, :]
+                total_score = np.sum(np.max(scores_to_consider, axis=1))
+                if total_score > best_score:
+                    best_score = total_score
+                    best_candidate_index = candidate_index
+            winner_indices.append(best_candidate_index)
+        return np.array(winner_indices)
 
 
 class MultiwinnerSelection(VariationalOperator):
