@@ -1,3 +1,5 @@
+import copy
+
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.sprout.sprout_candidates import DemeCandidates
 from pyhms.sprout.sprout_filters import (
@@ -22,12 +24,22 @@ class SproutMechanism:
         self.candidates_generator = candidates_generator
         self.deme_filter_chain = deme_filter_chain
         self.tree_filter_chain = tree_filter_chain
+        self._generated_deme_ids_to_candidates_history: list[dict[str, DemeCandidates]] = []
+        self._filtered_deme_ids_to_candidates_history: list[dict[str, DemeCandidates]] = []
 
     def get_seeds(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         candidates = self.candidates_generator(tree)
+        generated_deme_ids_to_individuals = copy.deepcopy(
+            {deme.id: individuals for deme, individuals in candidates.items()}
+        )
+        self._generated_deme_ids_to_candidates_history.append(generated_deme_ids_to_individuals)
         candidates = self.apply_deme_filters(candidates, tree)
         candidates = self.apply_tree_filters(candidates, tree)
-        return {k: v for k, v in candidates.items() if len(candidates[k].individuals) > 0}
+        filtered_deme_ids_to_individuals = copy.deepcopy(
+            {deme.id: individuals for deme, individuals in candidates.items()}
+        )
+        self._filtered_deme_ids_to_candidates_history.append(filtered_deme_ids_to_individuals)
+        return {k: v for k, v in candidates.items() if candidates[k].individuals}
 
     def apply_deme_filters(
         self,

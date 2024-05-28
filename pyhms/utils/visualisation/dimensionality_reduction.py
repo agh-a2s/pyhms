@@ -12,7 +12,7 @@ class DimensionalityReducer(Protocol):
 
 
 class NaiveDimensionalityReducer(DimensionalityReducer):
-    def __init__(self, selected_dimensions: tuple[int, int] = (0, 1)) -> None:
+    def __init__(self, selected_dimensions: list[int] = [0, 1]) -> None:
         self.selected_dimensions = selected_dimensions
 
     def fit(self, X: np.ndarray) -> None:
