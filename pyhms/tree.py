@@ -2,6 +2,7 @@ import dill as pkl
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
@@ -317,6 +318,34 @@ class DemeTree:
         plt.xlabel("Generation Number")
         plt.ylabel("Average Variance of Genome")
         plt.grid(True)
+        if filepath:
+            plt.savefig(filepath)
+        plt.show()
+
+    def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
+        deme_id_with_sprout_seed = [
+            (deme.id, deme._sprout_seed) for deme_level, deme in self.all_demes if deme_level == level
+        ]
+        sprout_seeds = [sprout_seed for _, sprout_seed in deme_id_with_sprout_seed]
+        deme_ids = [deme_id for deme_id, _ in deme_id_with_sprout_seed]
+        distances = pairwise_distances([ind.genome for ind in sprout_seeds])
+        plt.imshow(distances, aspect="auto")
+        plt.title("Distances between Sprout Seeds")
+        plt.xlabel("Deme ID")
+        plt.ylabel("Deme ID")
+        plt.xticks(ticks=range(len(deme_ids)), labels=deme_ids)
+        plt.yticks(ticks=range(len(deme_ids)), labels=deme_ids)
+
+        for i in range(len(distances)):
+            for j in range(len(distances)):
+                plt.text(
+                    j,
+                    i,
+                    f"{distances[i, j]:.2f}",
+                    ha="center",
+                    va="center",
+                    color="white",
+                )
         if filepath:
             plt.savefig(filepath)
         plt.show()
