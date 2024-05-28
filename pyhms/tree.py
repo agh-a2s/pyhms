@@ -12,6 +12,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
+from .utils.clusterization import NearestBetterClustering
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
@@ -339,3 +340,13 @@ class DemeTree:
         if filepath:
             plt.savefig(filepath)
         plt.show()
+
+    def plot_nbc(
+        self,
+        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
+    ) -> None:
+        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor)
+        nbc._prepare_spanning_tree()
+        nbc.plot_clusters(dimensionality_reducer)
