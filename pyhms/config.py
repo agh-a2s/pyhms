@@ -99,7 +99,7 @@ class LocalOptimizationConfig(BaseLevelConfig):
         self.__dict__.update(kwargs)
 
 
-class RandomLEvelConfig(BaseLevelConfig):
+class RandomLevelConfig(BaseLevelConfig):
     def __init__(
         self,
         problem: Problem,

@@ -22,7 +22,7 @@ class RandomDeme(AbstractDeme):
         self.run()
 
     def run(self) -> None:
-        population = self._sampler.sample_pop(self._pop_size, self._problem)
+        population = self._sampler(self._pop_size, self._problem)
         Individual.evaluate_population(population)
         self._history.append([population])
 
@@ -31,7 +31,9 @@ class RandomDeme(AbstractDeme):
         if (gsc_value := tree._gsc(tree)) or self._lsc(self):
             self._active = False
             message = (
-                "Random sampler Deme finished due to GSC" if gsc_value else "Random sampler Deme finished due to LSC"
+                f"Random sampler Deme of {self._sampler.__class__.__name__} class finished due to GSC"
+                if gsc_value
+                else f"Random sampler Deme of {self._sampler.__class__.__name__} class finished due to LSC"
             )
             self.log(message)
             return

@@ -6,7 +6,7 @@ from pyhms.config import (
     DELevelConfig,
     EALevelConfig,
     LocalOptimizationConfig,
-    RandomLEvelConfig,
+    RandomLevelConfig,
     TreeConfig,
 )
 from pyhms.core.initializers import (
@@ -146,7 +146,7 @@ class TestSquare(unittest.TestCase):
     def test_square_optimization_lhs(self):
         options = {"random_seed": 1}
         config = [
-            RandomLEvelConfig(
+            RandomLevelConfig(
                 problem=SQUARE_PROBLEM,
                 pop_size=20,
                 lsc=DontStop(),

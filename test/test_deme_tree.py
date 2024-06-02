@@ -38,7 +38,6 @@ class TestDemeTree(unittest.TestCase):
         for leave in hms_tree.leaves:
             self.assertIsInstance(leave, CMADeme)
         for level, deme in hms_tree.all_demes:
-            print(level, deme)
             self.assertLessEqual(level, hms_tree.height)
             self.assertLessEqual(deme.best_individual, hms_tree.best_individual)
             self.assertLessEqual(deme.best_current_individual, deme.best_individual)

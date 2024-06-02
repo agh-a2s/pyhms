@@ -4,7 +4,7 @@ from .config import (
     DELevelConfig,
     EALevelConfig,
     LocalOptimizationConfig,
-    RandomLEvelConfig,
+    RandomLevelConfig,
     TreeConfig,
 )
 from .core.individual import Individual

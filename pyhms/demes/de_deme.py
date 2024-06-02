@@ -26,7 +26,7 @@ class DEDeme(AbstractDeme):
         self._crossover_prob = config.crossover
         self._sample_std_dev = config.sample_std_dev
 
-        starting_pop = self._initializer.sample_pop(self._pop_size, self._problem)
+        starting_pop = self._initializer(self._pop_size, self._problem)
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
 

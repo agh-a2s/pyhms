@@ -24,7 +24,7 @@ class EADeme(AbstractDeme):
         ea_params["problem"] = self._problem
         self._ea = config.ea_class.create(**ea_params)
 
-        starting_pop = self._initializer.sample_pop(self._pop_size, self._problem)
+        starting_pop = self._initializer(self._pop_size, self._problem)
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
 
