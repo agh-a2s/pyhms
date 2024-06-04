@@ -105,6 +105,17 @@ class AbstractDeme(ABC):
     def children(self) -> list["AbstractDeme"]:
         return self._children
 
+    @property
+    def current_iteration(self) -> int:
+        return self._started_at + self.metaepoch_count
+
+    @property
+    def iterations_count_since_last_sprout(self) -> int:
+        return self.current_iteration - max(
+            [child.started_at for child in self.children],
+            default=self.current_iteration,
+        )
+
     def add_child(self, deme: "AbstractDeme") -> None:
         self._children.append(deme)
 
