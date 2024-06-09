@@ -3,6 +3,7 @@ import matplotlib.animation as animation
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
@@ -97,27 +98,31 @@ class DemeTree:
         return individuals_from_all_demes
 
     def run(self) -> None:
-        self._logger.debug(
-            "Starting HMS",
-            height=self.height,
-            options=self.config.options,
-            levels=self.config.levels,
-            gsc=str(self.config.gsc),
-        )
         while not self._gsc(self):
-            self.metaepoch_count += 1
-            self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
-            self.run_metaepoch()
-            if not self._gsc(self):
-                self.run_sprout()
-            if len(self.leaves) > 0:
-                self._logger.info(
-                    "Metaepoch finished",
-                    best_fitness=self.best_leaf_individual.fitness,
-                    best_individual=self.best_leaf_individual.genome,
-                )
-            else:
-                self._logger.info("Metaepoch finished. No leaf demes yet.")
+            self.run_step()
+
+    def run_step(self) -> None:
+        if self.metaepoch_count == 0:
+            self._logger.debug(
+                "Starting HMS",
+                height=self.height,
+                options=self.config.options,
+                levels=self.config.levels,
+                gsc=str(self.config.gsc),
+            )
+        self.metaepoch_count += 1
+        self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
+        self.run_metaepoch()
+        if not self._gsc(self):
+            self.run_sprout()
+        if len(self.leaves) > 0:
+            self._logger.info(
+                "Metaepoch finished",
+                best_fitness=self.best_leaf_individual.fitness,
+                best_individual=self.best_leaf_individual.genome,
+            )
+        else:
+            self._logger.info("Metaepoch finished. No leaf demes yet.")
 
     def run_metaepoch(self) -> None:
         for _, deme in reversed(self.active_demes):
@@ -357,6 +362,83 @@ class DemeTree:
             color="Level",
             labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
             title="Scatter Plot of Individual Fitness vs Distance to Best by Level",
+        )
+
+        fig.show()
+
+    def plot_population(
+        self,
+        show_grid: bool = False,
+        grid_granularity: float | None = None,
+        optimal_fitness_value: float | None = None,
+        optimal_genome: np.ndarray | None = None,
+        show_all_individuals: bool = False,
+    ) -> None:
+        objective_function = self.root._problem._inner._inner.fitness_function
+        bounds = self.root._problem._inner._inner.bounds
+        if show_grid:
+            grid_granularity = grid_granularity or (bounds[0][1] - bounds[0][0]) / 200
+            grid = Grid2DProblemEvaluation(objective_function, bounds, 0.05)
+            grid.evaluate()
+            fig = px.imshow(
+                grid.z.T,
+                labels={"x": "x", "y": "y", "color": "f(x, y)"},
+                x=grid.x,
+                y=grid.y,
+                origin="lower",
+                aspect="auto",
+                color_continuous_scale="Cividis",
+            )
+        else:
+            fig = go.Figure()
+
+        for _, deme in self.all_demes:
+            deme_history = deme.all_individuals if show_all_individuals else deme.history[-1]
+            genomes = np.array([x.genome for x in deme_history])
+            fitness_values = np.array([x.fitness for x in deme_history])
+            labels = [f"f(x, y): {val:.2f}" for val in fitness_values]
+            scatter = go.Scatter(
+                x=genomes[:, 0],
+                y=genomes[:, 1],
+                text=labels,
+                mode="markers",
+                marker=dict(size=10),
+                name=deme.id,
+            )
+            fig.add_trace(scatter)
+        if optimal_genome is not None and optimal_fitness_value is not None:
+            scatter = go.Scatter(
+                x=[optimal_genome[0]],
+                y=[optimal_genome[1]],
+                text=[f"f(x, y): {optimal_fitness_value:.2f}"],
+                mode="markers",
+                marker=dict(
+                    size=15,
+                    symbol="diamond",
+                    color="yellow",
+                    line=dict(
+                        width=2,
+                    ),
+                ),
+                name="Optimum",
+            )
+            fig.add_trace(scatter)
+
+        fig.update_layout(
+            xaxis_title="x",
+            yaxis_title="y",
+            width=1000,
+            height=1000,
+            coloraxis_colorbar=dict(
+                title="f(x, y)",
+                x=1.15,
+                y=0.5,
+                len=0.8,
+            ),
+            legend=dict(
+                x=1.05,
+                y=0.5,
+            ),
         )
 
         fig.show()
