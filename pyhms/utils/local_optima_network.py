@@ -17,8 +17,9 @@ class LocalOptimaNetwork:
         self,
         objective_function: Callable,
         bounds: np.ndarray,
-        perturbation_steps: float | np.ndarray | None,
         stopping_threshold: int,
+        num_of_runs: int,
+        perturbation_steps: float | np.ndarray | None,
         local_method_options: dict = DEFAULT_LOCAL_METHOD_OPTIONS,
     ):
         self.objective_function = objective_function
@@ -32,6 +33,7 @@ class LocalOptimaNetwork:
             self.perturbation_steps = perturbation_steps
         self.stopping_threshold = stopping_threshold
         self.local_method_options = local_method_options
+        self.num_of_runs = num_of_runs
         self.graph = nx.DiGraph()
 
     def local_minimization(self, initial_point: np.ndarray) -> tuple[np.ndarray, float]:
@@ -48,22 +50,29 @@ class LocalOptimaNetwork:
         perturbed = point + np.random.uniform(-self.perturbation_steps, self.perturbation_steps, size=len(point))
         return np.clip(perturbed, self.bounds[:, 0], self.bounds[:, 1])
 
-    def __call__(self) -> list[list[tuple[np.ndarray, float]]]:
+    def __call__(self) -> nx.DiGraph:
+        # TODO: initialize solution for every run separately
+
         initial_point = np.random.uniform(self.bounds[:, 0], self.bounds[:, 1])
         current_solution, current_value = self.local_minimization(initial_point)
 
-        r = 0
-        all_paths = [[(current_solution.copy(), current_value)]]
-        while r < self.stopping_threshold:
-            new_solution = self.perturbation(current_solution)
-            new_solution, new_value = self.local_minimization(new_solution)
+        self.graph.add_node(tuple(current_solution.copy()), value=current_value)
 
-            if new_value <= current_value:
-                current_solution, current_value = new_solution, new_value
-                r = 0
-                all_paths[-1].append((current_solution.copy(), current_value))
-            else:
+        for _ in range(self.num_of_runs):
+            r = 0
+            while r < self.stopping_threshold:
+                new_solution = self.perturbation(current_solution)
+                new_solution, new_value = self.local_minimization(new_solution)
+
+                if new_value <= current_value:
+                    if self.graph.has_node(tuple(new_solution.copy())):
+                        self.graph.add_edge(tuple(current_solution.copy()), tuple(new_solution.copy()))
+                    else:
+                        self.graph.add_node(tuple(new_solution.copy()), value=new_value)
+                        self.graph.add_edge(tuple(current_solution.copy()), tuple(new_solution.copy()))
+                    current_solution, current_value = new_solution, new_value
+                else:
+                    self.graph.add_node(tuple(new_solution.copy()), value=new_value)
                 r += 1
-                all_paths.append([(new_solution.copy(), new_value)])
 
-        return all_paths
+        return self.graph.edge_subgraph(self.graph.edges)
