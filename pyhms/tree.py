@@ -8,7 +8,7 @@ from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
 from .core.individual import Individual
-from .core.problem import StatsGatheringProblem
+from .core.problem import StatsGatheringProblem, get_function_problem
 from .demes.abstract_deme import AbstractDeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
@@ -374,8 +374,9 @@ class DemeTree:
         optimal_genome: np.ndarray | None = None,
         show_all_individuals: bool = False,
     ) -> None:
-        objective_function = self.root._problem._inner._inner.fitness_function
-        bounds = self.root._problem._inner._inner.bounds
+        function_problem = get_function_problem(self.root._problem)
+        objective_function = function_problem.fitness_function
+        bounds = function_problem.bounds
         if show_grid:
             grid_granularity = grid_granularity or (bounds[0][1] - bounds[0][0]) / 200
             grid = Grid2DProblemEvaluation(objective_function, bounds, 0.05)

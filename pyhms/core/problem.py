@@ -264,3 +264,16 @@ class StatsGatheringProblem(ProblemWrapper):
         else:
             inner_str = str(self._inner)
         return f"StatsGatheringProblem({inner_str})"
+
+
+def get_function_problem(
+    problem: Problem | ProblemWrapper | FunctionProblem,
+) -> FunctionProblem:
+    """
+    Recursively unwraps a `ProblemWrapper` instance to get the inner `FunctionProblem`.
+    """
+    if isinstance(problem, FunctionProblem):
+        return problem
+    if not isinstance(problem, ProblemWrapper):
+        raise ValueError("The problem must be an instance of `FunctionProblem` or `ProblemWrapper`.")
+    return get_function_problem(problem._inner)
