@@ -1,7 +1,9 @@
 import dill as pkl
 import matplotlib.animation as animation
-import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
@@ -96,27 +98,31 @@ class DemeTree:
         return individuals_from_all_demes
 
     def run(self) -> None:
-        self._logger.debug(
-            "Starting HMS",
-            height=self.height,
-            options=self.config.options,
-            levels=self.config.levels,
-            gsc=str(self.config.gsc),
-        )
         while not self._gsc(self):
-            self.metaepoch_count += 1
-            self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
-            self.run_metaepoch()
-            if not self._gsc(self):
-                self.run_sprout()
-            if len(self.leaves) > 0:
-                self._logger.info(
-                    "Metaepoch finished",
-                    best_fitness=self.best_leaf_individual.fitness,
-                    best_individual=self.best_leaf_individual.genome,
-                )
-            else:
-                self._logger.info("Metaepoch finished. No leaf demes yet.")
+            self.run_step()
+
+    def run_step(self) -> None:
+        if self.metaepoch_count == 0:
+            self._logger.debug(
+                "Starting HMS",
+                height=self.height,
+                options=self.config.options,
+                levels=self.config.levels,
+                gsc=str(self.config.gsc),
+            )
+        self.metaepoch_count += 1
+        self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
+        self.run_metaepoch()
+        if not self._gsc(self):
+            self.run_sprout()
+        if len(self.leaves) > 0:
+            self._logger.info(
+                "Metaepoch finished",
+                best_fitness=self.best_leaf_individual.fitness,
+                best_individual=self.best_leaf_individual.genome,
+            )
+        else:
+            self._logger.info("Metaepoch finished. No leaf demes yet.")
 
     def run_metaepoch(self) -> None:
         for _, deme in reversed(self.active_demes):
@@ -282,19 +288,29 @@ class DemeTree:
         Plots the best fitness value for each metaepoch.
         To save the plot, provide the filepath argument.
         """
-        pd.concat(
+        df = pd.concat(
             [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
-        ).T.plot(marker="o", linestyle="-")
-        plt.title("Best fitness by metaepoch")
-        plt.xlabel("Metaepoch")
-        plt.ylabel("Best Fitness")
-        plt.grid(True)
+        ).T
+        df_long = df.reset_index().melt(id_vars="index", var_name="Deme", value_name="Best Fitness")
+        df_long.rename(columns={"index": "Metaepoch"}, inplace=True)
+        fig = px.line(
+            df_long,
+            x="Metaepoch",
+            y="Best Fitness",
+            color="Deme",
+            markers=True,
+            title="Best Fitness by Metaepoch",
+            labels={"Metaepoch": "Metaepoch", "Best Fitness": "Best Fitness"},
+        )
         if filepath:
-            plt.savefig(filepath)
-        plt.show()
+            fig.write_image(filepath)
+        fig.show()
 
     def plot_deme_variance(
-        self, filepath: str | None = None, deme_id: str | None = "root", selected_dimensions: list[int] | None = None
+        self,
+        filepath: str | None = None,
+        deme_id: str | None = "root",
+        selected_dimensions: list[int] | None = None,
     ) -> None:
         """
         Plots the average variance of genes/dimensions across generations for a given deme
@@ -305,18 +321,124 @@ class DemeTree:
         """
         deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
         variance_per_gene = get_average_variance_per_generation(deme, selected_dimensions)
-        variance_per_gene.plot()
-        plt.plot(
-            variance_per_gene.index,
-            variance_per_gene["Average Variance of Genome"],
-            marker="o",
-            linestyle="-",
-            color="b",
+        fig = px.line(
+            variance_per_gene,
+            x=variance_per_gene.index,
+            y="Average Variance of Genome",
+            title=f"Variance Across Generations for {deme_id.capitalize()} Deme",
+            labels={
+                "index": "Generation Number",
+                "Average Variance of Genome": "Average Variance of Genome",
+            },
+            markers=True,
         )
-        plt.title(f"Variance Across Generations for {deme.id.capitalize()} Deme")
-        plt.xlabel("Generation Number")
-        plt.ylabel("Average Variance of Genome")
-        plt.grid(True)
         if filepath:
-            plt.savefig(filepath)
-        plt.show()
+            fig.write_image(filepath)
+
+        fig.show()
+
+    def plot_fitness_value_by_distance(self) -> None:
+        data = []  # type: ignore[var-annotated]
+        best_genome = self.best_individual.genome
+        for level, deme in self.all_demes:
+            genomes = np.array([x.genome for x in deme.all_individuals])
+            distances_to_best = np.linalg.norm(genomes - best_genome, axis=1)
+            fitness_differences = np.array([x.fitness for x in deme.all_individuals]) - self.best_individual.fitness
+            data.extend(
+                zip(
+                    distances_to_best,
+                    fitness_differences,
+                    [str(level)] * len(distances_to_best),
+                )
+            )
+        df = pd.DataFrame(
+            data,
+            columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
+        )
+        fig = px.scatter(
+            df,
+            x="Distance to Best Solution",
+            y="Fitness Value Difference",
+            color="Level",
+            labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
+            title="Scatter Plot of Individual Fitness vs Distance to Best by Level",
+        )
+
+        fig.show()
+
+    def plot_population(
+        self,
+        show_grid: bool = False,
+        grid_granularity: float | None = None,
+        optimal_fitness_value: float | None = None,
+        optimal_genome: np.ndarray | None = None,
+        show_all_individuals: bool = False,
+    ) -> None:
+        objective_function = self.root._problem._inner._inner.fitness_function
+        bounds = self.root._problem._inner._inner.bounds
+        if show_grid:
+            grid_granularity = grid_granularity or (bounds[0][1] - bounds[0][0]) / 200
+            grid = Grid2DProblemEvaluation(objective_function, bounds, 0.05)
+            grid.evaluate()
+            fig = px.imshow(
+                grid.z.T,
+                labels={"x": "x", "y": "y", "color": "f(x, y)"},
+                x=grid.x,
+                y=grid.y,
+                origin="lower",
+                aspect="auto",
+                color_continuous_scale="Cividis",
+            )
+        else:
+            fig = go.Figure()
+
+        for _, deme in self.all_demes:
+            deme_history = deme.all_individuals if show_all_individuals else deme.history[-1]
+            genomes = np.array([x.genome for x in deme_history])
+            fitness_values = np.array([x.fitness for x in deme_history])
+            labels = [f"f(x, y): {val:.2f}" for val in fitness_values]
+            scatter = go.Scatter(
+                x=genomes[:, 0],
+                y=genomes[:, 1],
+                text=labels,
+                mode="markers",
+                marker=dict(size=10),
+                name=deme.id,
+            )
+            fig.add_trace(scatter)
+        if optimal_genome is not None and optimal_fitness_value is not None:
+            scatter = go.Scatter(
+                x=[optimal_genome[0]],
+                y=[optimal_genome[1]],
+                text=[f"f(x, y): {optimal_fitness_value:.2f}"],
+                mode="markers",
+                marker=dict(
+                    size=15,
+                    symbol="diamond",
+                    color="yellow",
+                    line=dict(
+                        width=2,
+                    ),
+                ),
+                name="Optimum",
+            )
+            fig.add_trace(scatter)
+
+        fig.update_layout(
+            xaxis_title="x",
+            yaxis_title="y",
+            width=1000,
+            height=1000,
+            coloraxis_colorbar=dict(
+                title="f(x, y)",
+                x=1.15,
+                y=0.5,
+                len=0.8,
+            ),
+            legend=dict(
+                x=1.05,
+                y=0.5,
+            ),
+        )
+
+        fig.show()

@@ -20,6 +20,8 @@ class Grid2DProblemEvaluation:
         self.problem = problem
         self.bounds = bounds
         self.granularity = granularity
+        self.x = np.arange(self.bounds[0][0], self.bounds[0][1] + self.granularity, self.granularity)
+        self.y = np.arange(self.bounds[1][0], self.bounds[1][1] + self.granularity, self.granularity)
         self.z: np.ndarray
 
     def pickle_dump(self, filepath: str | None = None) -> None:
@@ -36,11 +38,9 @@ class Grid2DProblemEvaluation:
         return grid
 
     def evaluate(self) -> np.ndarray:
-        xs = np.arange(self.bounds[0][0], self.bounds[0][1] + self.granularity, self.granularity)
-        ys = np.arange(self.bounds[1][0], self.bounds[1][1] + self.granularity, self.granularity)
-        self.z = np.zeros((len(xs), len(ys)))
-        for i, x in enumerate(xs):
-            for j, y in enumerate(ys):
+        self.z = np.zeros((len(self.x), len(self.y)))
+        for i, x in enumerate(self.x):
+            for j, y in enumerate(self.y):
                 self.z[i, j] = self.problem.evaluate(np.asarray([x, y]))
         return self.z
 
