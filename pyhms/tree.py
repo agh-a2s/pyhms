@@ -17,6 +17,7 @@ from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
+from .utils.f2_task_util import f2_translate_genome
 
 
 class DemeTree:
@@ -145,6 +146,13 @@ class DemeTree:
             target_level = deme.level + 1
 
             for ind in deme_candidates.individuals:
+                if self.config.options.get("separate_costfuns"):
+                    sprout_genome = f2_translate_genome(ind)
+                    sprout_seed = Individual(sprout_genome, problem=self.config.levels[target_level].problem)
+                else:
+                    sprout_seed = ind
+
+
                 new_id = self._next_child_id(deme)
                 config = self.config.levels[target_level]
 
@@ -153,7 +161,7 @@ class DemeTree:
                     new_id,
                     target_level,
                     self.metaepoch_count,
-                    sprout_seed=ind,
+                    sprout_seed=sprout_seed,
                     logger=self._logger,
                     random_seed=self._random_seed,
                     parent_deme=deme,

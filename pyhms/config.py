@@ -88,11 +88,13 @@ class CMALevelConfig(BaseLevelConfig):
         lsc: LocalStopCondition | UniversalStopCondition,
         sigma0: float | None,
         generations: int,
+        cma_options: dict | None = None,
         **kwargs,
     ) -> None:
         super().__init__(problem, lsc)
         self.sigma0 = sigma0
         self.generations = generations
+        self.cma_options = cma_options
         self.__dict__.update(kwargs)
 
 

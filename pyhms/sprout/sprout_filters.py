@@ -5,6 +5,7 @@ import numpy.linalg as nla
 from pyhms.core.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.sprout.sprout_candidates import DemeCandidates
+from pyhms.utils.f2_task_util import f2_translate_genome
 
 
 class DemeLevelCandidatesFilter(ABC):
@@ -56,8 +57,8 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
         self.min_distance_factor = min_distance_factor
         self.norm_ord = norm_ord
 
-    def _is_nbc_far_enough(self, ind: Individual, centroid: np.ndarray, mean_dist: np.float64 | float):
-        return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance_factor * mean_dist
+    def _is_nbc_far_enough(self, ind_genome: np.ndarray, centroid: np.ndarray, mean_dist: np.float64 | float):
+        return nla.norm(ind_genome - centroid, ord=self.norm_ord) > self.min_distance_factor * mean_dist
 
     def __call__(
         self,
@@ -71,15 +72,26 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1] if sibling.is_active]
             child_seeds = candidates[deme].individuals
             for sibling in child_siblings:
-                child_seeds = [
-                    ind
-                    for ind in child_seeds
-                    if self._is_nbc_far_enough(
-                        ind,
-                        sibling.centroid,
-                        candidates[deme].features.nbc_mean_distance,
-                    )
-                ]
+                if tree.config.options.get("separate_costfuns"):
+                    child_seeds = [
+                        ind
+                        for ind in child_seeds
+                        if self._is_nbc_far_enough(
+                            f2_translate_genome(ind),
+                            sibling.centroid,
+                            candidates[deme].features.nbc_mean_distance,
+                        )
+                    ]
+                else:
+                    child_seeds = [
+                        ind
+                        for ind in child_seeds
+                        if self._is_nbc_far_enough(
+                            ind.genome,
+                            sibling.centroid,
+                            candidates[deme].features.nbc_mean_distance,
+                        )
+                    ]
             candidates[deme].individuals = child_seeds
         return candidates
 
