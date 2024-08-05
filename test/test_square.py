@@ -9,7 +9,7 @@ from pyhms.config import (
     LocalOptimizationConfig,
     TreeConfig,
 )
-from pyhms.demes.single_pop_eas.sea import SEA
+from pyhms.demes.single_pop_eas.sea import SEA, SEAWithAdaptiveMutation
 from pyhms.sprout import (
     DemeLimit,
     LevelLimit,
@@ -35,6 +35,35 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
+            ),
+            EALevelConfig(
+                ea_class=SEA,
+                generations=4,
+                problem=SQUARE_PROBLEM,
+                pop_size=20,
+                mutation_std=0.25,
+                sample_std_dev=0.5,
+                lsc=DontStop(),
+            ),
+        ]
+
+        config = TreeConfig(config, DEFAULT_GSC, DEFAULT_SPROUT_COND, options=options)
+        hms_tree = DemeTree(config)
+        hms_tree.run()
+        self.assertEqual(hms_tree.height, 2, "Tree height should be equal 2")
+        self.assertLessEqual(hms_tree.best_individual.fitness, 1e-3, "Best fitness should be close to 0")
+
+    def test_square_optimization_adaptive_sea(self):
+        options = {"random_seed": 1}
+        config = [
+            EALevelConfig(
+                ea_class=SEAWithAdaptiveMutation,
+                generations=2,
+                problem=SQUARE_PROBLEM,
+                pop_size=20,
+                mutation_std=1.0,
+                lsc=DontStop(),
+                mutation_std_step=0.1,
             ),
             EALevelConfig(
                 ea_class=SEA,
