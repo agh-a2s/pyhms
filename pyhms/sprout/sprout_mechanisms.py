@@ -6,6 +6,7 @@ from pyhms.sprout.sprout_filters import (
     FarEnough,
     LevelLimit,
     NBC_FarEnough,
+    SkipSameSprout,
     TreeLevelCandidatesFilter,
 )
 from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator, SproutCandidatesGenerator
