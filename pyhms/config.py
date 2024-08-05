@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Callable, TypedDict
 
 import numpy as np
 
@@ -33,6 +33,7 @@ class EALevelConfig(BaseLevelConfig):
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
         sample_std_dev: float = 1.0,
+        initialize: Callable | None = None,
         **kwargs,
     ) -> None:
         super().__init__(problem, lsc)
@@ -40,6 +41,7 @@ class EALevelConfig(BaseLevelConfig):
         self.pop_size = pop_size
         self.generations = generations
         self.sample_std_dev = sample_std_dev
+        self.initialize = initialize
         self.__dict__.update(kwargs)
 
 
@@ -73,12 +75,14 @@ class SHADELevelConfig(BaseLevelConfig):
         generations: int,
         memory_size: int,
         sample_std_dev: float = 1.0,
+        initialize: Callable | None = None,
     ):
         super().__init__(problem, lsc)
         self.pop_size = pop_size
         self.generations = generations
         self.memory_size = memory_size
         self.sample_std_dev = sample_std_dev
+        self.initialize = initialize
 
 
 class CMALevelConfig(BaseLevelConfig):

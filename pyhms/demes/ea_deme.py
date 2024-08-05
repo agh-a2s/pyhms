@@ -23,11 +23,10 @@ class EADeme(AbstractDeme):
         ea_params = config.__dict__.copy()
         ea_params["problem"] = self._problem
         self._ea = config.ea_class.create(**ea_params)
-
         if sprout_seed is None:
             starting_pop = Individual.create_population(
                 self._pop_size,
-                initialize=sample_uniform(bounds=self._bounds),
+                initialize=(config.initialize or sample_uniform(bounds=self._bounds)),
                 problem=self._problem,
             )
         else:
