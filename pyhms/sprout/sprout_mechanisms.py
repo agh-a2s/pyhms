@@ -54,7 +54,7 @@ def get_NBC_sprout(
     return SproutMechanism(
         NBC_Generator(gen_dist_factor, trunc_factor),
         [NBC_FarEnough(fil_dist_factor, 2), DemeLimit(1)],
-        [LevelLimit(level_limit)],
+        [LevelLimit(level_limit), SkipSameSprout()],
     )
 
 
