@@ -205,7 +205,7 @@ class MWEA(BaseSEA):
     ) -> None:
         self.variational_operators_pipeline = variational_operators_pipeline
 
-    def run(self, parents: list[Individual]) -> list[Individual]:
+    def run(self, parents: list[Individual], **kwargs: Any) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
         offspring_population = parent_population.copy()
         for variational_operator in self.variational_operators_pipeline:
