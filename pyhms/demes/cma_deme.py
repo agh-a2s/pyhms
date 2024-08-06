@@ -69,3 +69,11 @@ class CMADeme(AbstractDeme):
         if self._lsc(self) or self._cma_es.stop():
             self.log("CMA Deme finished due to LSC")
             self._active = False
+
+    @property
+    def mean(self) -> np.ndarray:
+        return self._cma_es.mean
+
+    @property
+    def covariance_matrix(self) -> np.ndarray:
+        return self._cma_es.C
