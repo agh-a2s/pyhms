@@ -11,7 +11,7 @@ from .config import (
 )
 from .core.individual import Individual
 from .core.problem import EvalCutoffProblem, FunctionProblem, PrecisionCutoffProblem, Problem, StatsGatheringProblem
-from .demes.single_pop_eas.sea import SEA
+from .demes.single_pop_eas.sea import MWEA, SEA
 from .hms import hms, minimize
 from .sprout import get_NBC_sprout, get_simple_sprout
 from .stop_conditions import (

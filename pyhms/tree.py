@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from scipy.stats import pearsonr
+from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
@@ -14,6 +16,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
+from .utils.clusterization import NearestBetterClustering
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
@@ -334,10 +337,9 @@ class DemeTree:
         )
         if filepath:
             fig.write_image(filepath)
-
         fig.show()
 
-    def plot_fitness_value_by_distance(self) -> None:
+    def plot_fitness_value_by_distance(self, filepath: str | None = None) -> None:
         data = []  # type: ignore[var-annotated]
         best_genome = self.best_individual.genome
         for level, deme in self.all_demes:
@@ -355,90 +357,133 @@ class DemeTree:
             data,
             columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
         )
+
+        # Calculate correlation coefficient
+        corr_coef, _ = pearsonr(df["Distance to Best Solution"], df["Fitness Value Difference"])
+        corr_coef = round(corr_coef, 2)
+
         fig = px.scatter(
             df,
             x="Distance to Best Solution",
             y="Fitness Value Difference",
             color="Level",
             labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
-            title="Scatter Plot of Individual Fitness vs Distance to Best by Level",
+            title=f"Scatter Plot of Individual Fitness vs Distance to Best by Level (Correlation: {corr_coef})",
         )
 
+        if filepath:
+            fig.write_image(filepath)
         fig.show()
 
-    def plot_population(
-        self,
-        show_grid: bool = False,
-        grid_granularity: float | None = None,
-        optimal_fitness_value: float | None = None,
-        optimal_genome: np.ndarray | None = None,
-        show_all_individuals: bool = False,
-    ) -> None:
-        objective_function = self.root._problem._inner._inner.fitness_function
-        bounds = self.root._problem._inner._inner.bounds
-        if show_grid:
-            grid_granularity = grid_granularity or (bounds[0][1] - bounds[0][0]) / 200
-            grid = Grid2DProblemEvaluation(objective_function, bounds, 0.05)
-            grid.evaluate()
-            fig = px.imshow(
-                grid.z.T,
-                labels={"x": "x", "y": "y", "color": "f(x, y)"},
-                x=grid.x,
-                y=grid.y,
-                origin="lower",
-                aspect="auto",
-                color_continuous_scale="Cividis",
-            )
-        else:
-            fig = go.Figure()
+    def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
+        """
+        Creates a heatmap of the distances between sprout seeds of demes at a given level (1 by default).
+        """
+        deme_id_with_sprout_seed = [
+            (deme.id, deme._sprout_seed) for deme_level, deme in self.all_demes if deme_level == level
+        ]
+        sprout_seeds = [sprout_seed for _, sprout_seed in deme_id_with_sprout_seed]
+        deme_ids = [deme_id for deme_id, _ in deme_id_with_sprout_seed]
+        distances = pairwise_distances([ind.genome for ind in sprout_seeds])
 
-        for _, deme in self.all_demes:
-            deme_history = deme.all_individuals if show_all_individuals else deme.history[-1]
-            genomes = np.array([x.genome for x in deme_history])
-            fitness_values = np.array([x.fitness for x in deme_history])
-            labels = [f"f(x, y): {val:.2f}" for val in fitness_values]
-            scatter = go.Scatter(
-                x=genomes[:, 0],
-                y=genomes[:, 1],
-                text=labels,
-                mode="markers",
-                marker=dict(size=10),
-                name=deme.id,
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=distances,
+                x=deme_ids,
+                y=deme_ids,
+                colorscale="Viridis",
+                text=[[f"{distances[i][j]:.2f}" for j in range(len(distances))] for i in range(len(distances))],
+                hoverinfo="text",
             )
-            fig.add_trace(scatter)
-        if optimal_genome is not None and optimal_fitness_value is not None:
-            scatter = go.Scatter(
-                x=[optimal_genome[0]],
-                y=[optimal_genome[1]],
-                text=[f"f(x, y): {optimal_fitness_value:.2f}"],
-                mode="markers",
-                marker=dict(
-                    size=15,
-                    symbol="diamond",
-                    color="yellow",
-                    line=dict(
-                        width=2,
-                    ),
-                ),
-                name="Optimum",
-            )
-            fig.add_trace(scatter)
+        )
+
+        annotations = []
+        for i in range(len(distances)):
+            for j in range(len(distances)):
+                annotations.append(
+                    go.layout.Annotation(
+                        x=deme_ids[j],
+                        y=deme_ids[i],
+                        text=f"{distances[i][j]:.2f}",
+                        showarrow=False,
+                        font=dict(color="white"),
+                    )
+                )
 
         fig.update_layout(
-            xaxis_title="x",
-            yaxis_title="y",
-            width=1000,
-            height=1000,
-            coloraxis_colorbar=dict(
-                title="f(x, y)",
-                x=1.15,
-                y=0.5,
-                len=0.8,
-            ),
-            legend=dict(
-                x=1.05,
-                y=0.5,
-            ),
+            title="Distances between Sprout Seeds",
+            xaxis_title="Deme ID",
+            yaxis_title="Deme ID",
+            xaxis_nticks=len(deme_ids),
+            yaxis_nticks=len(deme_ids),
+            template="plotly_white",
+            annotations=annotations,
         )
 
+        if filepath:
+            fig.write_image(filepath)
+
         fig.show()
+
+    def plot_sprout_candidates(self, filepath: str | None = None, deme_id: str | None = "root") -> None:
+        """
+        Plots the number of candidates generated and used for a given deme (root by default) across metaepochs.
+        """
+        generated_candidates_history = self._sprout_mechanism._generated_deme_ids_to_candidates_history
+        generated_candidates_for_deme = [candidates.get(deme_id) for candidates in generated_candidates_history]
+        used_candidates_history = self._sprout_mechanism._used_deme_ids_to_candidates_history
+        used_candidates_for_deme = [candidates.get(deme_id) for candidates in used_candidates_history]
+        data = pd.DataFrame(
+            {
+                "used": [len(candidates.individuals) for candidates in used_candidates_for_deme],
+                "generated": [len(candidates.individuals) for candidates in generated_candidates_for_deme],
+            }
+        )
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["used"],
+                mode="lines+markers",
+                name="Used Candidates",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["generated"],
+                mode="lines+markers",
+                name="Generated Candidates",
+            )
+        )
+
+        fig.update_layout(
+            title=f"Number of candidates for deme {deme_id}",
+            xaxis_title="Metaepoch",
+            yaxis_title="Number of candidates",
+            xaxis=dict(showgrid=True),
+            yaxis=dict(showgrid=True),
+            template="plotly_white",
+        )
+
+        if filepath:
+            fig.write_image(filepath)
+
+        fig.show()
+
+    def plot_nbc(
+        self,
+        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
+    ) -> None:
+        """
+        Runs the Nearest Better Clustering algorithm and plots the clustered individuals.
+        In case of a multidimensional genome, dimensionality reducer is employed.
+        """
+        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor)
+        nbc._prepare_spanning_tree()
+        nbc.plot_clusters(dimensionality_reducer)
