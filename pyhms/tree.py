@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
@@ -18,10 +19,7 @@ from .utils.clusterization import NearestBetterClustering
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
-from .utils.visualisation.dimensionality_reduction import (
-    DimensionalityReducer,
-    NaiveDimensionalityReducer,
-)
+from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
 
 
@@ -31,18 +29,13 @@ class DemeTree:
         self.config: TreeConfig = config
         self._gsc = config.gsc
         self._sprout_mechanism: SproutMechanism = config.sprout_mechanism
-        self._logger: FilteringBoundLogger = get_logger(
-            config.options.get("log_level", DEFAULT_LOGGING_LEVEL)
-        )
+        self._logger: FilteringBoundLogger = get_logger(config.options.get("log_level", DEFAULT_LOGGING_LEVEL))
 
         nlevels = len(config.levels)
         if nlevels < 1:
             raise ValueError("Level number must be positive")
 
-        if (
-            "random_seed" in config.options
-            and config.options["random_seed"] is not None
-        ):
+        if "random_seed" in config.options and config.options["random_seed"] is not None:
             self._random_seed = config.options["random_seed"]
             import random
 
@@ -71,11 +64,7 @@ class DemeTree:
 
     @property
     def all_demes(self) -> list[tuple[int, AbstractDeme]]:
-        return [
-            (level_no, deme)
-            for level_no in range(self.height)
-            for deme in self.levels[level_no]
-        ]
+        return [(level_no, deme) for level_no in range(self.height) for deme in self.levels[level_no]]
 
     @property
     def leaves(self) -> list[AbstractDeme]:
@@ -83,20 +72,12 @@ class DemeTree:
 
     @property
     def active_demes(self) -> list[tuple[int, AbstractDeme]]:
-        return [
-            (level_no, deme)
-            for level_no in range(self.height)
-            for deme in self.levels[level_no]
-            if deme.is_active
-        ]
+        return [(level_no, deme) for level_no in range(self.height) for deme in self.levels[level_no] if deme.is_active]
 
     @property
     def active_non_leaves(self) -> list[tuple[int, AbstractDeme]]:
         return [
-            (level_no, deme)
-            for level_no in range(self.height - 1)
-            for deme in self.levels[level_no]
-            if deme.is_active
+            (level_no, deme) for level_no in range(self.height - 1) for deme in self.levels[level_no] if deme.is_active
         ]
 
     @property
@@ -109,12 +90,7 @@ class DemeTree:
 
     @property
     def best_individual(self) -> Individual:
-        return max(
-            deme.best_individual
-            for level in self._levels
-            for deme in level
-            if deme.best_individual
-        )
+        return max(deme.best_individual for level in self._levels for deme in level if deme.best_individual)
 
     @property
     def all_individuals(self) -> list[Individual]:
@@ -152,11 +128,7 @@ class DemeTree:
 
     def run_metaepoch(self) -> None:
         for _, deme in reversed(self.active_demes):
-            if (
-                "hibernation" in self.config.options
-                and self.config.options["hibernation"]
-                and deme._hibernating
-            ):
+            if "hibernation" in self.config.options and self.config.options["hibernation"] and deme._hibernating:
                 continue
 
             deme.run_metaepoch(self)
@@ -213,9 +185,7 @@ class DemeTree:
         else:
             return f"{deme.id}/{id_suffix}"
 
-    def summary(
-        self, level_summary: bool | None = True, deme_summary: bool | None = True
-    ) -> str:
+    def summary(self, level_summary: bool | None = True, deme_summary: bool | None = True) -> str:
         """
         Generates a summary report for the HMS.
 
@@ -238,26 +208,18 @@ class DemeTree:
             for level, level_demes in enumerate(self.levels):
                 lines.append(f"\nLevel {level+1}.")
                 level_best_individual = max(
-                    [
-                        deme.best_individual
-                        for deme in level_demes
-                        if deme.best_individual
-                    ],
+                    [deme.best_individual for deme in level_demes if deme.best_individual],
                     default=None,
                 )
                 if level_best_individual is not None:
                     lines.append(f"Best fitness: {level_best_individual.fitness:.4e}")
                     lines.append(f"Best individual: {level_best_individual.genome}")
-                    lines.append(
-                        f"Number of evaluations: {sum(deme.n_evaluations for deme in level_demes)}"
-                    )
+                    lines.append(f"Number of evaluations: {sum(deme.n_evaluations for deme in level_demes)}")
                     lines.append(f"Number of demes: {len(level_demes)}")
                     level_problem = self.config.levels[level].problem
                     if isinstance(level_problem, StatsGatheringProblem):
                         m, sd = level_problem.duration_stats
-                        lines.append(
-                            f"Problem duration avg. {m:.4e} std. dev. {sd:.4e}"
-                        )
+                        lines.append(f"Problem duration avg. {m:.4e} std. dev. {sd:.4e}")
                 else:
                     lines.append("No demes available.")
         if deme_summary:
@@ -293,9 +255,7 @@ class DemeTree:
         return (
             format_deme(self.root, self.best_individual.fitness)
             + "\n"
-            + format_deme_children_tree(
-                self.root, best_fitness=self.best_individual.fitness
-            )
+            + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
 
     def animate(
@@ -321,9 +281,7 @@ class DemeTree:
         In case of multidimensional problem, only the first two dimensions are considered.
         To save the plot, provide the filepath argument.
         """
-        grid = Grid2DProblemEvaluation(
-            self.config.levels[0].problem, self.config.levels[0].bounds
-        )
+        grid = Grid2DProblemEvaluation(self.config.levels[0].problem, self.config.levels[0].bounds)
         grid.evaluate()
         grid.plot(filepath)
 
@@ -333,14 +291,9 @@ class DemeTree:
         To save the plot, provide the filepath argument.
         """
         df = pd.concat(
-            [
-                pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name])
-                for _, deme in self.all_demes
-            ]
+            [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
         ).T
-        df_long = df.reset_index().melt(
-            id_vars="index", var_name="Deme", value_name="Best Fitness"
-        )
+        df_long = df.reset_index().melt(id_vars="index", var_name="Deme", value_name="Best Fitness")
         df_long.rename(columns={"index": "Metaepoch"}, inplace=True)
         fig = px.line(
             df_long,
@@ -369,9 +322,7 @@ class DemeTree:
         To save the plot, provide the filepath argument.
         """
         deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
-        variance_per_gene = get_average_variance_per_generation(
-            deme, selected_dimensions
-        )
+        variance_per_gene = get_average_variance_per_generation(deme, selected_dimensions)
         fig = px.line(
             variance_per_gene,
             x=variance_per_gene.index,
@@ -385,19 +336,18 @@ class DemeTree:
         )
         if filepath:
             fig.write_image(filepath)
-
         fig.show()
 
-    def plot_fitness_value_by_distance(self) -> None:
+    def plot_fitness_value_by_distance(
+        self,
+        filepath: str | None = None,
+    ) -> None:
         data = []  # type: ignore[var-annotated]
         best_genome = self.best_individual.genome
         for level, deme in self.all_demes:
             genomes = np.array([x.genome for x in deme.all_individuals])
             distances_to_best = np.linalg.norm(genomes - best_genome, axis=1)
-            fitness_differences = (
-                np.array([x.fitness for x in deme.all_individuals])
-                - self.best_individual.fitness
-            )
+            fitness_differences = np.array([x.fitness for x in deme.all_individuals]) - self.best_individual.fitness
             data.extend(
                 zip(
                     distances_to_best,
@@ -418,34 +368,72 @@ class DemeTree:
             title="Scatter Plot of Individual Fitness vs Distance to Best by Level",
         )
 
+        if filepath:
+            fig.write_image(filepath)
         fig.show()
 
-    def plot_sprout_candidates(
-        self, filepath: str | None = None, deme_id: str | None = "root"
-    ) -> None:
-        generated_candidates_history = (
-            self._sprout_mechanism._generated_deme_ids_to_candidates_history
-        )
-        generated_candidates_for_deme = [
-            candidates.get(deme_id) for candidates in generated_candidates_history
+    def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
+        """
+        Creates a heatmap of the distances between sprout seeds of demes at a given level (1 by default).
+        """
+        deme_id_with_sprout_seed = [
+            (deme.id, deme._sprout_seed) for deme_level, deme in self.all_demes if deme_level == level
         ]
-        used_candidates_history = (
-            self._sprout_mechanism._used_deme_ids_to_candidates_history
-        )
-        used_candidates_for_deme = [
-            candidates.get(deme_id) for candidates in used_candidates_history
-        ]
+        sprout_seeds = [sprout_seed for _, sprout_seed in deme_id_with_sprout_seed]
+        deme_ids = [deme_id for deme_id, _ in deme_id_with_sprout_seed]
+        distances = pairwise_distances([ind.genome for ind in sprout_seeds])
 
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=distances,
+                x=deme_ids,
+                y=deme_ids,
+                colorscale="Viridis",
+                text=[[f"{distances[i][j]:.2f}" for j in range(len(distances))] for i in range(len(distances))],
+                hoverinfo="text",
+            )
+        )
+
+        annotations = []
+        for i in range(len(distances)):
+            for j in range(len(distances)):
+                annotations.append(
+                    go.layout.Annotation(
+                        x=deme_ids[j],
+                        y=deme_ids[i],
+                        text=f"{distances[i][j]:.2f}",
+                        showarrow=False,
+                        font=dict(color="white"),
+                    )
+                )
+
+        fig.update_layout(
+            title="Distances between Sprout Seeds",
+            xaxis_title="Deme ID",
+            yaxis_title="Deme ID",
+            xaxis_nticks=len(deme_ids),
+            yaxis_nticks=len(deme_ids),
+            template="plotly_white",
+            annotations=annotations,
+        )
+
+        if filepath:
+            fig.write_image(filepath)
+
+        fig.show()
+
+    def plot_sprout_candidates(self, filepath: str | None = None, deme_id: str | None = "root") -> None:
+        """
+        Plots the number of candidates generated and used for a given deme (root by default) across metaepochs.
+        """
+        generated_candidates_history = self._sprout_mechanism._generated_deme_ids_to_candidates_history
+        generated_candidates_for_deme = [candidates.get(deme_id) for candidates in generated_candidates_history]
+        used_candidates_history = self._sprout_mechanism._used_deme_ids_to_candidates_history
+        used_candidates_for_deme = [candidates.get(deme_id) for candidates in used_candidates_history]
         data = pd.DataFrame(
             {
-                "used": [
-                    len(candidates.individuals)
-                    for candidates in used_candidates_for_deme
-                ],
-                "generated": [
-                    len(candidates.individuals)
-                    for candidates in generated_candidates_for_deme
-                ],
+                "used": [len(candidates.individuals) for candidates in used_candidates_for_deme],
+                "generated": [len(candidates.individuals) for candidates in generated_candidates_for_deme],
             }
         )
 
@@ -473,7 +461,8 @@ class DemeTree:
             title=f"Number of candidates for deme {deme_id}",
             xaxis_title="Metaepoch",
             yaxis_title="Number of candidates",
-            grid=dict(show=True),
+            xaxis=dict(showgrid=True),
+            yaxis=dict(showgrid=True),
             template="plotly_white",
         )
 
@@ -488,8 +477,10 @@ class DemeTree:
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
     ) -> None:
-        nbc = NearestBetterClustering(
-            self.all_individuals, distance_factor, truncation_factor
-        )
+        """
+        Runs the Nearest Better Clustering algorithm and plots the clustered individuals.
+        In case of a multidimensional genome, dimensionality reducer is employed.
+        """
+        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor)
         nbc._prepare_spanning_tree()
         nbc.plot_clusters(dimensionality_reducer)
