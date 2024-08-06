@@ -84,14 +84,13 @@ class HillValleyMergeCondition(MergeCondition):
 
     def _hill_valley_function(self, p1: np.ndarray, p2: np.ndarray) -> float:
         f1, f2 = self.problem.evaluate(p1), self.problem.evaluate(p2)
-        max_fitness = max(f1, f2) if self.problem.maximize else min(f1, f2)
-
+        max_fitness = min(f1, f2) if self.problem.maximize else max(f1, f2)
         for j in range(1, self.k + 1):
             t = j / (self.k + 1)
             inter_j = p1 + t * (p2 - p1)
             fitness_inter_j = self.problem.evaluate(inter_j)
 
-            if self.problem.worse_than(max_fitness, fitness_inter_j):
+            if self.problem.worse_than(fitness_inter_j, max_fitness):
                 return abs(fitness_inter_j - max_fitness)
 
         return 0
