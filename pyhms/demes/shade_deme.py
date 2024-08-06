@@ -27,7 +27,7 @@ class SHADEDeme(AbstractDeme):
         if sprout_seed is None:
             starting_pop = Individual.create_population(
                 self._pop_size,
-                initialize=sample_uniform(bounds=self._bounds),
+                initialize=(config.initialize or sample_uniform(bounds=self._bounds)),
                 problem=self._problem,
             )
         else:
