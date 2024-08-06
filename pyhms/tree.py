@@ -1,7 +1,10 @@
 import dill as pkl
 import matplotlib.animation as animation
-import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from scipy.stats import pearsonr
 from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
 
@@ -98,27 +101,31 @@ class DemeTree:
         return individuals_from_all_demes
 
     def run(self) -> None:
-        self._logger.debug(
-            "Starting HMS",
-            height=self.height,
-            options=self.config.options,
-            levels=self.config.levels,
-            gsc=str(self.config.gsc),
-        )
         while not self._gsc(self):
-            self.metaepoch_count += 1
-            self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
-            self.run_metaepoch()
-            if not self._gsc(self):
-                self.run_sprout()
-            if len(self.leaves) > 0:
-                self._logger.info(
-                    "Metaepoch finished",
-                    best_fitness=self.best_leaf_individual.fitness,
-                    best_individual=self.best_leaf_individual.genome,
-                )
-            else:
-                self._logger.info("Metaepoch finished. No leaf demes yet.")
+            self.run_step()
+
+    def run_step(self) -> None:
+        if self.metaepoch_count == 0:
+            self._logger.debug(
+                "Starting HMS",
+                height=self.height,
+                options=self.config.options,
+                levels=self.config.levels,
+                gsc=str(self.config.gsc),
+            )
+        self.metaepoch_count += 1
+        self._logger = self._logger.bind(metaepoch=self.metaepoch_count)
+        self.run_metaepoch()
+        if not self._gsc(self):
+            self.run_sprout()
+        if len(self.leaves) > 0:
+            self._logger.info(
+                "Metaepoch finished",
+                best_fitness=self.best_leaf_individual.fitness,
+                best_individual=self.best_leaf_individual.genome,
+            )
+        else:
+            self._logger.info("Metaepoch finished. No leaf demes yet.")
 
     def run_metaepoch(self) -> None:
         for _, deme in reversed(self.active_demes):
@@ -284,16 +291,23 @@ class DemeTree:
         Plots the best fitness value for each metaepoch.
         To save the plot, provide the filepath argument.
         """
-        pd.concat(
+        df = pd.concat(
             [pd.DataFrame([deme.best_fitness_by_metaepoch], index=[deme.name]) for _, deme in self.all_demes]
-        ).T.plot(marker="o", linestyle="-")
-        plt.title("Best fitness by metaepoch")
-        plt.xlabel("Metaepoch")
-        plt.ylabel("Best Fitness")
-        plt.grid(True)
+        ).T
+        df_long = df.reset_index().melt(id_vars="index", var_name="Deme", value_name="Best Fitness")
+        df_long.rename(columns={"index": "Metaepoch"}, inplace=True)
+        fig = px.line(
+            df_long,
+            x="Metaepoch",
+            y="Best Fitness",
+            color="Deme",
+            markers=True,
+            title="Best Fitness by Metaepoch",
+            labels={"Metaepoch": "Metaepoch", "Best Fitness": "Best Fitness"},
+        )
         if filepath:
-            plt.savefig(filepath)
-        plt.show()
+            fig.write_image(filepath)
+        fig.show()
 
     def plot_deme_variance(
         self,
@@ -310,25 +324,60 @@ class DemeTree:
         """
         deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
         variance_per_gene = get_average_variance_per_generation(deme, selected_dimensions)
-        variance_per_gene.plot()
-        plt.plot(
-            variance_per_gene.index,
-            variance_per_gene["Average Variance of Genome"],
-            marker="o",
-            linestyle="-",
-            color="b",
+        fig = px.line(
+            variance_per_gene,
+            x=variance_per_gene.index,
+            y="Average Variance of Genome",
+            title=f"Variance Across Generations for {deme_id.capitalize()} Deme",
+            labels={
+                "index": "Generation Number",
+                "Average Variance of Genome": "Average Variance of Genome",
+            },
+            markers=True,
         )
-        plt.title(f"Variance Across Generations for {deme.id.capitalize()} Deme")
-        plt.xlabel("Generation Number")
-        plt.ylabel("Average Variance of Genome")
-        plt.grid(True)
         if filepath:
-            plt.savefig(filepath)
-        plt.show()
+            fig.write_image(filepath)
+        fig.show()
+
+    def plot_fitness_value_by_distance(self, filepath: str | None = None) -> None:
+        data = []  # type: ignore[var-annotated]
+        best_genome = self.best_individual.genome
+        for level, deme in self.all_demes:
+            genomes = np.array([x.genome for x in deme.all_individuals])
+            distances_to_best = np.linalg.norm(genomes - best_genome, axis=1)
+            fitness_differences = np.array([x.fitness for x in deme.all_individuals]) - self.best_individual.fitness
+            data.extend(
+                zip(
+                    distances_to_best,
+                    fitness_differences,
+                    [str(level)] * len(distances_to_best),
+                )
+            )
+        df = pd.DataFrame(
+            data,
+            columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
+        )
+
+        # Calculate correlation coefficient
+        corr_coef, _ = pearsonr(df["Distance to Best Solution"], df["Fitness Value Difference"])
+        corr_coef = round(corr_coef, 2)
+
+        fig = px.scatter(
+            df,
+            x="Distance to Best Solution",
+            y="Fitness Value Difference",
+            color="Level",
+            labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
+            title=f"Scatter Plot of Individual Fitness vs Distance to Best by Level (Correlation: {corr_coef})",
+        )
+
+        if filepath:
+            fig.write_image(filepath)
+        fig.show()
 
     def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
         """
-        Creates a heatmap of the distances between sprout seeds of demes at a given level (1. by default).
+        Creates a heatmap of the distances between sprout seeds of demes at a given level (1 by default).
         """
         deme_id_with_sprout_seed = [
             (deme.id, deme._sprout_seed) for deme_level, deme in self.all_demes if deme_level == level
@@ -336,26 +385,45 @@ class DemeTree:
         sprout_seeds = [sprout_seed for _, sprout_seed in deme_id_with_sprout_seed]
         deme_ids = [deme_id for deme_id, _ in deme_id_with_sprout_seed]
         distances = pairwise_distances([ind.genome for ind in sprout_seeds])
-        plt.imshow(distances, aspect="auto")
-        plt.title("Distances between Sprout Seeds")
-        plt.xlabel("Deme ID")
-        plt.ylabel("Deme ID")
-        plt.xticks(ticks=range(len(deme_ids)), labels=deme_ids)
-        plt.yticks(ticks=range(len(deme_ids)), labels=deme_ids)
 
+        fig = go.Figure(
+            data=go.Heatmap(
+                z=distances,
+                x=deme_ids,
+                y=deme_ids,
+                colorscale="Viridis",
+                text=[[f"{distances[i][j]:.2f}" for j in range(len(distances))] for i in range(len(distances))],
+                hoverinfo="text",
+            )
+        )
+
+        annotations = []
         for i in range(len(distances)):
             for j in range(len(distances)):
-                plt.text(
-                    j,
-                    i,
-                    f"{distances[i, j]:.2f}",
-                    ha="center",
-                    va="center",
-                    color="white",
+                annotations.append(
+                    go.layout.Annotation(
+                        x=deme_ids[j],
+                        y=deme_ids[i],
+                        text=f"{distances[i][j]:.2f}",
+                        showarrow=False,
+                        font=dict(color="white"),
+                    )
                 )
+
+        fig.update_layout(
+            title="Distances between Sprout Seeds",
+            xaxis_title="Deme ID",
+            yaxis_title="Deme ID",
+            xaxis_nticks=len(deme_ids),
+            yaxis_nticks=len(deme_ids),
+            template="plotly_white",
+            annotations=annotations,
+        )
+
         if filepath:
-            plt.savefig(filepath)
-        plt.show()
+            fig.write_image(filepath)
+
+        fig.show()
 
     def plot_sprout_candidates(self, filepath: str | None = None, deme_id: str | None = "root") -> None:
         """
@@ -365,19 +433,46 @@ class DemeTree:
         generated_candidates_for_deme = [candidates.get(deme_id) for candidates in generated_candidates_history]
         used_candidates_history = self._sprout_mechanism._used_deme_ids_to_candidates_history
         used_candidates_for_deme = [candidates.get(deme_id) for candidates in used_candidates_history]
-        pd.DataFrame(
+        data = pd.DataFrame(
             {
                 "used": [len(candidates.individuals) for candidates in used_candidates_for_deme],
                 "generated": [len(candidates.individuals) for candidates in generated_candidates_for_deme],
             }
-        ).plot(marker="o", linestyle="-")
-        plt.title(f"Number of candidates for deme {deme_id}")
-        plt.grid(True)
-        plt.xlabel("Metaepoch")
-        plt.ylabel("Number of candidates")
+        )
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["used"],
+                mode="lines+markers",
+                name="Used Candidates",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=data.index,
+                y=data["generated"],
+                mode="lines+markers",
+                name="Generated Candidates",
+            )
+        )
+
+        fig.update_layout(
+            title=f"Number of candidates for deme {deme_id}",
+            xaxis_title="Metaepoch",
+            yaxis_title="Number of candidates",
+            xaxis=dict(showgrid=True),
+            yaxis=dict(showgrid=True),
+            template="plotly_white",
+        )
+
         if filepath:
-            plt.savefig(filepath)
-        plt.show()
+            fig.write_image(filepath)
+
+        fig.show()
 
     def plot_nbc(
         self,
