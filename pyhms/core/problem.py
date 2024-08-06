@@ -255,7 +255,7 @@ class StatsGatheringProblem(ProblemWrapper):
         return self._durations
 
     @property
-    def duration_stats(self) -> tuple[np.float_, np.float_]:
+    def duration_stats(self) -> tuple[np.float64, np.float64]:
         return np.mean(self._durations), np.std(self._durations)
 
     def __str__(self) -> str:
