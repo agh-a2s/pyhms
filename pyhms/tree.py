@@ -13,6 +13,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
+from .utils.clusterization import NearestBetterClustering
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
@@ -295,7 +296,10 @@ class DemeTree:
         plt.show()
 
     def plot_deme_variance(
-        self, filepath: str | None = None, deme_id: str | None = "root", selected_dimensions: list[int] | None = None
+        self,
+        filepath: str | None = None,
+        deme_id: str | None = "root",
+        selected_dimensions: list[int] | None = None,
     ) -> None:
         """
         Plots the average variance of genes/dimensions across generations for a given deme
@@ -323,6 +327,9 @@ class DemeTree:
         plt.show()
 
     def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
+        """
+        Creates a heatmap of the distances between sprout seeds of demes at a given level (1. by default).
+        """
         deme_id_with_sprout_seed = [
             (deme.id, deme._sprout_seed) for deme_level, deme in self.all_demes if deme_level == level
         ]
@@ -349,3 +356,39 @@ class DemeTree:
         if filepath:
             plt.savefig(filepath)
         plt.show()
+
+    def plot_sprout_candidates(self, filepath: str | None = None, deme_id: str | None = "root") -> None:
+        """
+        Plots the number of candidates generated and used for a given deme (root by default) across metaepochs.
+        """
+        generated_candidates_history = self._sprout_mechanism._generated_deme_ids_to_candidates_history
+        generated_candidates_for_deme = [candidates.get(deme_id) for candidates in generated_candidates_history]
+        used_candidates_history = self._sprout_mechanism._used_deme_ids_to_candidates_history
+        used_candidates_for_deme = [candidates.get(deme_id) for candidates in used_candidates_history]
+        pd.DataFrame(
+            {
+                "used": [len(candidates.individuals) for candidates in used_candidates_for_deme],
+                "generated": [len(candidates.individuals) for candidates in generated_candidates_for_deme],
+            }
+        ).plot(marker="o", linestyle="-")
+        plt.title(f"Number of candidates for deme {deme_id}")
+        plt.grid(True)
+        plt.xlabel("Metaepoch")
+        plt.ylabel("Number of candidates")
+        if filepath:
+            plt.savefig(filepath)
+        plt.show()
+
+    def plot_nbc(
+        self,
+        dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
+    ) -> None:
+        """
+        Runs the Nearest Better Clustering algorithm and plots the clustered individuals.
+        In case of a multidimensional genome, dimensionality reducer is employed.
+        """
+        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor)
+        nbc._prepare_spanning_tree()
+        nbc.plot_clusters(dimensionality_reducer)
