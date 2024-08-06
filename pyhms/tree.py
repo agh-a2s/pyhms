@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from scipy.stats import pearsonr
 from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
 
@@ -338,10 +339,7 @@ class DemeTree:
             fig.write_image(filepath)
         fig.show()
 
-    def plot_fitness_value_by_distance(
-        self,
-        filepath: str | None = None,
-    ) -> None:
+    def plot_fitness_value_by_distance(self, filepath: str | None = None) -> None:
         data = []  # type: ignore[var-annotated]
         best_genome = self.best_individual.genome
         for level, deme in self.all_demes:
@@ -359,13 +357,18 @@ class DemeTree:
             data,
             columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
         )
+
+        # Calculate correlation coefficient
+        corr_coef, _ = pearsonr(df["Distance to Best Solution"], df["Fitness Value Difference"])
+        corr_coef = round(corr_coef, 2)
+
         fig = px.scatter(
             df,
             x="Distance to Best Solution",
             y="Fitness Value Difference",
             color="Level",
             labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
-            title="Scatter Plot of Individual Fitness vs Distance to Best by Level",
+            title=f"Scatter Plot of Individual Fitness vs Distance to Best by Level (Correlation: {corr_coef})",
         )
 
         if filepath:
