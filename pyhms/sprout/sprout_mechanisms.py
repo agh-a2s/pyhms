@@ -25,7 +25,7 @@ class SproutMechanism:
         self.deme_filter_chain = deme_filter_chain
         self.tree_filter_chain = tree_filter_chain
         self._generated_deme_ids_to_candidates_history: list[dict[str, DemeCandidates]] = []
-        self._filtered_deme_ids_to_candidates_history: list[dict[str, DemeCandidates]] = []
+        self._used_deme_ids_to_candidates_history: list[dict[str, DemeCandidates]] = []
 
     def get_seeds(self, tree) -> dict[AbstractDeme, DemeCandidates]:
         candidates = self.candidates_generator(tree)
@@ -35,10 +35,8 @@ class SproutMechanism:
         self._generated_deme_ids_to_candidates_history.append(generated_deme_ids_to_individuals)
         candidates = self.apply_deme_filters(candidates, tree)
         candidates = self.apply_tree_filters(candidates, tree)
-        filtered_deme_ids_to_individuals = copy.deepcopy(
-            {deme.id: individuals for deme, individuals in candidates.items()}
-        )
-        self._filtered_deme_ids_to_candidates_history.append(filtered_deme_ids_to_individuals)
+        used_deme_ids_to_individuals = copy.deepcopy({deme.id: individuals for deme, individuals in candidates.items()})
+        self._used_deme_ids_to_candidates_history.append(used_deme_ids_to_individuals)
         return {k: v for k, v in candidates.items() if candidates[k].individuals}
 
     def apply_deme_filters(

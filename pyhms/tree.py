@@ -325,11 +325,11 @@ class DemeTree:
     def plot_sprout_candidates(self, filepath: str | None = None, deme_id: str | None = "root") -> None:
         generated_candidates_history = self._sprout_mechanism._generated_deme_ids_to_candidates_history
         generated_candidates_for_deme = [candidates.get(deme_id) for candidates in generated_candidates_history]
-        filtered_candidates_history = self._sprout_mechanism._filtered_deme_ids_to_candidates_history
-        filtered_candidates_for_deme = [candidates.get(deme_id) for candidates in filtered_candidates_history]
+        used_candidates_history = self._sprout_mechanism._used_deme_ids_to_candidates_history
+        used_candidates_for_deme = [candidates.get(deme_id) for candidates in used_candidates_history]
         pd.DataFrame(
             {
-                "filtered": [len(candidates.individuals) for candidates in filtered_candidates_for_deme],
+                "used": [len(candidates.individuals) for candidates in used_candidates_for_deme],
                 "generated": [len(candidates.individuals) for candidates in generated_candidates_for_deme],
             }
         ).plot(marker="o", linestyle="-")
