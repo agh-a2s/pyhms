@@ -63,14 +63,14 @@ class TestSprout(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=self.minimize_problem,
                 sigma0=0.01,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
         maximize_levels = deepcopy(minimize_levels)

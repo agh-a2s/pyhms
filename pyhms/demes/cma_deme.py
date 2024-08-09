@@ -1,7 +1,6 @@
 import numpy as np
 from cma import CMAEvolutionStrategy
 from pyhms.core.individual import Individual
-from pyhms.core.initializers import SeededPopInitializer
 from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
@@ -15,18 +14,17 @@ class CMADeme(AbstractDeme):
         id: str,
         level: int,
         config: CMALevelConfig,
-        initializer: SeededPopInitializer,
         logger: FilteringBoundLogger,
         started_at: int = 0,
         random_seed: int = None,
         parent_deme: AbstractDeme | None = None,
     ) -> None:
-        super().__init__(id, level, config, initializer, logger, started_at)
+        super().__init__(id, level, config, logger, started_at)
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
         opts = {"bounds": [lb, ub], "verbose": -9}
-        x0 = initializer.get_seed(self._problem)
+        x0 = self._initializer.get_seed(self._problem)
         if random_seed is not None:
             opts["randn"] = np.random.randn
             opts["seed"] = random_seed + self._started_at

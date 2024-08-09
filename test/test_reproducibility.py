@@ -21,7 +21,7 @@ class TestReproducibility(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             DELevelConfig(
                 generations=2,
@@ -30,7 +30,7 @@ class TestReproducibility(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
-                pop_initializer_type=GaussianInitializerWithSeedInject,
+                pop_initializer=GaussianInitializerWithSeedInject,
             ),
         ]
 
@@ -62,14 +62,14 @@ class TestReproducibility(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 

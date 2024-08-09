@@ -35,7 +35,7 @@ class TestGlobalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
@@ -139,7 +139,7 @@ class TestGlobalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
@@ -185,7 +185,7 @@ class TestGlobalStopCondition(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,

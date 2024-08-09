@@ -1,5 +1,6 @@
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
+from pyhms.demes.single_pop_eas.de import DE
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
@@ -12,11 +13,10 @@ class DEDeme(AbstractDeme):
         id: str,
         level: int,
         config: DELevelConfig,
-        initializer: PopInitializer,
         logger: FilteringBoundLogger,
         started_at: int = 0,
     ) -> None:
-        super().__init__(id, level, config, initializer, logger, started_at)
+        super().__init__(id, level, config, logger, started_at)
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._sample_std_dev = config.sample_std_dev

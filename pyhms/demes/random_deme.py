@@ -11,18 +11,16 @@ class RandomDeme(AbstractDeme):
         id: str,
         level: int,
         config: EALevelConfig,
-        initializer: PopInitializer,
         logger: FilteringBoundLogger,
         started_at: int = 0,
     ) -> None:
-        super().__init__(id, level, config, initializer, logger, started_at)
+        super().__init__(id, level, config, logger, started_at)
         self._pop_size = config.pop_size
         self._bounds = config.bounds
-        self._sampler = initializer
         self.run()
 
     def run(self) -> None:
-        population = self._sampler(self._pop_size, self._problem)
+        population = self._initializer(self._pop_size, self._problem)
         Individual.evaluate_population(population)
         self._history.append([population])
 
@@ -31,9 +29,9 @@ class RandomDeme(AbstractDeme):
         if (gsc_value := tree._gsc(tree)) or self._lsc(self):
             self._active = False
             message = (
-                f"Random sampler Deme of {self._sampler.__class__.__name__} class finished due to GSC"
+                f"Random sampler Deme of {self._initializer.__class__.__name__} class finished due to GSC"
                 if gsc_value
-                else f"Random sampler Deme of {self._sampler.__class__.__name__} class finished due to LSC"
+                else f"Random sampler Deme of {self._initializer.__class__.__name__} class finished due to LSC"
             )
             self.log(message)
             return

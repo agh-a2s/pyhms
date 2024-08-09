@@ -67,14 +67,14 @@ def minimize(
             pop_size=get_default_population_size(bounds, tree_level=0),
             mutation_std=get_default_mutation_std(bounds, tree_level=0),
             lsc=DontStop(),
-            pop_initializer_type=UniformGlobalInitializer,
+            pop_initializer=UniformGlobalInitializer,
         ),
         CMALevelConfig(
             generations=get_default_generations(bounds, tree_level=1),
             problem=wrapped_function_problem,
             sigma0=None,
             lsc=FitnessSteadiness(),
-            pop_initializer_type=InjectionInitializer,
+            pop_initializer=InjectionInitializer,
         ),
     ]
     sprout_condition = get_NBC_sprout()

@@ -41,7 +41,7 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             EALevelConfig(
                 ea_class=SEA,
@@ -51,7 +51,7 @@ class TestSquare(unittest.TestCase):
                 mutation_std=0.25,
                 sample_std_dev=0.5,
                 lsc=DontStop(),
-                pop_initializer_type=GaussianInitializerWithSeedInject,
+                pop_initializer=GaussianInitializerWithSeedInject,
             ),
         ]
 
@@ -71,14 +71,14 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=None,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 
@@ -98,7 +98,7 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
@@ -106,7 +106,7 @@ class TestSquare(unittest.TestCase):
                 sigma0=None,
                 set_stds=True,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 
@@ -126,14 +126,14 @@ class TestSquare(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 
@@ -150,14 +150,14 @@ class TestSquare(unittest.TestCase):
                 problem=SQUARE_PROBLEM,
                 pop_size=20,
                 lsc=DontStop(),
-                pop_initializer_type=LHSGlobalInitializer,
+                pop_initializer=LHSGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 
@@ -183,20 +183,20 @@ class TestSquare(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
             LocalOptimizationConfig(
                 problem=SQUARE_PROBLEM,
                 lsc=DontStop(),
                 maxiter=10,
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 

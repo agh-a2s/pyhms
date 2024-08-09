@@ -14,10 +14,14 @@ def linear_scale(sample: np.ndarray, bounds: np.ndarray) -> np.ndarray:
 class PopInitializer(ABC):
     def __init__(self, bounds: np.ndarray | None = None):
         self._bounds = bounds
+        self._sampler: callable = None
 
     @abstractmethod
-    def sample_pop(self, pop_size: int | None) -> np.ndarray:
+    def prepare_sampler(self, context: dict = None) -> None:
         pass
+
+    def sample_pop(self, pop_size: int | None) -> np.ndarray:
+        return self._sampler(pop_size)
 
     def __call__(self, pop_size: int | None, problem: Problem):
         return [Individual(genome=genome, problem=problem) for genome in self.sample_pop(pop_size)]
@@ -30,18 +34,18 @@ class SeededPopInitializer(PopInitializer):
 
 
 class UniformGlobalInitializer(PopInitializer):
-    def __init__(self, bounds: np.ndarray):
-        super().__init__(bounds)
-        self.sampler = sample_uniform(bounds)
+    
+    def prepare_sampler(self, _: dict):
+        self.sampler = sample_uniform(self._bounds)
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
         return self.sampler(pop_size)
 
 
 class LHSGlobalInitializer(PopInitializer):
-    def __init__(self, bounds: np.ndarray, random_seed: int = None):
-        super().__init__(bounds)
-        self.sampler = LatinHypercube(d=len(bounds), seed=random_seed)
+
+    def prepare_sampler(self, _: dict):
+        self.sampler = LatinHypercube(d=len(self._bounds))
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
         sample = self.sampler.random(pop_size)
@@ -49,9 +53,9 @@ class LHSGlobalInitializer(PopInitializer):
 
 
 class SobolGlobalInitializer(PopInitializer):
-    def __init__(self, bounds: np.ndarray, random_seed: int = None):
-        super().__init__(bounds)
-        self.sampler = Sobol(d=len(bounds), scramble=True, seed=random_seed)
+
+    def prepare_sampler(self, _: dict):
+        self.sampler = Sobol(d=len(self._bounds), scramble=True)
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
         sample = self.sampler.random(pop_size)
@@ -59,23 +63,31 @@ class SobolGlobalInitializer(PopInitializer):
 
 
 class GaussianInitializer(PopInitializer):
-    def __init__(self, seed: np.ndarray, std_dev: float, bounds: np.ndarray | None = None):
-        super().__init__(bounds)
-        self.sampler = sample_normal(seed, std_dev, bounds)
-        self._seed = seed
+
+    def prepare_sampler(self, context: dict):
+        try:
+            seed_genome: np.ndarray = context["seed_genome"]
+            std_dev: float = context["std_dev"]
+        except KeyError:
+            raise ValueError("GaussianInitializer requires a seed genome and a standard deviation")
+        self.sampler = sample_normal(seed_genome, std_dev, self._bounds)
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
         return self.sampler(pop_size)
 
 
 class GaussianInitializerWithSeedInject(SeededPopInitializer):
-    def __init__(
-        self, seed: Individual, std_dev: float, bounds: np.ndarray | None = None, preserve_fitness: bool = True
-    ):
-        super().__init__(bounds)
-        self.sampler = sample_normal(seed.genome, std_dev, bounds)
+    
+    def prepare_sampler(self, context: dict):
+        try:
+            seed_ind: Individual = context["seed_ind"]
+            std_dev: float = context["std_dev"]
+            preserve_fitness: bool = context.get("preserve_fitness", True)
+        except KeyError:
+            raise ValueError("GaussianInitializer requires a seed individual and a standard deviation")
+        self.sampler = sample_normal(seed_ind.genome, std_dev, self._bounds)
         self._preserve_fitness = preserve_fitness
-        self._seed_ind = seed
+        self._seed_ind = seed_ind
 
     def get_seed(self, problem: Problem) -> Individual:
         if self._preserve_fitness:
@@ -91,12 +103,10 @@ class GaussianInitializerWithSeedInject(SeededPopInitializer):
 
 
 class InjectionInitializer(SeededPopInitializer):
-    def __init__(
-        self, injected_population: list[Individual], bounds: np.ndarray | None = None, preserve_fitness: bool = True
-    ):
-        super().__init__(bounds)
-        self._preserve_fitness = preserve_fitness
-        self.injected_population = injected_population
+    
+    def prepare_sampler(self, context: dict = None):
+        self.injected_population: list[Individual] = context["injected_pop"]
+        self._preserve_fitness: bool = context.get("preserve_fitness", True)
 
     def sample_pop(self, _: int | None) -> np.ndarray:
         raise NotImplementedError("InjectionInitializer does not have a sampler. Use __call__ instead.")

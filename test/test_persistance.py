@@ -26,14 +26,14 @@ class TestPersistance(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=SQUARE_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 
@@ -57,14 +57,14 @@ class TestPersistance(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
-                pop_initializer_type=UniformGlobalInitializer,
+                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=FOUR_FUNNELS_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
-                pop_initializer_type=InjectionInitializer,
+                pop_initializer=InjectionInitializer,
             ),
         ]
 

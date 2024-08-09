@@ -22,14 +22,13 @@ class AbstractDeme(ABC):
         id: str,
         level: int,
         config: BaseLevelConfig,
-        initializer: PopInitializer,
         logger: FilteringBoundLogger,
         started_at: int = 0,
     ) -> None:
         super().__init__()
         self._id = id
         self._level = level
-        self._initializer = initializer
+        self._initializer = config.pop_initializer
         self._logger: FilteringBoundLogger = logger
         self._started_at = started_at
 
@@ -39,8 +38,8 @@ class AbstractDeme(ABC):
         self._bounds: np.ndarray = config.bounds
 
         self._sprout_seed: Individual | None = None
-        if isinstance(initializer, SeededPopInitializer):
-            self._sprout_seed = initializer.get_seed(self._problem)
+        if isinstance(self._initializer, SeededPopInitializer):
+            self._sprout_seed = self._initializer.get_seed(self._problem)
 
         self._active: bool = True
         self._centroid: np.ndarray | None = None

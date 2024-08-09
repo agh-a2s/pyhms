@@ -2,7 +2,6 @@ from structlog.typing import FilteringBoundLogger
 
 from ..config import SHADELevelConfig
 from ..core.individual import Individual
-from ..initializers import sample_normal, sample_uniform
 from .abstract_deme import AbstractDeme
 from .single_pop_eas.de import SHADE
 
@@ -24,24 +23,10 @@ class SHADEDeme(AbstractDeme):
         self._sample_std_dev = config.sample_std_dev
         self._shade = SHADE(config.memory_size, config.pop_size)
 
-        if sprout_seed is None:
-            starting_pop = Individual.create_population(
-                self._pop_size,
-                initialize=(config.initialize or sample_uniform(bounds=self._bounds)),
-                problem=self._problem,
-            )
-        else:
-            x = sprout_seed.genome
-            starting_pop = Individual.create_population(
-                self._pop_size - 1,
-                initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
-                problem=self._problem,
-            )
-            seed_ind = Individual(x, problem=self._problem)
-            starting_pop.append(seed_ind)
-
+        starting_pop = self._initializer(self._pop_size, self._problem)
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
+
 
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0

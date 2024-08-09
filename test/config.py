@@ -60,14 +60,12 @@ def get_default_tree_config() -> TreeConfig:
             pop_size=20,
             mutation_std=1.0,
             lsc=DEFAULT_LSC,
-            pop_initializer_type=UniformGlobalInitializer,
         ),
         CMALevelConfig(
             generations=4,
             problem=SQUARE_PROBLEM,
             sigma0=2.5,
             lsc=DEFAULT_LSC,
-            pop_initializer_type=InjectionInitializer,
         ),
     ]
     return TreeConfig(levels, DEFAULT_GSC, DEFAULT_SPROUT_COND, options={})
