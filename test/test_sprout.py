@@ -4,7 +4,6 @@ from copy import deepcopy
 import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
-from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializer
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.sprout.sprout_filters import DemeLimit, FarEnough, LevelLimit, NBC_FarEnough
 from pyhms.sprout.sprout_generators import BestPerDeme, NBC_Generator
@@ -63,14 +62,12 @@ class TestSprout(unittest.TestCase):
                 pop_size=20,
                 mutation_std=1.0,
                 lsc=DontStop(),
-                pop_initializer=UniformGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,
                 problem=self.minimize_problem,
                 sigma0=0.01,
                 lsc=DontStop(),
-                pop_initializer=InjectionInitializer,
             ),
         ]
         maximize_levels = deepcopy(minimize_levels)

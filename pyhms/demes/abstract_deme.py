@@ -5,7 +5,7 @@ from pyhms.config import BaseLevelConfig
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
-from ..core.initializers import PopInitializer, SeededPopInitializer
+from ..core.initializers import SeededPopInitializer
 from ..core.problem import EvalCountingProblem
 from ..stop_conditions import LocalStopCondition, UniversalStopCondition
 

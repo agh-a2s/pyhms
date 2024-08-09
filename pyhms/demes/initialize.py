@@ -1,3 +1,5 @@
+from typing import Any
+
 from pyhms.config import (
     BaseLevelConfig,
     CMALevelConfig,
@@ -25,9 +27,12 @@ def init_root(config: BaseLevelConfig, logger: FilteringBoundLogger) -> Abstract
 
 
 def prepare_initializer(
-        config: BaseLevelConfig, target_level: int, sprout_seed: Individual | None, injected_population: list[Individual] | None
-        ) -> None:
-    context = {}
+    config: BaseLevelConfig,
+    target_level: int,
+    sprout_seed: Individual | None,
+    injected_population: list[Individual] | None,
+) -> None:
+    context: dict[str, Any] = {}
     if sprout_seed is not None:
         context["seed_genome"] = sprout_seed.genome
         context["seed_ind"] = sprout_seed
@@ -39,7 +44,7 @@ def prepare_initializer(
         context["std_dev"] = config.sample_std_dev
     else:
         context["std_dev"] = get_default_mutation_std(config.bounds, target_level)
-    
+
     config.pop_initializer.prepare_sampler(context)
 
 
@@ -54,7 +59,6 @@ def init_from_config(
     random_seed: int = None,
     parent_deme: AbstractDeme | None = None,
 ) -> AbstractDeme:
-
     prepare_initializer(config, target_level, sprout_seed, injected_population)
 
     args = {

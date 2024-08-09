@@ -16,7 +16,7 @@ class SHADEDeme(AbstractDeme):
         started_at: int = 0,
         sprout_seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, sprout_seed)
+        super().__init__(id, level, config, logger, started_at)
         self._init_pop_size = config.pop_size
         self._pop_size = config.pop_size
         self._generations = config.generations
@@ -26,7 +26,6 @@ class SHADEDeme(AbstractDeme):
         starting_pop = self._initializer(self._pop_size, self._problem)
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
-
 
     def run_metaepoch(self, tree) -> None:
         epoch_counter = 0

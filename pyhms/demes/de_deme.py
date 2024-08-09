@@ -4,7 +4,6 @@ from pyhms.demes.single_pop_eas.de import DE
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
-from ..core.initializers import PopInitializer
 
 
 class DEDeme(AbstractDeme):

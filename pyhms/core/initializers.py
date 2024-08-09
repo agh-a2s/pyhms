@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Callable
 
 import numpy as np
 from pyhms.core.individual import Individual
@@ -14,7 +15,7 @@ def linear_scale(sample: np.ndarray, bounds: np.ndarray) -> np.ndarray:
 class PopInitializer(ABC):
     def __init__(self, bounds: np.ndarray | None = None):
         self._bounds = bounds
-        self._sampler: callable = None
+        self._sampler: Callable = None
 
     @abstractmethod
     def prepare_sampler(self, context: dict = None) -> None:
@@ -34,8 +35,7 @@ class SeededPopInitializer(PopInitializer):
 
 
 class UniformGlobalInitializer(PopInitializer):
-    
-    def prepare_sampler(self, _: dict):
+    def prepare_sampler(self, context: dict = None) -> None:
         self.sampler = sample_uniform(self._bounds)
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
@@ -43,8 +43,7 @@ class UniformGlobalInitializer(PopInitializer):
 
 
 class LHSGlobalInitializer(PopInitializer):
-
-    def prepare_sampler(self, _: dict):
+    def prepare_sampler(self, context: dict = None) -> None:
         self.sampler = LatinHypercube(d=len(self._bounds))
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
@@ -53,8 +52,7 @@ class LHSGlobalInitializer(PopInitializer):
 
 
 class SobolGlobalInitializer(PopInitializer):
-
-    def prepare_sampler(self, _: dict):
+    def prepare_sampler(self, context: dict = None) -> None:
         self.sampler = Sobol(d=len(self._bounds), scramble=True)
 
     def sample_pop(self, pop_size: int) -> np.ndarray:
@@ -63,8 +61,7 @@ class SobolGlobalInitializer(PopInitializer):
 
 
 class GaussianInitializer(PopInitializer):
-
-    def prepare_sampler(self, context: dict):
+    def prepare_sampler(self, context: dict = None) -> None:
         try:
             seed_genome: np.ndarray = context["seed_genome"]
             std_dev: float = context["std_dev"]
@@ -77,8 +74,7 @@ class GaussianInitializer(PopInitializer):
 
 
 class GaussianInitializerWithSeedInject(SeededPopInitializer):
-    
-    def prepare_sampler(self, context: dict):
+    def prepare_sampler(self, context: dict = None) -> None:
         try:
             seed_ind: Individual = context["seed_ind"]
             std_dev: float = context["std_dev"]
@@ -103,8 +99,7 @@ class GaussianInitializerWithSeedInject(SeededPopInitializer):
 
 
 class InjectionInitializer(SeededPopInitializer):
-    
-    def prepare_sampler(self, context: dict = None):
+    def prepare_sampler(self, context: dict = None) -> None:
         self.injected_population: list[Individual] = context["injected_pop"]
         self._preserve_fitness: bool = context.get("preserve_fitness", True)
 

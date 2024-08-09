@@ -1,6 +1,5 @@
 from pyhms.config import EALevelConfig
 from pyhms.core.individual import Individual
-from pyhms.core.initializers import PopInitializer
 from pyhms.demes.abstract_deme import AbstractDeme
 from structlog.typing import FilteringBoundLogger
 
