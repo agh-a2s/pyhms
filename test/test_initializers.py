@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from pyhms.initializers import sample_normal
+from pyhms.utils.samplers import sample_normal
 
 
 class TestInitializers(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestInitializers(unittest.TestCase):
         std_dev = 1.0
         bounds = np.array([(-5, 5)] * N)
         create = sample_normal(x, std_dev, bounds)
-        population = np.array([create() for _ in range(10000)])
+        population = np.array(create(10000))
         population_mean = np.mean(population, axis=0)
         population_std = np.std(population, axis=0)
         np.testing.assert_allclose(population_mean, x, rtol=1e-2, atol=1e-1)
