@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 from ...core.individual import Individual
@@ -110,7 +112,7 @@ class BaseSEA:
         self.variational_operators_pipeline = variational_operators_pipeline
         self.k_elites = k_elites
 
-    def run(self, parents: list[Individual]) -> list[Individual]:
+    def run(self, parents: list[Individual], **kwargs: Any) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
         offspring_population = parent_population.copy()
         for variational_operator in self.variational_operators_pipeline:
@@ -130,6 +132,29 @@ class SEA(BaseSEA):
         p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
         k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
         return SEA(
+            variational_operators_pipeline=[
+                TournamentSelection(),
+                GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
+            ],
+            k_elites=k_elites,
+        )
+
+
+class SEAWithAdaptiveMutation(BaseSEA):
+    def run(self, parents: list[Individual], **kwargs: Any) -> list[Individual]:
+        mutation_std = kwargs.get("mutation_std", None)
+        assert mutation_std is not None, "Mutation std must be provided."
+        stds = np.full(len(parents[0].genome), mutation_std)
+        self.variational_operators_pipeline[1].stds = stds  # type: ignore[attr-defined]
+        return super().run(parents, **kwargs)
+
+    @classmethod
+    def create(self, **kwargs) -> "SEAWithAdaptiveMutation":
+        problem = kwargs.get("problem")
+        mutation_std = kwargs.get("mutation_std", DEFAULT_MUTATION_STD)
+        p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
+        k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
+        return SEAWithAdaptiveMutation(
             variational_operators_pipeline=[
                 TournamentSelection(),
                 GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
@@ -180,7 +205,7 @@ class MWEA(BaseSEA):
     ) -> None:
         self.variational_operators_pipeline = variational_operators_pipeline
 
-    def run(self, parents: list[Individual]) -> list[Individual]:
+    def run(self, parents: list[Individual], **kwargs: Any) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
         offspring_population = parent_population.copy()
         for variational_operator in self.variational_operators_pipeline:

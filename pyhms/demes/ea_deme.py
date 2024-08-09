@@ -31,7 +31,7 @@ class EADeme(AbstractDeme):
         epoch_counter = 0
         metaepoch_generations = []
         while epoch_counter < self._generations:
-            offspring = self._ea.run(self.current_population)
+            offspring = self._ea.run(self.current_population, mutation_std=self._get_mutation_std())
             epoch_counter += 1
             metaepoch_generations.append(offspring)
 
@@ -44,3 +44,17 @@ class EADeme(AbstractDeme):
         if self._lsc(self):
             self.log("EA Deme finished due to LSC")
             self._active = False
+
+    def _get_mutation_std(self) -> float:
+        config_dict = self.config.__dict__
+        if mutation_std_step := config_dict.get("mutation_std_step"):
+            return config_dict.get("mutation_std") + self.iterations_count_since_last_sprout * mutation_std_step
+        return config_dict.get("mutation_std")
+
+    def __str__(self) -> str:
+        best_fitness = self.best_current_individual.fitness
+        if self._sprout_seed is None:
+            return f"Root deme {self.id} with best achieved fitness {best_fitness}"
+        else:
+            return f"""Deme {self.id}, metaepoch {self.started_at} and
+            seed {self._sprout_seed.genome} with best {best_fitness}"""

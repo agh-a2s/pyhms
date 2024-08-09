@@ -198,8 +198,9 @@ class SHADE:
             self._archive = self._archive[random_indices]
         if max(cr) != 0:
             weights = np.abs(fitness[indexes] - c_fitness[indexes])
-            weights /= np.sum(weights)
-            self._m_cr[self._k] = np.sum(weights * cr[indexes])
+            if np.any(weights != 0):
+                weights /= np.sum(weights)
+                self._m_cr[self._k] = np.sum(weights * cr[indexes])
         else:
             self._m_cr[self._k] = 1
 

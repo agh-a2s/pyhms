@@ -23,7 +23,7 @@ repos:
         language: python
         language_version: python3.11
         additional_dependencies:
-          - numpy
+          - numpy<2
         files: ^(pyhms/|test/)
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
