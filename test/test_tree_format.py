@@ -1,6 +1,4 @@
-import numpy as np
 from pyhms.config import CMALevelConfig
-from pyhms.core.individual import Individual
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.logging_ import get_logger
 from pyhms.tree import DemeTree
@@ -22,7 +20,6 @@ def test_format_deme():
         level=0,
         config=config,
         logger=logger,
-        x0=Individual(genome=np.array([0, 0]), problem=SQUARE_PROBLEM),
     )
     formatted_deme = format_deme(deme)
     assert formatted_deme.startswith("CMADeme 0")
