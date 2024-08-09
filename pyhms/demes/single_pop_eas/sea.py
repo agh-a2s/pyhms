@@ -1,19 +1,15 @@
-from typing import Protocol
-
 import numpy as np
 
 from ...core.individual import Individual
 from ...core.population import Population
+from .common import VariationalOperator, apply_bounds
+from .multiwinner import CCGreedyPolicy, MultiwinnerRepeatedSelection, UtilityFunction
 
 DEFAULT_P_MUTATION = 1.0
 DEFAULT_P_CROSSOVER = 0.7
 DEFAULT_MUTATION_STD = 1.0
 DEFAULT_K_ELITES = 1
-
-
-class VariationalOperator(Protocol):
-    def __call__(self, population: Population) -> Population:
-        pass
+DEFAULT_ELECTION_GROUP_SIZE = 10
 
 
 class GaussianMutation(VariationalOperator):
@@ -29,27 +25,10 @@ class GaussianMutation(VariationalOperator):
         binary_mask = np.random.rand(*new_population.genomes.shape) < self.probability
         new_genomes = new_population.genomes + binary_mask * noise
         # By default we use toroidal method, because it works the best for BBOB.
-        new_genomes = self.apply_bounds(new_genomes, method="toroidal")
+        new_genomes = apply_bounds(new_genomes, population.problem.bounds, method="toroidal")
         new_population.update_genome(new_genomes)
         new_population.evaluate()
         return new_population
-
-    def apply_bounds(self, genomes: np.ndarray, method: str = "clip"):
-        if method == "clip":
-            return np.clip(genomes, self.lower_bounds, self.upper_bounds)
-        elif method == "reflect":
-            broadcasted_lower_bounds = self.lower_bounds + np.zeros_like(genomes)
-            broadcasted_upper_bounds = self.upper_bounds + np.zeros_like(genomes)
-            over_upper = genomes > self.upper_bounds
-            genomes[over_upper] = 2 * broadcasted_upper_bounds[over_upper] - genomes[over_upper]
-            under_lower = genomes < self.lower_bounds
-            genomes[under_lower] = 2 * broadcasted_lower_bounds[under_lower] - genomes[under_lower]
-            return genomes
-        elif method == "toroidal":
-            range_size = self.upper_bounds - self.lower_bounds
-            return self.lower_bounds + (genomes - self.lower_bounds) % range_size
-        else:
-            raise ValueError(f"Unknown method: {method}")
 
 
 class UniformMutation(VariationalOperator):
@@ -191,4 +170,42 @@ class GAStyleSEA(BaseSEA):
                 UniformMutation(bounds=problem.bounds, probability=p_mutation),
             ],
             k_elites=k_elites,
+        )
+
+
+class MWEA(BaseSEA):
+    def __init__(
+        self,
+        variational_operators_pipeline: list[VariationalOperator],
+    ) -> None:
+        self.variational_operators_pipeline = variational_operators_pipeline
+
+    def run(self, parents: list[Individual]) -> list[Individual]:
+        parent_population = Population.from_individuals(parents)
+        offspring_population = parent_population.copy()
+        for variational_operator in self.variational_operators_pipeline:
+            offspring_population = variational_operator(offspring_population)
+        return offspring_population.to_individuals()
+
+    @classmethod
+    def create(self, **kwargs) -> "MWEA":
+        problem = kwargs.get("problem")
+        mutation_std = kwargs.get("mutation_std", DEFAULT_MUTATION_STD)
+        p_mutation = kwargs.get("p_mutation", DEFAULT_P_MUTATION)
+        k_elites = kwargs.get("k_elites", DEFAULT_K_ELITES)
+        election_group_size = kwargs.get("election_group_size", DEFAULT_ELECTION_GROUP_SIZE)
+        return MWEA(
+            variational_operators_pipeline=[
+                MultiwinnerRepeatedSelection(
+                    utility_function=UtilityFunction(
+                        distance=lambda x, y: np.sum(np.abs(x - y)),
+                        gamma=lambda x: x**6,
+                        delta=lambda x: 1 / x,
+                    ),
+                    voting_scheme=CCGreedyPolicy(),
+                    k=k_elites,
+                    election_group_size=election_group_size,
+                ),
+                GaussianMutation(std=mutation_std, bounds=problem.bounds, probability=p_mutation),
+            ],
         )

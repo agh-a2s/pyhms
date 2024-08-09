@@ -7,7 +7,7 @@ from pyhms.core.initializers import InjectionInitializer, UniformGlobalInitializ
 from pyhms.stop_conditions import DontStop, MetaepochLimit
 from pyhms.tree import DemeTree
 
-from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, SQUARE_PROBLEM, TEST_DIR
+from .config import DEFAULT_GSC, DEFAULT_SPROUT_COND, FOUR_FUNNELS_PROBLEM, SQUARE_PROBLEM, TEST_DIR
 
 
 class TestPersistance(unittest.TestCase):
@@ -52,7 +52,7 @@ class TestPersistance(unittest.TestCase):
         config = [
             DELevelConfig(
                 generations=2,
-                problem=SQUARE_PROBLEM,
+                problem=FOUR_FUNNELS_PROBLEM,
                 pop_size=20,
                 dither=True,
                 crossover=0.9,
@@ -61,7 +61,7 @@ class TestPersistance(unittest.TestCase):
             ),
             CMALevelConfig(
                 generations=4,
-                problem=SQUARE_PROBLEM,
+                problem=FOUR_FUNNELS_PROBLEM,
                 sigma0=2.5,
                 lsc=DontStop(),
                 pop_initializer_type=InjectionInitializer,

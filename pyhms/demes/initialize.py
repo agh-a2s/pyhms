@@ -5,6 +5,7 @@ from pyhms.config import (
     EALevelConfig,
     LocalOptimizationConfig,
     RandomLevelConfig,
+    SHADELevelConfig,
 )
 from pyhms.utils.parameter_calculation import get_default_mutation_std
 from structlog.typing import FilteringBoundLogger
@@ -24,7 +25,7 @@ from .cma_deme import CMADeme
 from .de_deme import DEDeme
 from .ea_deme import EADeme
 from .local_deme import LocalDeme
-from .random_deme import RandomDeme
+from .shade_deme import SHADEDeme
 
 
 def init_root(config: BaseLevelConfig, logger: FilteringBoundLogger) -> AbstractDeme:

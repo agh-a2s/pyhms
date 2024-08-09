@@ -59,12 +59,3 @@ class LocalDeme(AbstractDeme):
         ind = Individual(intermediate_result.x, problem=self._problem)
         ind.fitness = intermediate_result.fun
         self._run_history.append(ind)
-
-    def log(self, message: str) -> None:
-        self._logger.info(
-            message,
-            id=self._id,
-            best_fitness=self.best_current_individual.fitness,
-            best_individual=self.best_current_individual.genome,
-            n_evals=self.n_evaluations,
-        )
