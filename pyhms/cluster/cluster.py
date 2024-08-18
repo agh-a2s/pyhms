@@ -4,9 +4,7 @@ from ..core.population import Population
 from ..demes.cma_deme import CMADeme
 
 
-def mahalanobis_distance(
-    x: np.ndarray, y: np.ndarray, covariance_matrix_inverse: np.ndarray
-) -> float:
+def mahalanobis_distance(x: np.ndarray, y: np.ndarray, covariance_matrix_inverse: np.ndarray) -> float:
     diff = x - y
     return np.sqrt(diff @ covariance_matrix_inverse @ diff)
 
@@ -35,10 +33,7 @@ class Cluster:
         )
 
     def is_in_extension(self, point: np.ndarray, threshold: float = 1) -> bool:
-        return (
-            mahalanobis_distance(point, self.mean, self.covariance_matrix_inverse)
-            < threshold
-        )
+        return mahalanobis_distance(point, self.mean, self.covariance_matrix_inverse) < threshold
 
     @classmethod
     def merge(cls, clusters: list["Cluster"]) -> "Cluster":
@@ -55,9 +50,7 @@ class Cluster:
         total_size = sum(cluster.population.size for cluster in clusters)
         weights = [cluster.population.size / total_size for cluster in clusters]
 
-        merged_mean = np.average(
-            [cluster.mean for cluster in clusters], axis=0, weights=weights
-        )
+        merged_mean = np.average([cluster.mean for cluster in clusters], axis=0, weights=weights)
         n = len(clusters[0].mean)
         merged_cov = np.zeros((n, n))
 

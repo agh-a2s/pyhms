@@ -1,7 +1,8 @@
-from pykrige.ok import OrdinaryKriging
-from ..core.population import Population
 import numpy as np
 import plotly.graph_objects as go
+from pykrige.ok import OrdinaryKriging
+
+from ..core.population import Population
 
 
 class KrigingLandscapeApproximator:

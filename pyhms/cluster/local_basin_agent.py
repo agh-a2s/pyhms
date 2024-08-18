@@ -1,6 +1,6 @@
-from .cluster import Cluster
-from ..demes.single_pop_eas.sea import BaseSEA
 from ..core.population import Population
+from ..demes.single_pop_eas.sea import BaseSEA
+from .cluster import Cluster
 
 
 class LocalBasinAgentExecutor:
@@ -8,7 +8,7 @@ class LocalBasinAgentExecutor:
         self.ea = ea
         self.n_epochs = n_epochs
 
-    def __call__(self, clusters: list[Cluster]) -> list[Cluster]:
+    def __call__(self, clusters: list[Cluster]) -> Population:
         all_individuals = []
         for cluster in clusters:
             individuals = cluster.population.to_individuals()

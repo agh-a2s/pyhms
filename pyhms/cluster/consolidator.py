@@ -18,9 +18,7 @@ class PairwiseNeighborConsolidator:
         second_cluster_idx = 0
 
         while True:
-            first_cluster_idx, second_cluster_idx = self.find_neighbors(
-                clusters, first_cluster_idx, second_cluster_idx
-            )
+            first_cluster_idx, second_cluster_idx = self.find_neighbors(clusters, first_cluster_idx, second_cluster_idx)
             if first_cluster_idx is None and second_cluster_idx is None:
                 break
 
