@@ -1632,6 +1632,47 @@ files = [
 windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
+name = "pykrige"
+version = "1.7.2"
+description = "Kriging Toolkit for Python."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "PyKrige-1.7.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:5975b5fd939266835c197289dbdb2dd2c2408f9cb56246019c43d5353eaa3ea3"},
+    {file = "PyKrige-1.7.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:54bf6252e3fa91a6d798e7d9669108154d2f6866283da6f6029d2813667e64ea"},
+    {file = "PyKrige-1.7.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:855032b06995b4789d42e4ccd99a2484fabd3fad30d79525b8fe913cc8ff0546"},
+    {file = "PyKrige-1.7.2-cp310-cp310-win_amd64.whl", hash = "sha256:479917f68b448d3952cf572126ea0a859da4780d50c8ff4be00d41f3dc9396b7"},
+    {file = "PyKrige-1.7.2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:725bac8d185078f6e9853acb89cf2cc6eee3ce193419c0c7ec2b9b43b55f4057"},
+    {file = "PyKrige-1.7.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:b4e68fc84df9fb521a27a1bec2dee60c12a95988712fee31e0a8753c5e51f3df"},
+    {file = "PyKrige-1.7.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:175f1b12dfe3cd1751f2c70c872c8d16ca712b55569fe98fd5ae4bd58fb49cc3"},
+    {file = "PyKrige-1.7.2-cp311-cp311-win_amd64.whl", hash = "sha256:36b8fec0e761f6406de992f16dbc6f82a7616a918f6e2dc0a13002a419831827"},
+    {file = "PyKrige-1.7.2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:91cd18ec9044d28fe5b397e5788b712b7f36c0c116de22ae7d56952f83b253ca"},
+    {file = "PyKrige-1.7.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:2bdc676f5d3ddad2552dbf1e6d9699cc186039379dd0a84a5c9c2c27cbf9dc53"},
+    {file = "PyKrige-1.7.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a6e15c999435de303f76413b41d6ba4d271e12d96a93ac2f1acd4d80d526fab2"},
+    {file = "PyKrige-1.7.2-cp312-cp312-win_amd64.whl", hash = "sha256:e0138c1dfdbbaeb76df20a304f90deeccec56951518ceae81e34bfbbb49649f5"},
+    {file = "PyKrige-1.7.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:77c673dd7440ea80dcdd27f9a96371feeaa4eaaaa3cf5c70f75474aa19c6574f"},
+    {file = "PyKrige-1.7.2-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:8fbd401edda1aff0a2031cacf8ddf5ba737c283dfc0d89b2cb249c0b0987b221"},
+    {file = "PyKrige-1.7.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:86a872bf47c72eaf5cf8d30eb56b6eea21ac0c47e4468a3d4b44586651b7d9aa"},
+    {file = "PyKrige-1.7.2-cp38-cp38-win_amd64.whl", hash = "sha256:8195c4371374f49075dfd94b82caa1fd5be10fa7fb9892947e959c337b4924b5"},
+    {file = "PyKrige-1.7.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:4982734bbbd562fd8affdfd23d10a5f77a61690a1e75fc0e5514a0c016a813eb"},
+    {file = "PyKrige-1.7.2-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:7d742ed9240d31c3b082570c3d99bf1a0a0b02d49c723cb69a12ed52fc2faf27"},
+    {file = "PyKrige-1.7.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e588f5e087f08356e4089e0dd83266e751e8821a8feff33a52a4ffc888ce321a"},
+    {file = "PyKrige-1.7.2-cp39-cp39-win_amd64.whl", hash = "sha256:7e2944e111b530991f937bd79fcc04d9d74e64785bdc672ea12626f19cbdbfdd"},
+    {file = "pykrige-1.7.2.tar.gz", hash = "sha256:25b45a4173714c0b62098d19019404cb3978fa8bd8abae9ba55a272a53979e35"},
+]
+
+[package.dependencies]
+numpy = ">=1.20.0"
+scipy = ">=1.1.0,<2"
+
+[package.extras]
+doc = ["gstools (>=1.4,<2)", "m2r2 (>=0.2.8)", "matplotlib (>=3)", "numpydoc (>=1.1)", "pillow", "scikit-learn (>=0.19)", "sphinx (>=7)", "sphinx-gallery (>=0.8)", "sphinx-rtd-theme (>=2)"]
+lint = ["black (>=23,<24)", "cython-lint", "isort[colors]", "pylint"]
+plot = ["matplotlib (>=3,<4)"]
+sklearn = ["scikit-learn (>=0.19)"]
+test = ["gstools (>=1.4,<2)", "pytest-cov (>=3)", "scikit-learn (>=0.19)"]
+
+[[package]]
 name = "pyparsing"
 version = "3.1.2"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -2543,4 +2584,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "007c472494554b8ccb687f38628e11f6ec30faaece9ed1e3d9ae421f8c3215d2"
+content-hash = "3c311caab9c9d0f5ef74037634ef40754f4c689118ea6ec707328704f189bdf1"
