@@ -25,7 +25,7 @@ class Cluster:
         self.covariance_matrix_inverse = np.linalg.inv(covariance_matrix)
 
     @classmethod
-    def from_deme(cls, deme: CMADeme) -> "Cluster":
+    def from_cma_deme(cls, deme: CMADeme) -> "Cluster":
         return cls(
             Population.from_individuals(deme.all_individuals[-DEFAULT_CLUSTER_SIZE:]),
             deme.mean,

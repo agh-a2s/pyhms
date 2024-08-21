@@ -20,7 +20,7 @@ class LandscapeApproximator:
         mwea: MWEA | None = None,
     ) -> None:
         assert all(isinstance(deme, CMADeme) for deme in hms_tree.leaves), "All leaves must be CMADeme instances"
-        self.clusters = [Cluster.from_deme(deme) for deme in hms_tree.leaves]  # type: ignore[arg-type]
+        self.clusters = [Cluster.from_cma_deme(deme) for deme in hms_tree.leaves]  # type: ignore[arg-type]
         self.cluster_reducer = PairwiseNeighborConsolidator(merge_condition=merge_condition, max_distance=None)
         if mwea is None:
             problem = get_function_problem(hms_tree.root._problem)
