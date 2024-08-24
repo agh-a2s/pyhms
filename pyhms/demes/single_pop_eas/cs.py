@@ -13,11 +13,7 @@ class LevyFlight:
         sigma_u = (
             np.math.gamma(1 + self.beta)
             * np.sin(np.pi * self.beta / 2)
-            / (
-                np.math.gamma((1 + self.beta) / 2)
-                * self.beta
-                * 2 ** ((self.beta - 1) / 2)
-            )
+            / (np.math.gamma((1 + self.beta) / 2) * self.beta * 2 ** ((self.beta - 1) / 2))
         ) ** (1 / self.beta)
         sigma_v = 1
         u = np.random.normal(0, sigma_u, size)
@@ -36,11 +32,7 @@ class CuckooSearch(VariationalOperator):
         self.levy_flight = LevyFlight(beta)
 
     def get_best_solution(self, population: Population) -> np.ndarray:
-        best_index = (
-            np.argmax(population.fitnesses)
-            if population.problem.maximize
-            else np.argmin(population.fitnesses)
-        )
+        best_index = np.argmax(population.fitnesses) if population.problem.maximize else np.argmin(population.fitnesses)
         return population.genomes[best_index]
 
     def abandon_nests(self, population: Population) -> Population:
@@ -60,15 +52,11 @@ class CuckooSearch(VariationalOperator):
 
         # Generate new solutions (but keep the current best)
         step_sizes = self.levy_flight(population.size)
-        new_genomes = population.genomes + self.alpha * step_sizes[:, np.newaxis] * (
-            population.genomes - best_solution
-        )
+        new_genomes = population.genomes + self.alpha * step_sizes[:, np.newaxis] * (population.genomes - best_solution)
         new_genomes = apply_bounds(new_genomes, population.problem.bounds, "reflect")
 
         # Evaluate new solutions
-        new_population = Population(
-            new_genomes, np.full(population.size, np.nan), population.problem
-        )
+        new_population = Population(new_genomes, np.full(population.size, np.nan), population.problem)
         new_population.evaluate()
 
         # Replace some nests by constructing new solutions
@@ -86,8 +74,8 @@ class CuckooSearch(VariationalOperator):
 
 
 class CuckooSearchOptimizer:
-    def __init__(self, pa: float = 0.25, alpha: float = 1.0, beta: float = 1.5):
-        self.cuckoo_search = CuckooSearch(pa, alpha, beta)
+    def __init__(self, p: float = 0.25, alpha: float = 1.0, beta: float = 1.5):
+        self.cuckoo_search = CuckooSearch(p, alpha, beta)
 
     def run(self, parents: list[Individual]) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
