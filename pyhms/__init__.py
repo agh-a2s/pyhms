@@ -1,6 +1,7 @@
 from .config import (
     BaseLevelConfig,
     CMALevelConfig,
+    CSLevelConfig,
     DELevelConfig,
     EALevelConfig,
     LHSLevelConfig,

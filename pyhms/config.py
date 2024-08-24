@@ -135,6 +135,27 @@ class SobolLevelConfig(BaseLevelConfig):
         self.__dict__.update(kwargs)
 
 
+class CSLevelConfig(BaseLevelConfig):
+    def __init__(
+        self,
+        pop_size: int,
+        problem: Problem,
+        lsc: LocalStopCondition | UniversalStopCondition,
+        generations: int,
+        sample_std_dev: float = 1.0,
+        alpha: float = 1.0,
+        beta: float = 1.5,
+        p: float = 0.25,
+    ):
+        super().__init__(problem, lsc)
+        self.pop_size = pop_size
+        self.generations = generations
+        self.alpha = alpha
+        self.beta = beta
+        self.p = p
+        self.sample_std_dev = sample_std_dev
+
+
 class Options(TypedDict, total=False):
     log_level: LoggingLevel | None  # Default value: "warning"
     hibernation: bool | None  # Default value: False
