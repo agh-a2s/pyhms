@@ -42,12 +42,14 @@ class NearestBetterClustering:
         evaluated_individuals: list[Individual],
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
+        use_correction: bool | None = False,
     ) -> None:
         sorted_individuals = sorted(evaluated_individuals, reverse=True)
         self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
         self.distances: list[float] = []
         self.distance_factor = distance_factor
+        self.use_correction = use_correction
 
     def cluster(self) -> list[Individual]:
         self._prepare_spanning_tree()
@@ -80,7 +82,10 @@ class NearestBetterClustering:
     def _find_root_nodes(self) -> list[Node]:
         nodes = self.tree.all_nodes()
         mean_distance = np.mean(self.distances)
-        return [node for node in nodes if node.data["distance"] > mean_distance * self.distance_factor]
+        correction_factor = 1 if not self.use_correction else self._get_correction_factor()
+        return [
+            node for node in nodes if node.data["distance"] > mean_distance * self.distance_factor * correction_factor
+        ]
 
     def _find_nearest_better(
         self, individual: Individual, better_individuals: list[Individual]
@@ -94,6 +99,15 @@ class NearestBetterClustering:
         while node and node.identifier not in root_node_ids:
             node = self.tree.parent(node.identifier)
         return node if node else None
+
+    def _get_correction_factor(self) -> float:
+        """
+        Calculate the correction factor cfNND, which should be applied for a random sample.
+        """
+        assert self.tree.size() > 0, "The tree is empty. Please run the clustering algorithm first."
+        D = self.individuals[0].genome.size
+        n = len(self.individuals)
+        return 2.95 * (D ** (1 / 4)) * ((np.log(n) / (2 * D)) ** (1 / D))
 
     def assign_clusters(self) -> dict:
         """
