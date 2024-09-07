@@ -47,13 +47,16 @@ class NearestBetterClustering:
         sorted_individuals = sorted(evaluated_individuals, reverse=True)
         self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
-        self.distances: list[float] = []
         self.distance_factor = distance_factor
         self.use_correction = use_correction
 
     def cluster(self) -> list[Individual]:
         self._prepare_spanning_tree()
         return [node.data["individual"] for node in self._find_root_nodes()]
+
+    @property
+    def distances(self) -> list[float]:
+        return [node.data["distance"] for node in self.tree.all_nodes() if not np.isinf(node.data["distance"])]
 
     def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
@@ -161,3 +164,65 @@ class NearestBetterClustering:
         if len(clusters) < 5:
             plt.legend()
         plt.show()
+
+
+class NearestBetterClusteringWithRule2(NearestBetterClustering):
+    """
+    Rule 2 cuts outgoing edges for individuals with at least three incoming edges
+    based on the ratio of the outgoing edge length to the median of the incoming edge lengths.
+    """
+
+    def __init__(
+        self,
+        evaluated_individuals: list[Individual],
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
+        use_correction: bool | None = False,
+        rule2_b: float = 1.0,
+    ) -> None:
+        super().__init__(
+            evaluated_individuals=evaluated_individuals,
+            distance_factor=distance_factor,
+            truncation_factor=truncation_factor,
+            use_correction=use_correction,
+        )
+        self.node_id_to_incoming_edge_lens: dict[str, list[float]] = {}
+        self.rule2_b = rule2_b
+
+    def cluster(self) -> list[Individual]:
+        """
+        Override the cluster method to apply Rule 2 after the spanning tree is created.
+        """
+        self._prepare_spanning_tree()
+        self._apply_rule2_cut()
+        return [node.data["individual"] for node in self._find_root_nodes()]
+
+    def _prepare_spanning_tree(self) -> None:
+        super()._prepare_spanning_tree()
+        for node in self.tree.all_nodes():
+            distance = node.data["distance"]
+            if distance == np.inf:
+                continue
+            parent_id = self.tree.parent(node.identifier).identifier
+            if parent_id not in self.node_id_to_incoming_edge_lens:
+                self.node_id_to_incoming_edge_lens[parent_id] = []
+            self.node_id_to_incoming_edge_lens[parent_id].append(distance)
+
+    def _apply_rule2_cut(self) -> None:
+        """
+        Apply Rule 2 to cut outgoing edges based on the number of incoming edges.
+        If the ratio of the outgoing edge to the median of incoming edges is greater than `rule2_b`,
+        the outgoing edge is cut.
+        """
+        for node in self.tree.all_nodes():
+            node_id = node.identifier
+            outgoing_edge_length = node.data["distance"]
+            if node_id in self.node_id_to_incoming_edge_lens and len(self.node_id_to_incoming_edge_lens[node_id]) >= 3:
+                incoming_edges_lengths = self.node_id_to_incoming_edge_lens[node_id]
+                median_incoming = np.median(incoming_edges_lengths)
+
+                if outgoing_edge_length / median_incoming > self.rule2_b:
+                    parent = self.tree.parent(node_id)
+                    node.data["distance"] = np.inf
+                    if parent:
+                        self.tree.unlink_node(node_id)
