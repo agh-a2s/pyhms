@@ -479,11 +479,12 @@ class DemeTree:
         dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
+        use_correction: bool = False,
     ) -> None:
         """
         Runs the Nearest Better Clustering algorithm and plots the clustered individuals.
         In case of a multidimensional genome, dimensionality reducer is employed.
         """
-        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor)
+        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor, use_correction)
         nbc._prepare_spanning_tree()
         nbc.plot_clusters(dimensionality_reducer)

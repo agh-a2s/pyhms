@@ -58,6 +58,14 @@ class NearestBetterClustering:
     def distances(self) -> list[float]:
         return [node.data["distance"] for node in self.tree.all_nodes() if not np.isinf(node.data["distance"])]
 
+    @property
+    def n(self) -> int:
+        return len(self.individuals)
+
+    @property
+    def D(self) -> int:
+        return self.individuals[0].genome.size
+
     def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
         self.tree.create_node(
@@ -109,9 +117,7 @@ class NearestBetterClustering:
         Preuss, M. "Multimodal optimization by means of evolutionary algorithms."
         """
         assert self.tree.size() > 0, "The tree is empty. Please run the clustering algorithm first."
-        D = self.individuals[0].genome.size
-        n = len(self.individuals)
-        return 2.95 * (D ** (1 / 4)) * ((np.log(n) / (2 * D)) ** (1 / D))
+        return 2.95 * (self.D ** (1 / 4)) * ((np.log(self.n) / (2 * self.D)) ** (1 / self.D))
 
     def assign_clusters(self) -> dict:
         """
@@ -177,7 +183,6 @@ class NearestBetterClusteringWithRule2(NearestBetterClustering):
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
         use_correction: bool | None = False,
-        rule2_b: float = 1.0,
     ) -> None:
         super().__init__(
             evaluated_individuals=evaluated_individuals,
@@ -186,7 +191,7 @@ class NearestBetterClusteringWithRule2(NearestBetterClustering):
             use_correction=use_correction,
         )
         self.node_id_to_incoming_edge_lens: dict[str, list[float]] = {}
-        self.rule2_b = rule2_b
+        self.rule2_b = self._calculate_b()
 
     def cluster(self) -> list[Individual]:
         """
@@ -225,3 +230,12 @@ class NearestBetterClusteringWithRule2(NearestBetterClustering):
                     node.data["distance"] = np.inf
                     if parent:
                         self.tree.unlink_node(node_id)
+
+    def _calculate_b(self) -> float:
+        """
+        Calculate the value of b(n, D) according to the formula from
+        Preuss, M. "Multimodal optimization by means of evolutionary algorithms.".
+        """
+        term1 = (-4.69 * 10 ** (-4)) * self.D**2 + 0.0263 * self.D + 3.66 / self.D - 0.457
+        term2 = 7.51 * 10 ** (-4) * self.D**2 - 0.0421 * self.D - 2.26 / self.D + 1.83
+        return term1 * np.log10(self.n) + term2
