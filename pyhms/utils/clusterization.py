@@ -78,7 +78,6 @@ class NearestBetterClustering:
                     data={"individual": ind, "distance": distance},
                     parent=get_individual_id(parent),
                 )
-                self.distances.append(distance)
             except DuplicatedNodeIdError:
                 pass
 
