@@ -103,6 +103,8 @@ class NearestBetterClustering:
     def _get_correction_factor(self) -> float:
         """
         Calculate the correction factor cfNND, which should be applied for a random sample.
+        For more details, please refer to the book:
+        Preuss, M. "Multimodal optimization by means of evolutionary algorithms."
         """
         assert self.tree.size() > 0, "The tree is empty. Please run the clustering algorithm first."
         D = self.individuals[0].genome.size
