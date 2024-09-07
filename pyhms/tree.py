@@ -16,7 +16,7 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
-from .utils.clusterization import NearestBetterClustering
+from .utils.clusterization import NearestBetterClustering, NearestBetterClusteringWithRule2
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.visualisation.animate import tree_animation
@@ -480,11 +480,13 @@ class DemeTree:
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
         use_correction: bool = False,
+        use_rule2: bool = False,
     ) -> None:
         """
         Runs the Nearest Better Clustering algorithm and plots the clustered individuals.
         In case of a multidimensional genome, dimensionality reducer is employed.
         """
-        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor, use_correction)
+        nbc_class = NearestBetterClusteringWithRule2 if use_rule2 else NearestBetterClustering
+        nbc = nbc_class(self.all_individuals, distance_factor, truncation_factor, use_correction)
         nbc._prepare_spanning_tree()
         nbc.plot_clusters(dimensionality_reducer)
