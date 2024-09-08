@@ -23,16 +23,17 @@ class R5SSelection:
         nearest_distances = self._get_nearest_distances(distances)
         nearest_better_distances = self._get_nearest_better_distances(distances)
         weighted_worse_distances = self._get_total_weighted_worse_distances(distances)
-        # Instead of removing, we keep the selected individuals:
-        selected_individuals = sorted_individuals[: self.top_k]
-        # Iterate over individuals in reverse order:
-        for idx in range(len(sorted_individuals) - 1, self.top_k - 1, -1):
-            # Always skip uninteresting individuals:
-            if nearest_distances[idx] == nearest_better_distances[idx]:
-                continue
+        interesting_individuals, weighted_worse_distances = self._filter_uninteresting_points(
+            sorted_individuals,
+            nearest_distances,
+            nearest_better_distances,
+            weighted_worse_distances,
+        )
+        selected_individuals = interesting_individuals[: self.top_k]
+        for idx in range(len(interesting_individuals) - 1, self.top_k - 1, -1):
             # Check if better point with higher ds(point) exists:
             if (weighted_worse_distances[:idx] > weighted_worse_distances[idx]).any():
-                selected_individuals.append(sorted_individuals[idx])
+                selected_individuals.append(interesting_individuals[idx])
         return selected_individuals
 
     def _get_distances(self, individuals: list[Individual]) -> np.ndarray:
@@ -62,3 +63,16 @@ class R5SSelection:
                 weights = 1 / 2 ** np.arange(1, len(worse_individual_distances) + 1)
                 weighted_worse_distances.append(np.sum(worse_individual_distances * weights))
         return np.array(weighted_worse_distances)
+
+    def _filter_uninteresting_points(
+        self,
+        individuals: list[Individual],
+        nearest_distances: np.ndarray,
+        nearest_better_distances: np.ndarray,
+        weighted_worse_distances: np.ndarray,
+    ) -> tuple[list[Individual], np.ndarray]:
+        interesting_points = np.logical_not(np.isclose(nearest_distances, nearest_better_distances))
+        interesting_individuals = [
+            individuals[idx] for idx, is_interesting in enumerate(interesting_points) if is_interesting
+        ]
+        return interesting_individuals, weighted_worse_distances[interesting_points]
