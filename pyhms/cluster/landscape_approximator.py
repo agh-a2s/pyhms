@@ -12,6 +12,10 @@ from .merge_conditions import MergeCondition
 
 
 class LandscapeApproximator:
+    """
+    Sawicki, Jakub, et al. "Approximating landscape insensitivity regions in solving ill-conditioned inverse problems."
+    """
+
     def __init__(
         self,
         hms_tree: DemeTree,

@@ -9,6 +9,9 @@ def count_redundant_evaluations_for_cma_demes(
     optimal_solution: Individual | None,
     k: int,
 ) -> float:
+    """
+    de Nobel, Jacob, et al. "Avoiding Redundant Restarts in Multimodal Global Optimization."
+    """
     sorted_demes = sorted(demes, key=lambda deme: deme.started_at)
     sorted_demes = [deme for deme in sorted_demes if deme.best_individual is not None]
     problem = sorted_demes[0]._problem
