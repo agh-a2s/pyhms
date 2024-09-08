@@ -12,6 +12,7 @@ from .config import TreeConfig
 from .core.individual import Individual
 from .core.problem import StatsGatheringProblem
 from .demes.abstract_deme import AbstractDeme
+from .demes.cma_deme import CMADeme
 from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
@@ -19,6 +20,7 @@ from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.clusterization import NearestBetterClustering
 from .utils.deme_performance import get_average_variance_per_generation
 from .utils.print_tree import format_deme, format_deme_children_tree
+from .utils.redundancy_factor import count_redundant_evaluations_for_cma_demes
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
@@ -258,6 +260,16 @@ class DemeTree:
             + "\n"
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
+
+    def get_redundancy_factor(self, optimal_solution: Individual | None = None) -> float:
+        assert self.height == 2, "This method is only applicable to trees with two levels."
+        assert all(
+            isinstance(deme, CMADeme) for deme in self.leaves
+        ), "This method is only applicable if all leaves use CMA-ES."
+        n_redundant_evaluations = count_redundant_evaluations_for_cma_demes(
+            self.leaves, optimal_solution, k=10  # type: ignore[arg-type]
+        )
+        return n_redundant_evaluations / self.n_evaluations
 
     def animate(
         self,
