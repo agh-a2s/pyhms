@@ -7,6 +7,7 @@ from pyhms.core.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.sprout.sprout_candidates import DemeCandidates
+from pyhms.utils.distances import calculate_chi_squared_threshold
 
 
 class DemeLevelCandidatesFilter(ABC):
@@ -96,9 +97,10 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
 
 
 class MahalanobisFarEnough(DemeLevelCandidatesFilter):
-    def __init__(self, threshold: float = 1.0) -> None:
+    def __init__(self, percentile: float) -> None:
         super().__init__()
-        self.threshold = threshold
+        self.percentile = percentile
+        self._threshold: float | None = None
 
     def __call__(
         self,
@@ -106,6 +108,8 @@ class MahalanobisFarEnough(DemeLevelCandidatesFilter):
         tree,
     ) -> dict[AbstractDeme, DemeCandidates]:
         for deme in candidates.keys():
+            if self._threshold is None:
+                self._set_threshold(deme)
             child_siblings = [sibling for sibling in tree.levels[deme.level + 1]]
             child_seeds = candidates[deme].individuals
             for sibling in child_siblings:
@@ -114,10 +118,16 @@ class MahalanobisFarEnough(DemeLevelCandidatesFilter):
                 child_seeds = [
                     ind
                     for ind in child_seeds
-                    if not Cluster.from_cma_deme(sibling).is_in_extension(ind.genome, self.threshold)
+                    if not Cluster.from_cma_deme(sibling).is_in_extension(ind.genome, self._threshold)
                 ]
             candidates[deme].individuals = child_seeds
         return candidates
+
+    def _set_threshold(self, deme: AbstractDeme) -> None:
+        self._threshold = calculate_chi_squared_threshold(
+            percentile=self.percentile,
+            dimensions=deme.current_population[0].genome.size,
+        )
 
 
 class DemeLimit(DemeLevelCandidatesFilter):

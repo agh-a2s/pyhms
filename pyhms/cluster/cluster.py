@@ -2,12 +2,7 @@ import numpy as np
 
 from ..core.population import Population
 from ..demes.cma_deme import CMADeme
-
-
-def mahalanobis_distance(x: np.ndarray, y: np.ndarray, covariance_matrix_inverse: np.ndarray) -> float:
-    diff = x - y
-    return np.sqrt(diff @ covariance_matrix_inverse @ diff)
-
+from ..utils.distances import mahalanobis_distance
 
 DEFAULT_CLUSTER_SIZE = 30
 
