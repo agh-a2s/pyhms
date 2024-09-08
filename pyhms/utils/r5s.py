@@ -13,20 +13,27 @@ class R5SSelection:
     def __init__(self, top_k: int = 3) -> None:
         self.top_k = top_k
 
-    def __call__(self, individuals: list[Individual], n: int) -> list[Individual]:
+    def __call__(self, individuals: list[Individual], n: int = 5) -> list[Individual]:
         if len(individuals) <= n:
             return individuals
         sorted_individuals = sorted(individuals, reverse=individuals[0].problem.maximize)
         distances = pairwise_distances([individual.genome for individual in sorted_individuals])
         np.fill_diagonal(distances, np.inf)
         min_distances = np.min(distances, axis=1)
-        weighted_worse_distances = []
         nearest_better_distances = []
         for idx in range(len(sorted_individuals)):
-            nearest_better_distances.append(np.min(distances[idx, :idx]))
-            worse_individual_distances = distances[idx, (idx + 1) :]
-            weights = 1 / 2 ** np.arange(1, len(worse_individual_distances) + 1)
-            weighted_worse_distances.append(np.sum(worse_individual_distances * weights))
+            if idx == 0:
+                nearest_better_distances.append(0)
+            else:
+                nearest_better_distances.append(np.min(distances[idx, :idx]))
+        weighted_worse_distances = []
+        for idx in range(len(sorted_individuals)):
+            if idx == len(sorted_individuals) - 1:
+                weighted_worse_distances.append(0)
+            else:
+                worse_individual_distances = distances[idx, (idx + 1) :]
+                weights = 1 / 2 ** np.arange(1, len(worse_individual_distances) + 1)
+                weighted_worse_distances.append(np.sum(worse_individual_distances * weights))
         # Instead of removing, we keep the selected individuals:
         selected_individuals = sorted_individuals[: self.top_k]
         # Iterate over individuals in reverse order:
