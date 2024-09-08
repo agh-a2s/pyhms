@@ -1,7 +1,8 @@
-from typing import TypedDict
+from typing import Callable, TypedDict
 
 import numpy as np
 
+from .core.initializers import InjectionInitializer, PopInitializer, SeededPopInitializer, UniformGlobalInitializer
 from .core.problem import Problem
 from .logging_ import LoggingLevel
 from .stop_conditions import GlobalStopCondition, LocalStopCondition, UniversalStopCondition
@@ -12,9 +13,11 @@ class BaseLevelConfig:
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
+        pop_initializer: type[PopInitializer],
     ):
         self.problem = problem
         self.lsc = lsc
+        self.pop_initializer: PopInitializer = pop_initializer(problem.bounds)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__dict__})"
@@ -32,14 +35,17 @@ class EALevelConfig(BaseLevelConfig):
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
+        pop_initializer: type[PopInitializer] = UniformGlobalInitializer,
         sample_std_dev: float = 1.0,
+        initialize: Callable | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer)
         self.ea_class = ea_class
         self.pop_size = pop_size
         self.generations = generations
         self.sample_std_dev = sample_std_dev
+        self.initialize = initialize
         self.__dict__.update(kwargs)
 
 
@@ -50,12 +56,13 @@ class DELevelConfig(BaseLevelConfig):
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
+        pop_initializer: type[PopInitializer] = UniformGlobalInitializer,
         sample_std_dev: float = 1.0,
         dither: bool = False,
         scaling: float = 0.8,
         crossover: float = 0.9,
     ):
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer)
         self.pop_size = pop_size
         self.generations = generations
         self.dither = dither
@@ -73,8 +80,9 @@ class SHADELevelConfig(BaseLevelConfig):
         generations: int,
         memory_size: int,
         sample_std_dev: float = 1.0,
+        pop_initializer: type[PopInitializer] = UniformGlobalInitializer,
     ):
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer)
         self.pop_size = pop_size
         self.generations = generations
         self.memory_size = memory_size
@@ -88,9 +96,10 @@ class CMALevelConfig(BaseLevelConfig):
         lsc: LocalStopCondition | UniversalStopCondition,
         sigma0: float | None,
         generations: int,
+        pop_initializer: type[SeededPopInitializer] = InjectionInitializer,
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer)
         self.sigma0 = sigma0
         self.generations = generations
         self.__dict__.update(kwargs)
@@ -101,36 +110,25 @@ class LocalOptimizationConfig(BaseLevelConfig):
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
+        pop_initializer: type[SeededPopInitializer] = InjectionInitializer,
         method: str = "L-BFGS-B",
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer)
         self.method = method
         self.__dict__.update(kwargs)
 
 
-class LHSLevelConfig(BaseLevelConfig):
+class RandomLevelConfig(BaseLevelConfig):
     def __init__(
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
+        pop_initializer: type[PopInitializer],
         pop_size: int,
         **kwargs,
     ) -> None:
-        super().__init__(problem, lsc)
-        self.pop_size = pop_size
-        self.__dict__.update(kwargs)
-
-
-class SobolLevelConfig(BaseLevelConfig):
-    def __init__(
-        self,
-        problem: Problem,
-        lsc: LocalStopCondition | UniversalStopCondition,
-        pop_size: int,
-        **kwargs,
-    ) -> None:
-        super().__init__(problem, lsc)
+        super().__init__(problem, lsc, pop_initializer)
         self.pop_size = pop_size
         self.__dict__.update(kwargs)
 

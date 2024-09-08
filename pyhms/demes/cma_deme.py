@@ -4,6 +4,7 @@ from pyhms.core.individual import Individual
 from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
+from ..core.initializers import SeededPopInitializer
 from ..utils.covariance_estimate import get_initial_sigma0, get_initial_stds
 from .abstract_deme import AbstractDeme
 
@@ -15,16 +16,18 @@ class CMADeme(AbstractDeme):
         level: int,
         config: CMALevelConfig,
         logger: FilteringBoundLogger,
-        x0: Individual,
         started_at: int = 0,
         random_seed: int = None,
         parent_deme: AbstractDeme | None = None,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, x0)
+        super().__init__(id, level, config, logger, started_at)
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
         opts = {"bounds": [lb, ub], "verbose": -9}
+        if not isinstance(self._initializer, SeededPopInitializer):
+            raise ValueError("CMA optimization deme requires a seeded initializer")
+        x0 = self._initializer.get_seed(self._problem)
         if random_seed is not None:
             opts["randn"] = np.random.randn
             opts["seed"] = random_seed + self._started_at

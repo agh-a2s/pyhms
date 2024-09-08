@@ -5,10 +5,11 @@ from pyhms.config import (
     CMALevelConfig,
     DELevelConfig,
     EALevelConfig,
-    LHSLevelConfig,
     LocalOptimizationConfig,
+    RandomLevelConfig,
     TreeConfig,
 )
+from pyhms.core.initializers import GaussianInitializerWithSeedInject, LHSGlobalInitializer
 from pyhms.demes.single_pop_eas.sea import SEA, SEAWithAdaptiveMutation
 from pyhms.sprout import (
     DemeLimit,
@@ -44,6 +45,7 @@ class TestSquare(unittest.TestCase):
                 mutation_std=0.25,
                 sample_std_dev=0.5,
                 lsc=DontStop(),
+                pop_initializer=GaussianInitializerWithSeedInject,
             ),
         ]
 
@@ -73,6 +75,7 @@ class TestSquare(unittest.TestCase):
                 mutation_std=0.25,
                 sample_std_dev=0.5,
                 lsc=DontStop(),
+                pop_initializer=GaussianInitializerWithSeedInject,
             ),
         ]
 
@@ -161,10 +164,11 @@ class TestSquare(unittest.TestCase):
     def test_square_optimization_lhs(self):
         options = {"random_seed": 1}
         config = [
-            LHSLevelConfig(
+            RandomLevelConfig(
                 problem=SQUARE_PROBLEM,
                 pop_size=20,
                 lsc=DontStop(),
+                pop_initializer=LHSGlobalInitializer,
             ),
             CMALevelConfig(
                 generations=4,

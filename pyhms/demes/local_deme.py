@@ -3,6 +3,7 @@ from structlog.typing import FilteringBoundLogger
 
 from ..config import LocalOptimizationConfig
 from ..core.individual import Individual
+from ..core.initializers import SeededPopInitializer
 from .abstract_deme import AbstractDeme
 
 
@@ -13,12 +14,13 @@ class LocalDeme(AbstractDeme):
         level: int,
         config: LocalOptimizationConfig,
         logger: FilteringBoundLogger,
-        sprout_seed: Individual,
         started_at=0,
     ) -> None:
         super().__init__(id, level, config, logger, started_at)
         self._method = config.method
-        self._sprout_seed = sprout_seed
+        if not isinstance(self._initializer, SeededPopInitializer):
+            raise ValueError("Local optimization deme requires a seeded initializer")
+        self._sprout_seed = self._initializer.get_seed(self._problem)
         self._n_evals = 0
         starting_pop = [self._sprout_seed]
         self._history.append([starting_pop])

@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from pyhms.config import CMALevelConfig, DELevelConfig, EALevelConfig, TreeConfig
+from pyhms.core.initializers import GaussianInitializerWithSeedInject
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.stop_conditions import DontStop
 from pyhms.tree import DemeTree
@@ -28,6 +29,7 @@ class TestReproducibility(unittest.TestCase):
                 dither=True,
                 crossover=0.9,
                 lsc=DontStop(),
+                pop_initializer=GaussianInitializerWithSeedInject,
             ),
         ]
 

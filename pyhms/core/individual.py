@@ -41,7 +41,7 @@ class Individual:
 
     @classmethod
     def create_population(cls, pop_size: int, problem: Problem, initialize: Callable) -> list["Individual"]:
-        return [cls(genome=initialize(), problem=problem) for _ in range(pop_size)]
+        return [cls(genome=genome, problem=problem) for genome in initialize(pop_size)]
 
     def clone(self):
         cloned = copy(self)

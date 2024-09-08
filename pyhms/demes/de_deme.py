@@ -1,7 +1,6 @@
 from pyhms.config import DELevelConfig
 from pyhms.demes.abstract_deme import AbstractDeme
 from pyhms.demes.single_pop_eas.de import DE
-from pyhms.initializers import sample_normal, sample_uniform
 from structlog.typing import FilteringBoundLogger
 
 from ..core.individual import Individual
@@ -15,9 +14,8 @@ class DEDeme(AbstractDeme):
         config: DELevelConfig,
         logger: FilteringBoundLogger,
         started_at: int = 0,
-        sprout_seed: Individual = None,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, sprout_seed)
+        super().__init__(id, level, config, logger, started_at)
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._sample_std_dev = config.sample_std_dev
@@ -27,22 +25,7 @@ class DEDeme(AbstractDeme):
             f=config.scaling,
         )
 
-        if sprout_seed is None:
-            starting_pop = Individual.create_population(
-                self._pop_size,
-                initialize=sample_uniform(bounds=self._bounds),
-                problem=self._problem,
-            )
-        else:
-            x = sprout_seed.genome
-            starting_pop = Individual.create_population(
-                self._pop_size - 1,
-                initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
-                problem=self._problem,
-            )
-            seed_ind = Individual(x, problem=self._problem)
-            starting_pop.append(seed_ind)
-
+        starting_pop = self._initializer(self._pop_size, self._problem)
         Individual.evaluate_population(starting_pop)
         self._history.append([starting_pop])
 

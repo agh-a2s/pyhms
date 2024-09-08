@@ -50,6 +50,29 @@ class FarEnough(DemeLevelCandidatesFilter):
         return candidates
 
 
+class FarEnoughFromSeeds(DemeLevelCandidatesFilter):
+    def __init__(self, min_distance: float, norm_ord: int = 2) -> None:
+        super().__init__()
+        self.min_distance = min_distance
+        self.norm_ord = norm_ord
+
+    def _is_far_enough(self, ind: Individual, centroid: np.ndarray):
+        return nla.norm(ind.genome - centroid, ord=self.norm_ord) > self.min_distance
+
+    def __call__(
+        self,
+        candidates: dict[AbstractDeme, DemeCandidates],
+        tree,
+    ) -> dict[AbstractDeme, DemeCandidates]:
+        for deme in candidates.keys():
+            child_siblings = [sibling for sibling in tree.levels[deme.level + 1]]
+            child_seeds = candidates[deme].individuals
+            for sibling in child_siblings:
+                child_seeds = [ind for ind in child_seeds if self._is_far_enough(ind, sibling.centroid)]
+            candidates[deme].individuals = child_seeds
+        return candidates
+
+
 class NBC_FarEnough(DemeLevelCandidatesFilter):
     def __init__(
         self,
