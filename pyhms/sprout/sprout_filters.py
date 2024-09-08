@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import numpy.linalg as nla
+from pyhms.cluster.cluster import Cluster
 from pyhms.core.individual import Individual
 from pyhms.demes.abstract_deme import AbstractDeme
+from pyhms.demes.cma_deme import CMADeme
 from pyhms.sprout.sprout_candidates import DemeCandidates
 
 
@@ -88,6 +90,31 @@ class NBC_FarEnough(DemeLevelCandidatesFilter):
                         sibling.centroid,
                         candidates[deme].features.nbc_mean_distance,
                     )
+                ]
+            candidates[deme].individuals = child_seeds
+        return candidates
+
+
+class MahalanobisFarEnough(DemeLevelCandidatesFilter):
+    def __init__(self, threshold: float = 1.0) -> None:
+        super().__init__()
+        self.threshold = threshold
+
+    def __call__(
+        self,
+        candidates: dict[AbstractDeme, DemeCandidates],
+        tree,
+    ) -> dict[AbstractDeme, DemeCandidates]:
+        for deme in candidates.keys():
+            child_siblings = [sibling for sibling in tree.levels[deme.level + 1]]
+            child_seeds = candidates[deme].individuals
+            for sibling in child_siblings:
+                if not isinstance(sibling, CMADeme):
+                    continue
+                child_seeds = [
+                    ind
+                    for ind in child_seeds
+                    if not Cluster.from_cma_deme(sibling).is_in_extension(ind.genome, self.threshold)
                 ]
             candidates[deme].individuals = child_seeds
         return candidates
