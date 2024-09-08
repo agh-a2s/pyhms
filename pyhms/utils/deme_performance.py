@@ -18,11 +18,11 @@ class Indicator(ABC):
                 population_genomes = np.array([ind.genome for ind in population])
                 if selected_dimensions is not None:
                     population_genomes = population_genomes[:, selected_dimensions]
-                indicator = self.compute(population_genomes)
-                row = {
-                    self.indicator_title: indicator,
-                }
-                rows.append(row)
+                rows.append(
+                    {
+                        self.indicator_title: self.compute(population_genomes),
+                    }
+                )
         return pd.DataFrame(rows)
 
     @abstractmethod
