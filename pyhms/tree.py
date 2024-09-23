@@ -1,3 +1,5 @@
+from typing import Literal
+
 import dill as pkl
 import matplotlib.animation as animation
 import numpy as np
@@ -17,7 +19,7 @@ from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.clusterization import NearestBetterClustering, NearestBetterClusteringWithRule2
-from .utils.deme_performance import get_average_variance_per_generation
+from .utils.deme_performance import NAME_TO_METRIC
 from .utils.print_tree import format_deme, format_deme_children_tree
 from .utils.r5s import R5SSelection
 from .utils.visualisation.animate import tree_animation
@@ -316,29 +318,32 @@ class DemeTree:
             fig.write_image(filepath)
         fig.show()
 
-    def plot_deme_variance(
+    def plot_deme_metric(
         self,
         filepath: str | None = None,
         deme_id: str | None = "root",
         selected_dimensions: list[int] | None = None,
+        metric: Literal["AvgVar", "SD", "SDNN", "SPD"] = "AvgVar",
     ) -> None:
         """
-        Plots the average variance of genes/dimensions across generations for a given deme
-        to analyze its convergence behavior and exploration of the search space.
+        Plots the average value of divergence metric of genes/dimensions across generations
+        for a given deme to analyze its convergence behavior and exploration of the search space.
         This plot is useful for visualizing how the diversity within a deme changes over time.
         The main use case is the analysis of the root deme.
         To save the plot, provide the filepath argument.
+        Available metrics: AvgVar, SD, SDNN, SPD.
         """
         deme = next(deme for _, deme in self.all_demes if deme.id == deme_id)
-        variance_per_gene = get_average_variance_per_generation(deme, selected_dimensions)
+        if metric not in NAME_TO_METRIC:
+            raise ValueError(f"Indicator {metric} is not available. Choose from {NAME_TO_METRIC.keys()}")
+        indicator_df = NAME_TO_METRIC[metric](deme, selected_dimensions)
         fig = px.line(
-            variance_per_gene,
-            x=variance_per_gene.index,
-            y="Average Variance of Genome",
-            title=f"Variance Across Generations for {deme_id.capitalize()} Deme",
+            indicator_df,
+            x=indicator_df.index,
+            y=indicator_df.columns[0],
+            title=f"{metric} for {deme_id.capitalize()} Deme",
             labels={
                 "index": "Generation Number",
-                "Average Variance of Genome": "Average Variance of Genome",
             },
             markers=True,
         )
