@@ -7,9 +7,9 @@ from sklearn.metrics import pairwise_distances
 from ..demes.abstract_deme import AbstractDeme
 
 
-class Indicator(ABC):
-    def __init__(self, indicator_title: str) -> None:
-        self.indicator_title = indicator_title
+class Metric(ABC):
+    def __init__(self, metric_title: str) -> None:
+        self.metric_title = metric_title
 
     def __call__(self, deme: AbstractDeme, selected_dimensions: list[int] | None) -> pd.DataFrame:
         rows = []
@@ -20,7 +20,7 @@ class Indicator(ABC):
                     population_genomes = population_genomes[:, selected_dimensions]
                 rows.append(
                     {
-                        self.indicator_title: self.compute(population_genomes),
+                        self.metric_title: self.compute(population_genomes),
                     }
                 )
         return pd.DataFrame(rows)
@@ -30,7 +30,7 @@ class Indicator(ABC):
         raise NotImplementedError()
 
 
-class AverageVariancePerGeneration(Indicator):
+class AverageVariancePerGeneration(Metric):
     def __init__(self) -> None:
         super().__init__("Average Variance of Genome")
 
@@ -39,7 +39,7 @@ class AverageVariancePerGeneration(Indicator):
         return np.mean(generation_variances)
 
 
-class SD(Indicator):
+class SD(Metric):
     """
     Sum of Distances (SD).
     For more information, see Preuss, M., and Wessing. S.
@@ -54,7 +54,7 @@ class SD(Indicator):
         return np.sqrt(np.sum(distances))
 
 
-class SDNN(Indicator):
+class SDNN(Metric):
     """
     Sum of Distances to Nearest Neighbor (SDNN).
     For more information, see Preuss, M., and Wessing. S.
@@ -70,7 +70,7 @@ class SDNN(Indicator):
         return np.sum(np.min(distances, axis=1))
 
 
-class SPD(Indicator):
+class SPD(Metric):
     """
     Solow-Polasky Diversity (SPD)
     For more information, see Preuss, M., and Wessing. S.
@@ -88,7 +88,7 @@ class SPD(Indicator):
         return float(np.ones(len(distances)) @ inverse_C @ np.ones(len(distances)))
 
 
-INDICATOR_NAME_TO_INDICATOR = {
+NAME_TO_METRIC = {
     "AvgVar": AverageVariancePerGeneration(),
     "SD": SD(),
     "SDNN": SDNN(),
