@@ -42,16 +42,29 @@ class NearestBetterClustering:
         evaluated_individuals: list[Individual],
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
+        use_correction: bool | None = False,
     ) -> None:
         sorted_individuals = sorted(evaluated_individuals, reverse=True)
         self.individuals = sorted_individuals[: int(len(sorted_individuals) * truncation_factor)]
         self.tree = Tree()
-        self.distances: list[float] = []
         self.distance_factor = distance_factor
+        self.use_correction = use_correction
 
     def cluster(self) -> list[Individual]:
         self._prepare_spanning_tree()
         return [node.data["individual"] for node in self._find_root_nodes()]
+
+    @property
+    def distances(self) -> list[float]:
+        return [node.data["distance"] for node in self.tree.all_nodes() if not np.isinf(node.data["distance"])]
+
+    @property
+    def n(self) -> int:
+        return len(self.individuals)
+
+    @property
+    def D(self) -> int:
+        return self.individuals[0].genome.size
 
     def _prepare_spanning_tree(self) -> None:
         root = self.individuals[0]
@@ -73,14 +86,16 @@ class NearestBetterClustering:
                     data={"individual": ind, "distance": distance},
                     parent=get_individual_id(parent),
                 )
-                self.distances.append(distance)
             except DuplicatedNodeIdError:
                 pass
 
     def _find_root_nodes(self) -> list[Node]:
         nodes = self.tree.all_nodes()
         mean_distance = np.mean(self.distances)
-        return [node for node in nodes if node.data["distance"] > mean_distance * self.distance_factor]
+        correction_factor = 1 if not self.use_correction else self._get_correction_factor()
+        return [
+            node for node in nodes if node.data["distance"] > mean_distance * self.distance_factor * correction_factor
+        ]
 
     def _find_nearest_better(
         self, individual: Individual, better_individuals: list[Individual]
@@ -94,6 +109,15 @@ class NearestBetterClustering:
         while node and node.identifier not in root_node_ids:
             node = self.tree.parent(node.identifier)
         return node if node else None
+
+    def _get_correction_factor(self) -> float:
+        """
+        Calculate the correction factor cfNND, which should be applied for a random sample.
+        For more details, please refer to the book:
+        Preuss, M. "Multimodal optimization by means of evolutionary algorithms."
+        """
+        assert self.tree.size() > 0, "The tree is empty. Please run the clustering algorithm first."
+        return 2.95 * (self.D ** (1 / 4)) * ((np.log(self.n) / (2 * self.D)) ** (1 / self.D))
 
     def assign_clusters(self) -> dict:
         """
@@ -145,3 +169,73 @@ class NearestBetterClustering:
         if len(clusters) < 5:
             plt.legend()
         plt.show()
+
+
+class NearestBetterClusteringWithRule2(NearestBetterClustering):
+    """
+    Rule 2 cuts outgoing edges for individuals with at least three incoming edges
+    based on the ratio of the outgoing edge length to the median of the incoming edge lengths.
+    """
+
+    def __init__(
+        self,
+        evaluated_individuals: list[Individual],
+        distance_factor: float | None = 2.0,
+        truncation_factor: float | None = 1.0,
+        use_correction: bool | None = False,
+    ) -> None:
+        super().__init__(
+            evaluated_individuals=evaluated_individuals,
+            distance_factor=distance_factor,
+            truncation_factor=truncation_factor,
+            use_correction=use_correction,
+        )
+        self.node_id_to_incoming_edge_lens: dict[str, list[float]] = {}
+        self.rule2_b = self._calculate_b()
+
+    def cluster(self) -> list[Individual]:
+        """
+        Override the cluster method to apply Rule 2 after the spanning tree is created.
+        """
+        self._prepare_spanning_tree()
+        self._apply_rule2_cut()
+        return [node.data["individual"] for node in self._find_root_nodes()]
+
+    def _prepare_spanning_tree(self) -> None:
+        super()._prepare_spanning_tree()
+        for node in self.tree.all_nodes():
+            distance = node.data["distance"]
+            if distance == np.inf:
+                continue
+            parent_id = self.tree.parent(node.identifier).identifier
+            if parent_id not in self.node_id_to_incoming_edge_lens:
+                self.node_id_to_incoming_edge_lens[parent_id] = []
+            self.node_id_to_incoming_edge_lens[parent_id].append(distance)
+
+    def _apply_rule2_cut(self) -> None:
+        """
+        Apply Rule 2 to cut outgoing edges based on the number of incoming edges.
+        If the ratio of the outgoing edge to the median of incoming edges is greater than `rule2_b`,
+        the outgoing edge is cut.
+        """
+        for node in self.tree.all_nodes():
+            node_id = node.identifier
+            outgoing_edge_length = node.data["distance"]
+            if node_id in self.node_id_to_incoming_edge_lens and len(self.node_id_to_incoming_edge_lens[node_id]) >= 3:
+                incoming_edges_lengths = self.node_id_to_incoming_edge_lens[node_id]
+                median_incoming = np.median(incoming_edges_lengths)
+
+                if outgoing_edge_length / median_incoming > self.rule2_b:
+                    parent = self.tree.parent(node_id)
+                    node.data["distance"] = np.inf
+                    if parent:
+                        self.tree.unlink_node(node_id)
+
+    def _calculate_b(self) -> float:
+        """
+        Calculate the value of b(n, D) according to the formula from
+        Preuss, M. "Multimodal optimization by means of evolutionary algorithms.".
+        """
+        term1 = (-4.69 * 10 ** (-4)) * self.D**2 + 0.0263 * self.D + 3.66 / self.D - 0.457
+        term2 = 7.51 * 10 ** (-4) * self.D**2 - 0.0421 * self.D - 2.26 / self.D + 1.83
+        return term1 * np.log10(self.n) + term2

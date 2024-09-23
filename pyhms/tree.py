@@ -18,9 +18,10 @@ from .demes.initialize import init_from_config, init_root
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
-from .utils.clusterization import NearestBetterClustering
+from .utils.clusterization import NearestBetterClustering, NearestBetterClusteringWithRule2
 from .utils.deme_performance import NAME_TO_METRIC
 from .utils.print_tree import format_deme, format_deme_children_tree
+from .utils.r5s import R5SSelection
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
@@ -101,6 +102,12 @@ class DemeTree:
         for _, deme in self.all_demes:
             individuals_from_all_demes.extend(deme.all_individuals)
         return individuals_from_all_demes
+
+    @property
+    def r5s_solutions(self) -> list[Individual]:
+        best_individuals_from_leaves = [deme.best_individual for deme in self.leaves if deme.best_individual]
+        selection = R5SSelection()
+        return selection(best_individuals_from_leaves)
 
     def run(self) -> None:
         while not self._gsc(self):
@@ -484,11 +491,14 @@ class DemeTree:
         dimensionality_reducer: DimensionalityReducer = NaiveDimensionalityReducer(),
         distance_factor: float | None = 2.0,
         truncation_factor: float | None = 1.0,
+        use_correction: bool = False,
+        use_rule2: bool = False,
     ) -> None:
         """
         Runs the Nearest Better Clustering algorithm and plots the clustered individuals.
         In case of a multidimensional genome, dimensionality reducer is employed.
         """
-        nbc = NearestBetterClustering(self.all_individuals, distance_factor, truncation_factor)
+        nbc_class = NearestBetterClusteringWithRule2 if use_rule2 else NearestBetterClustering
+        nbc = nbc_class(self.all_individuals, distance_factor, truncation_factor, use_correction)
         nbc._prepare_spanning_tree()
         nbc.plot_clusters(dimensionality_reducer)
