@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from pyhms.core.individual import Individual
 from pyhms.initializers import sample_uniform
-from pyhms.utils.clusterization import NearestBetterClustering, get_individual_id
+from pyhms.utils.clusterization import NearestBetterClustering, NearestBetterClusteringWithRule2, get_individual_id
 
 from .config import NEGATIVE_SQUARE_PROBLEM, SQUARE_BOUNDS, SQUARE_PROBLEM
 
@@ -46,7 +46,7 @@ class TestClustering(unittest.TestCase):
         Individual.evaluate_population(population)
         population_copy = population.copy()
 
-        clustering = NearestBetterClustering(population, truncation_factor=0.5)
+        clustering = NearestBetterClusteringWithRule2(population, truncation_factor=0.5, use_correction=True)
         clustering._prepare_spanning_tree()
 
         root_node = clustering.tree.get_node(clustering.tree.root)
