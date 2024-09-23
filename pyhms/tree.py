@@ -102,7 +102,7 @@ class DemeTree:
         return individuals_from_all_demes
 
     @property
-    def solutions(self) -> list[Individual]:
+    def r5s_solutions(self) -> list[Individual]:
         best_individuals_from_leaves = [deme.best_individual for deme in self.leaves if deme.best_individual]
         selection = R5SSelection()
         return selection(best_individuals_from_leaves)
