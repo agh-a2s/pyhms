@@ -24,6 +24,10 @@ class MergeCondition(ABC):
 
 
 class LocalOptimizationMergeCondition(MergeCondition):
+    """
+    Sawicki, Jakub, et al. "Approximating landscape insensitivity regions in solving ill-conditioned inverse problems."
+    """
+
     def __init__(self, problem: Problem, epsilon: float = 1e-6):
         super().__init__(problem)
         self.epsilon = epsilon
@@ -45,6 +49,10 @@ class LocalOptimizationMergeCondition(MergeCondition):
 
 
 class HillValleyMergeCondition(MergeCondition):
+    """
+    Sawicki, Jakub, et al. "Approximating landscape insensitivity regions in solving ill-conditioned inverse problems."
+    """
+
     def __init__(self, problem: Problem, k: int):
         super().__init__(problem)
         self.k = k
