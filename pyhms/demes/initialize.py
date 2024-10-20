@@ -1,6 +1,7 @@
 from pyhms.config import (
     BaseLevelConfig,
     CMALevelConfig,
+    CSLevelConfig,
     DELevelConfig,
     EALevelConfig,
     LHSLevelConfig,
@@ -13,6 +14,7 @@ from structlog.typing import FilteringBoundLogger
 from ..core.individual import Individual
 from .abstract_deme import AbstractDeme
 from .cma_deme import CMADeme
+from .cs_deme import CSDeme
 from .de_deme import DEDeme
 from .ea_deme import EADeme
 from .lhs_deme import LHSDeme
@@ -64,4 +66,6 @@ def init_from_config(
     elif isinstance(config, SobolLevelConfig):
         args["random_seed"] = random_seed
         child = SobolDeme(**args)
+    elif isinstance(config, CSLevelConfig):
+        child = CSDeme(**args)
     return child
