@@ -1,5 +1,6 @@
 import numpy as np
 
+from ..core.individual import Individual
 from ..core.population import Population
 from ..demes.cma_deme import CMADeme
 
@@ -16,13 +17,13 @@ class Cluster:
     def __init__(
         self,
         population: Population,
-        mean: np.ndarray,
-        covariance_matrix: np.ndarray,
+        mean: np.ndarray | None,
+        covariance_matrix: np.ndarray | None,
     ):
         self.population = population
         self.mean = mean
         self.covariance_matrix = covariance_matrix
-        self.covariance_matrix_inverse = np.linalg.inv(covariance_matrix)
+        self.covariance_matrix_inverse = np.linalg.inv(covariance_matrix) if covariance_matrix is not None else None
 
     @classmethod
     def from_cma_deme(cls, deme: CMADeme) -> "Cluster":
@@ -30,6 +31,17 @@ class Cluster:
             Population.from_individuals(deme.all_individuals[-DEFAULT_CLUSTER_SIZE:]),
             deme.mean,
             deme.covariance_matrix,
+        )
+
+    @classmethod
+    def from_individuals(cls, individuals: list[Individual], estimate_params: bool = True) -> "Cluster":
+        population = Population.from_individuals(individuals)
+        mean = np.mean(population.genomes, axis=0) if estimate_params else None
+        covariance_matrix = np.cov(population.genomes, rowvar=False) if estimate_params else None
+        return cls(
+            population,
+            mean,
+            covariance_matrix,
         )
 
     def is_in_extension(self, point: np.ndarray, threshold: float = 1) -> bool:
