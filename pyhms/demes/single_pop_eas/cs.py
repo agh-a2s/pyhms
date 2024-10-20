@@ -1,8 +1,16 @@
 import numpy as np
+from numpy.math import gamma
 
 from ...core.individual import Individual
 from ...core.population import Population
 from .common import VariationalOperator, apply_bounds
+
+
+def select_parents(population: Population) -> np.ndarray:
+    choices = np.indices((population.size, population.size))[1]
+    # For each individual, select 2 random indices
+    indices = np.array([np.random.choice(row, size=2, replace=False) for row in choices])
+    return population.genomes[indices]
 
 
 class LevyFlight:
@@ -11,9 +19,9 @@ class LevyFlight:
 
     def __call__(self, size: int) -> np.ndarray:
         sigma_u = (
-            np.math.gamma(1 + self.beta)
+            gamma(1 + self.beta)
             * np.sin(np.pi * self.beta / 2)
-            / (np.math.gamma((1 + self.beta) / 2) * self.beta * 2 ** ((self.beta - 1) / 2))
+            / (gamma((1 + self.beta) / 2) * self.beta * 2 ** ((self.beta - 1) / 2))
         ) ** (1 / self.beta)
         sigma_v = 1
         u = np.random.normal(0, sigma_u, size)
@@ -35,42 +43,45 @@ class CuckooSearch(VariationalOperator):
         best_index = np.argmax(population.fitnesses) if population.problem.maximize else np.argmin(population.fitnesses)
         return population.genomes[best_index]
 
-    def abandon_nests(self, population: Population) -> Population:
-        n_abandon = int(self.pa * population.size)
-        abandon_indices = np.random.choice(population.size, n_abandon, replace=False)
-        new_nests = np.random.uniform(
-            population.problem.bounds[:, 0],
-            population.problem.bounds[:, 1],
-            size=(n_abandon, population.genomes.shape[1]),
-        )
-        population.genomes[abandon_indices] = new_nests
-        population.fitnesses[abandon_indices] = np.nan
-        return population
-
-    def __call__(self, population: Population) -> Population:
+    def get_new_nests(self, population: Population) -> Population:
         best_solution = self.get_best_solution(population)
-
-        # Generate new solutions (but keep the current best)
         step_sizes = self.levy_flight(population.size)
-        new_genomes = population.genomes + self.alpha * step_sizes[:, np.newaxis] * (population.genomes - best_solution)
+        g = np.random.normal(0, 1, population.size)
+        new_genomes = population.genomes + g[:, np.newaxis] * self.alpha * step_sizes[:, np.newaxis] * (
+            population.genomes - best_solution
+        )
         new_genomes = apply_bounds(new_genomes, population.problem.bounds, "reflect")
 
         # Evaluate new solutions
         new_population = Population(new_genomes, np.full(population.size, np.nan), population.problem)
         new_population.evaluate()
+        return new_population
 
+    def abandon_nests(self, population: Population) -> Population:
+        nests_to_abandon_indices = np.random.binomial(1, self.pa, size=population.size)
+        r = np.random.uniform(low=0, high=1, size=population.size)
+        parents = select_parents(population)
+        new_genomes = population.genomes + nests_to_abandon_indices[:, np.newaxis] * r[:, np.newaxis] * (
+            parents[:, 0] - parents[:, 1]
+        )
+        new_genomes = apply_bounds(new_genomes, population.problem.bounds, "reflect")
+        population.update_genome(new_genomes)
+        return population
+
+    def __call__(self, population: Population) -> Population:
+        new_population = self.get_new_nests(population)
+        # Keep the best solutions
+        new_population_indices = (
+            (new_population.fitnesses >= population.fitnesses)
+            if population.problem.maximize
+            else (new_population.fitnesses <= population.fitnesses)
+        )
+        new_population = new_population[new_population_indices].merge(population[~new_population_indices])
         # Replace some nests by constructing new solutions
         new_population = self.abandon_nests(new_population)
         new_population.evaluate()
 
-        # Keep the best solutions
-        combined_population = population.merge(new_population)
-        sorted_indices = np.argsort(combined_population.fitnesses)
-        if population.problem.maximize:
-            sorted_indices = sorted_indices[::-1]
-        best_indices = sorted_indices[: population.size]
-
-        return combined_population[best_indices]
+        return new_population
 
 
 class CuckooSearchOptimizer:
