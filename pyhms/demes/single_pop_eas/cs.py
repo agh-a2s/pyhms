@@ -1,5 +1,6 @@
+from math import gamma
+
 import numpy as np
-from numpy.math import gamma
 
 from ...core.individual import Individual
 from ...core.population import Population
