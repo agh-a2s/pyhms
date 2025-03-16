@@ -44,12 +44,14 @@ class OptimizeResult:
 
 def minimize(
     fun: Callable[[np.ndarray], float],
-    bounds: np.ndarray,
+    bounds: np.ndarray | list[tuple[float, float]],
     maxfun: int | None = None,
     maxiter: int | None = None,
     seed: int | None = None,
     log_level: str | LoggingLevel | None = LoggingLevel.WARNING,
 ) -> OptimizeResult:
+    if isinstance(bounds, list):
+        bounds = np.array(bounds)
     # If neither maxfun nor maxiter are specified, default to maxfun=DEFAULT_MAX_FUN.
     if maxfun is None and maxiter is None:
         maxfun = DEFAULT_MAX_FUN
