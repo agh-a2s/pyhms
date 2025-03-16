@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
@@ -103,7 +104,7 @@ class TournamentSelection(VariationalOperator):
         return Population(new_genomes, population_copy.fitnesses[winners], population_copy.problem)
 
 
-class BaseSEA:
+class BaseSEA(ABC):
     def __init__(
         self,
         variational_operators_pipeline: list[VariationalOperator],
@@ -122,6 +123,11 @@ class BaseSEA:
     def select_new_population(self, parent_population: Population, offspring_population: Population) -> Population:
         top_k_parent_population = parent_population.topk(self.k_elites)
         return offspring_population.merge(top_k_parent_population).topk(parent_population.size)
+
+    @classmethod
+    @abstractmethod
+    def create(self, **kwargs) -> "BaseSEA":
+        raise NotImplementedError("This method should be implemented by the subclass.")
 
 
 class SEA(BaseSEA):

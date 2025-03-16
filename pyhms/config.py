@@ -1,8 +1,9 @@
-from typing import TypedDict
+from typing import Type, TypedDict
 
 import numpy as np
 
 from .core.problem import Problem
+from .demes.single_pop_eas.sea import SEA, BaseSEA
 from .logging_ import LoggingLevel
 from .stop_conditions import GlobalStopCondition, LocalStopCondition, UniversalStopCondition
 
@@ -27,11 +28,11 @@ class BaseLevelConfig:
 class EALevelConfig(BaseLevelConfig):
     def __init__(
         self,
-        ea_class,
         pop_size: int,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
         generations: int,
+        ea_class: Type[BaseSEA] = SEA,
         sample_std_dev: float = 1.0,
         **kwargs,
     ) -> None:
@@ -86,8 +87,8 @@ class CMALevelConfig(BaseLevelConfig):
         self,
         problem: Problem,
         lsc: LocalStopCondition | UniversalStopCondition,
-        sigma0: float | None,
         generations: int,
+        sigma0: float | None = None,
         **kwargs,
     ) -> None:
         super().__init__(problem, lsc)
