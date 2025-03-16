@@ -349,18 +349,32 @@ class DemeTree:
         if metric not in NAME_TO_METRIC:
             raise ValueError(f"Indicator {metric} is not available. Choose from {NAME_TO_METRIC.keys()}")
         indicator_df = NAME_TO_METRIC[metric](deme, selected_dimensions)
-        fig = px.line(
-            indicator_df,
-            x=indicator_df.index,
-            y=indicator_df.columns[0],
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=indicator_df.index,
+                y=indicator_df[indicator_df.columns[0]],
+                mode="lines+markers",
+                name=metric,
+            )
+        )
+
+        fig.update_layout(
+            template="plotly_white",
+            font=dict(size=14),
             title=f"{metric} for {deme_id.capitalize()} Deme",
-            labels={
-                "index": "Generation Number",
-            },
-            markers=True,
+            xaxis=dict(
+                title="Generation Number",
+            ),
+            yaxis=dict(
+                title=f"{metric} Value",
+            ),
         )
         if filepath:
-            fig.write_image(filepath)
+            fig.write_image(filepath, scale=2)
+
         fig.show()
 
     def plot_fitness_value_by_distance(self, filepath: str | None = None) -> None:
@@ -393,6 +407,10 @@ class DemeTree:
             color="Level",
             labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
             title=f"Scatter Plot of Individual Fitness vs Distance to Best by Level (Correlation: {corr_coef})",
+        )
+        fig.update_layout(
+            template="plotly_white",
+            font=dict(size=14),
         )
 
         if filepath:
@@ -491,6 +509,7 @@ class DemeTree:
             xaxis=dict(showgrid=True),
             yaxis=dict(showgrid=True),
             template="plotly_white",
+            font=dict(size=14),
         )
 
         if filepath:
