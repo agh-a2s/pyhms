@@ -31,7 +31,7 @@ class LevyFlight:
         return step
 
 
-class CuckooSearch(VariationalOperator):
+class CuckooSearchBase(VariationalOperator):
     def __init__(self, p: float = 0.25, alpha: float = 1.0, beta: float = 1.5):
         assert alpha >= 0, "alpha must be non-negative"
         assert 0 <= p <= 1, "pa must be in [0, 1]"
@@ -44,6 +44,45 @@ class CuckooSearch(VariationalOperator):
         best_index = np.argmax(population.fitnesses) if population.problem.maximize else np.argmin(population.fitnesses)
         return population.genomes[best_index]
 
+    def abandon_nests(self, population: Population) -> Population:
+        n_abandon = int(self.pa * population.size)
+        abandon_indices = np.random.choice(population.size, n_abandon, replace=False)
+        new_nests = np.random.uniform(
+            population.problem.bounds[:, 0],
+            population.problem.bounds[:, 1],
+            size=(n_abandon, population.genomes.shape[1]),
+        )
+        population.genomes[abandon_indices] = new_nests
+        population.fitnesses[abandon_indices] = np.nan
+        return population
+
+    def __call__(self, population: Population) -> Population:
+        best_solution = self.get_best_solution(population)
+
+        # Generate new solutions (but keep the current best)
+        step_sizes = self.levy_flight(population.size)
+        new_genomes = population.genomes + self.alpha * step_sizes[:, np.newaxis] * (population.genomes - best_solution)
+        new_genomes = apply_bounds(new_genomes, population.problem.bounds, "reflect")
+
+        # Evaluate new solutions
+        new_population = Population(new_genomes, np.full(population.size, np.nan), population.problem)
+        new_population.evaluate()
+
+        # Replace some nests by constructing new solutions
+        new_population = self.abandon_nests(new_population)
+        new_population.evaluate()
+
+        # Keep the best solutions
+        combined_population = population.merge(new_population)
+        sorted_indices = np.argsort(combined_population.fitnesses)
+        if population.problem.maximize:
+            sorted_indices = sorted_indices[::-1]
+        best_indices = sorted_indices[: population.size]
+
+        return combined_population[best_indices]
+
+
+class CuckooSearchDE(CuckooSearchBase):
     def get_new_nests(self, population: Population) -> Population:
         best_solution = self.get_best_solution(population)
         step_sizes = self.levy_flight(population.size)
@@ -87,7 +126,17 @@ class CuckooSearch(VariationalOperator):
 
 class CuckooSearchOptimizer:
     def __init__(self, p: float = 0.25, alpha: float = 1.0, beta: float = 1.5):
-        self.cuckoo_search = CuckooSearch(p, alpha, beta)
+        self.cuckoo_search = CuckooSearchBase(p, alpha, beta)
+
+    def run(self, parents: list[Individual]) -> list[Individual]:
+        parent_population = Population.from_individuals(parents)
+        new_population = self.cuckoo_search(parent_population)
+        return new_population.to_individuals()
+
+
+class CuckooSearchDEOptimizer:
+    def __init__(self, p: float = 0.25, alpha: float = 1.0, beta: float = 1.5):
+        self.cuckoo_search = CuckooSearchDE(p, alpha, beta)
 
     def run(self, parents: list[Individual]) -> list[Individual]:
         parent_population = Population.from_individuals(parents)
