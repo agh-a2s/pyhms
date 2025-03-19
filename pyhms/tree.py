@@ -12,7 +12,7 @@ from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
 from .core.individual import Individual
-from .core.problem import StatsGatheringProblem
+from .core.problem import StatsGatheringProblem, get_function_problem
 from .demes.abstract_deme import AbstractDeme
 from .demes.cma_deme import CMADeme
 from .demes.initialize import init_from_config, init_root
@@ -533,3 +533,88 @@ class DemeTree:
         nbc = nbc_class(self.all_individuals, distance_factor, truncation_factor, use_correction)
         nbc._prepare_spanning_tree()
         nbc.plot_clusters(dimensionality_reducer)
+
+    def plot_population(
+        self,
+        filepath: str | None = None,
+        show_grid: bool = False,
+        grid_granularity: float | None = None,
+        optimal_fitness_value: float | None = None,
+        optimal_genome: np.ndarray | None = None,
+        show_all_individuals: bool = False,
+    ) -> None:
+        function_problem = get_function_problem(self.root._problem)
+        bounds = function_problem.bounds
+        if show_grid:
+            grid_granularity = grid_granularity or (bounds[0][1] - bounds[0][0]) / 200
+            grid = Grid2DProblemEvaluation(function_problem, bounds, 0.05)
+            grid.evaluate()
+            fig = px.imshow(
+                grid.z.T,
+                labels={"x": "x", "y": "y", "color": "f(x, y)"},
+                x=grid.x,
+                y=grid.y,
+                origin="lower",
+                aspect="auto",
+                color_continuous_scale="Viridis",
+            )
+        else:
+            fig = go.Figure()
+
+        for _, deme in self.all_demes:
+            deme_history = deme.all_individuals if show_all_individuals else deme.history[-1]
+            genomes = np.array([x.genome for x in deme_history])
+            fitness_values = np.array([x.fitness for x in deme_history])
+            labels = [f"f(x, y): {val:.2f}" for val in fitness_values]
+            scatter = go.Scatter(
+                x=genomes[:, 0],
+                y=genomes[:, 1],
+                text=labels,
+                mode="markers",
+                marker=dict(size=10),
+                name=deme.id,
+            )
+            fig.add_trace(scatter)
+        if optimal_genome is not None and optimal_fitness_value is not None:
+            scatter = go.Scatter(
+                x=[optimal_genome[0]],
+                y=[optimal_genome[1]],
+                text=[f"f(x, y): {optimal_fitness_value:.2f}"],
+                mode="markers",
+                marker=dict(
+                    size=15,
+                    symbol="diamond",
+                    color="yellow",
+                    line=dict(
+                        width=2,
+                    ),
+                ),
+                name="Optimum",
+            )
+            fig.add_trace(scatter)
+
+        fig.update_layout(
+            xaxis_title="x",
+            yaxis_title="y",
+            width=1000,
+            height=1000,
+            template="plotly_white",
+            coloraxis_colorbar=dict(
+                title=dict(
+                    text="f(x, y)",
+                    side="right",
+                    font=dict(size=14),
+                ),
+                x=1.15,
+                y=0.5,
+                len=0.8,
+            ),
+            legend=dict(
+                x=1.05,
+                y=0.5,
+            ),
+        )
+        if filepath:
+            fig.write_image(filepath)
+
+        fig.show()
