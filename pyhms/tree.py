@@ -384,7 +384,9 @@ class DemeTree:
 
         fig.show()
 
-    def plot_fitness_value_by_distance(self, filepath: str | None = None) -> None:
+    def plot_fitness_value_by_distance(
+        self, filepath: str | None = None, group_by: Literal["level", "deme"] = "level"
+    ) -> None:
         data = []  # type: ignore[var-annotated]
         best_genome = self.best_individual.genome
         for level, deme in self.all_demes:
@@ -400,16 +402,25 @@ class DemeTree:
             distances_to_best = np.linalg.norm(filtered_genomes - best_genome, axis=1)
             fitness_differences = filtered_fitness - self.best_individual.fitness
 
+            group_value = str(level) if group_by == "level" else f"Deme {deme.id}"
+
             data.extend(
                 zip(
                     distances_to_best,
                     fitness_differences,
-                    [str(level)] * len(distances_to_best),
+                    [group_value] * len(distances_to_best),
                 )
             )
+
+        group_column = "Level" if group_by == "level" else "Deme"
+
         df = pd.DataFrame(
             data,
-            columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
+            columns=[
+                "Distance to Best Solution",
+                "Fitness Value Difference",
+                group_column,
+            ],
         )
 
         corr_coef, _ = pearsonr(df["Distance to Best Solution"], df["Fitness Value Difference"])
@@ -419,9 +430,9 @@ class DemeTree:
             df,
             x="Distance to Best Solution",
             y="Fitness Value Difference",
-            color="Level",
+            color=group_column,
             labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
-            title=f"Scatter Plot of Individual Fitness vs Distance to Best by Level (Correlation: {corr_coef})",
+            title=f"Fitness vs Distance to Best by {group_column} (Correlation: {corr_coef})",
         )
         fig.update_layout(
             template="plotly_white",
@@ -429,7 +440,7 @@ class DemeTree:
         )
 
         if filepath:
-            fig.write_image(filepath)
+            fig.write_image(filepath, scale=2)
         fig.show()
 
     def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
