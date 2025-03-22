@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from ..core.problem import EvalCountingProblem, PrecisionCutoffProblem, StatsGatheringProblem
+from ..core.problem import PrecisionCutoffProblem
 
 if TYPE_CHECKING:
     from pyhms.tree import DemeTree
@@ -76,13 +76,8 @@ class FitnessEvalLimitReached(GlobalStopCondition):
             self._transform_weights(n_levels)
 
         n_evals = 0
-        for i in range(n_levels):
-            if not isinstance(levels[i].problem, StatsGatheringProblem) and not isinstance(
-                levels[i].problem, EvalCountingProblem
-            ):
-                raise ValueError("Problem has to be an instance of EvalCountingProblem")
-
-            n_evals += self.weights[i] * levels[i].problem.n_evaluations  # type: ignore[attr-defined]
+        for _, deme in tree.all_demes:
+            n_evals += self.weights[deme._level] * deme.n_evaluations  # type: ignore
 
         return n_evals >= self.limit
 
