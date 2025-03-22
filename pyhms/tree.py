@@ -274,7 +274,7 @@ class DemeTree:
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
 
-    def visualize_tree(self, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
+    def tree_diagram(self, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
         return visualize_deme_tree(self.root, output_path, format)
 
     def get_redundancy_factor(self, optimal_solution: Individual | None = None) -> float:

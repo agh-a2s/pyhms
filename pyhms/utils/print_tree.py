@@ -110,7 +110,7 @@ def get_node_attributes(deme: AbstractDeme, best_fitness: float | None = None) -
     return attrs
 
 
-def visualize_deme_tree(root_deme: AbstractDeme, output_path: str = None, format: str = "pdf") -> graphviz.Digraph:
+def visualize_deme_tree(root_deme: AbstractDeme, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
     best_fitness = None
     demes_to_check = [root_deme]
     while demes_to_check:
