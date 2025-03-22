@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 from scipy.stats import pearsonr
 from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
@@ -27,6 +28,8 @@ from .utils.redundancy_factor import count_redundant_evaluations_for_cma_demes
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
+
+pio.kaleido.scope.mathjax = None
 
 
 class DemeTree:
@@ -542,6 +545,7 @@ class DemeTree:
         optimal_fitness_value: float | None = None,
         optimal_genome: np.ndarray | None = None,
         show_all_individuals: bool = False,
+        show_scale: bool = True,
     ) -> None:
         function_problem = get_function_problem(self.root._problem)
         bounds = function_problem.bounds
@@ -558,6 +562,7 @@ class DemeTree:
                 aspect="auto",
                 color_continuous_scale="Viridis",
             )
+            fig.update_coloraxes(showscale=show_scale)
         else:
             fig = go.Figure()
 
@@ -572,7 +577,7 @@ class DemeTree:
                 text=labels,
                 mode="markers",
                 marker=dict(size=10),
-                name=deme.id,
+                name=f"Deme {deme.id}",
             )
             fig.add_trace(scatter)
         if optimal_genome is not None and optimal_fitness_value is not None:
@@ -605,16 +610,15 @@ class DemeTree:
                     side="right",
                     font=dict(size=14),
                 ),
-                x=1.15,
+                x=1.17,
                 y=0.5,
                 len=0.8,
             ),
             legend=dict(
-                x=1.05,
                 y=0.5,
             ),
         )
         if filepath:
-            fig.write_image(filepath)
+            fig.write_image(filepath, scale=2)
 
         fig.show()
