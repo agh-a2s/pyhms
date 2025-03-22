@@ -275,7 +275,7 @@ class DemeTree:
         )
 
     def tree_diagram(self, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
-        return visualize_deme_tree(self.root, output_path, format)
+        return visualize_deme_tree(self.root, self.best_individual, output_path, format)
 
     def get_redundancy_factor(self, optimal_solution: Individual | None = None) -> float:
         assert self.height == 2, "This method is only applicable to trees with two levels."
@@ -549,7 +549,7 @@ class DemeTree:
         optimal_fitness_value: float | None = None,
         optimal_genome: np.ndarray | None = None,
         show_all_individuals: bool = False,
-        show_scale: bool = True,
+        show_scale: bool = False,
     ) -> None:
         function_problem = get_function_problem(self.root._problem)
         bounds = function_problem.bounds

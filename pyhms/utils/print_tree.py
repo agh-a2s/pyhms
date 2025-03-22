@@ -1,6 +1,7 @@
 import graphviz
 import numpy as np
 
+from ..core.individual import Individual
 from ..demes.abstract_deme import AbstractDeme
 
 LEVEL_PREFIX = "-- "
@@ -64,12 +65,7 @@ def format_deme_node_label(deme: AbstractDeme, best_fitness: float | None = None
         if len(sprout_str) > 30:
             sprout_str = sprout_str[:27] + "..."
         label_parts.append(f"Sprout: {sprout_str}")
-
     label_parts.append(f"Evals: {deme.n_evaluations}")
-
-    if deme.metaepoch_count <= 1 and not is_root:
-        label_parts.append("(new deme)")
-
     return "\n".join(label_parts)
 
 
@@ -110,38 +106,29 @@ def get_node_attributes(deme: AbstractDeme, best_fitness: float | None = None) -
     return attrs
 
 
-def visualize_deme_tree(root_deme: AbstractDeme, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
-    best_fitness = None
-    demes_to_check = [root_deme]
-    while demes_to_check:
-        deme = demes_to_check.pop()
-        if deme.best_individual:
-            if best_fitness is None or deme.best_individual.fitness > best_fitness:
-                best_fitness = deme.best_individual.fitness
-        demes_to_check.extend(deme.children)
-
+def visualize_deme_tree(
+    root_deme: AbstractDeme,
+    best_individual: Individual,
+    output_path: str | None = None,
+    format: str = "pdf",
+) -> graphviz.Digraph:
     graph = graphviz.Digraph(
-        "Deme Hierarchy",
+        "HMS Tree",
         format=format,
         node_attr={"fontsize": "10"},
         graph_attr={"rankdir": "TB", "ranksep": "1.0"},
     )
 
-    def add_deme_to_graph(deme, parent_id=None):
-        deme_id = str(id(deme))
-
-        if deme.metaepoch_count == 0 and parent_id is not None:
-            return
-
-        node_label = format_deme_node_label(deme, best_fitness)
-        node_attrs = get_node_attributes(deme, best_fitness)
-        graph.node(deme_id, node_label, **node_attrs)
+    def add_deme_to_graph(deme: AbstractDeme, parent_id: str | None = None):
+        node_label = format_deme_node_label(deme, best_individual.fitness)
+        node_attrs = get_node_attributes(deme, best_individual.fitness)
+        graph.node(deme.id, node_label, **node_attrs)
 
         if parent_id is not None:
-            graph.edge(parent_id, deme_id)
+            graph.edge(parent_id, deme.id)
 
         for child in deme.children:
-            add_deme_to_graph(child, deme_id)
+            add_deme_to_graph(child, deme.id)
 
     add_deme_to_graph(root_deme)
 
