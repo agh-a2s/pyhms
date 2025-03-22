@@ -389,8 +389,17 @@ class DemeTree:
         best_genome = self.best_individual.genome
         for level, deme in self.all_demes:
             genomes = np.array([x.genome for x in deme.all_individuals])
-            distances_to_best = np.linalg.norm(genomes - best_genome, axis=1)
-            fitness_differences = np.array([x.fitness for x in deme.all_individuals]) - self.best_individual.fitness
+            fitness_values = np.array([x.fitness for x in deme.all_individuals])
+            valid_mask = ~np.isinf(fitness_values)
+
+            if not np.any(valid_mask):
+                continue
+
+            filtered_genomes = genomes[valid_mask]
+            filtered_fitness = fitness_values[valid_mask]
+            distances_to_best = np.linalg.norm(filtered_genomes - best_genome, axis=1)
+            fitness_differences = filtered_fitness - self.best_individual.fitness
+
             data.extend(
                 zip(
                     distances_to_best,
@@ -403,7 +412,6 @@ class DemeTree:
             columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
         )
 
-        # Calculate correlation coefficient
         corr_coef, _ = pearsonr(df["Distance to Best Solution"], df["Fitness Value Difference"])
         corr_coef = round(corr_coef, 2)
 
