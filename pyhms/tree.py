@@ -1,6 +1,7 @@
 from typing import Literal
 
 import dill as pkl
+import graphviz
 import matplotlib.animation as animation
 import numpy as np
 import pandas as pd
@@ -22,7 +23,7 @@ from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.clusterization import NearestBetterClustering, NearestBetterClusteringWithRule2
 from .utils.deme_performance import NAME_TO_METRIC
-from .utils.print_tree import format_deme, format_deme_children_tree
+from .utils.print_tree import format_deme, format_deme_children_tree, visualize_deme_tree
 from .utils.r5s import R5SSelection
 from .utils.redundancy_factor import count_redundant_evaluations_for_cma_demes
 from .utils.visualisation.animate import tree_animation
@@ -272,6 +273,9 @@ class DemeTree:
             + "\n"
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
+
+    def visualize_tree(self, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
+        return visualize_deme_tree(self.root, output_path, format)
 
     def get_redundancy_factor(self, optimal_solution: Individual | None = None) -> float:
         assert self.height == 2, "This method is only applicable to trees with two levels."
@@ -604,11 +608,12 @@ class DemeTree:
             width=1000,
             height=1000,
             template="plotly_white",
+            font=dict(size=16),
             coloraxis_colorbar=dict(
                 title=dict(
                     text="f(x, y)",
                     side="right",
-                    font=dict(size=14),
+                    font=dict(size=16),
                 ),
                 x=1.17,
                 y=0.5,
