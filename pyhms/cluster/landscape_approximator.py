@@ -42,5 +42,5 @@ class LandscapeApproximator:
     def predict(self, x: np.ndarray) -> np.ndarray:
         return self.kriging.predict(x)
 
-    def plot(self) -> None:
-        self.kriging.plot()
+    def plot(self, filepath: str | None = None) -> None:
+        self.kriging.plot(filepath=filepath)

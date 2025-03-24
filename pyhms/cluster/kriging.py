@@ -26,7 +26,14 @@ class KrigingLandscapeApproximator:
     def predict(self, genomes: np.ndarray) -> np.ndarray:
         return self.model.execute("points", genomes)
 
-    def plot(self, number_of_points_per_dim: int = 100) -> None:
+    def plot(
+        self,
+        number_of_points_per_dim: int = 100,
+        filepath: str | None = None,
+    ) -> None:
+        if self.population is None or self.model is None:
+            raise ValueError("Model must be fitted before plotting")
+
         bounds = self.population.problem.bounds
         x = np.linspace(bounds[0][0], bounds[0][1], number_of_points_per_dim)
         y = np.linspace(bounds[1][0], bounds[1][1], number_of_points_per_dim)
@@ -39,17 +46,28 @@ class KrigingLandscapeApproximator:
                 contours=dict(
                     start=z.min(),
                     end=z.max(),
-                    size=(z.max() - z.min()) / 10,
-                    coloring="lines",
+                    size=(z.max() - z.min()) / 15,
+                    coloring="fill",
+                    showlabels=True,
                 ),
-                line=dict(color="blue"),
+                colorscale="Viridis",
+                line=dict(width=2),
             )
         )
 
         fig.update_layout(
-            title="Kriging Contour Plot",
-            xaxis_title="X1",
-            yaxis_title="X2",
+            xaxis_title="x",
+            yaxis_title="y",
+            width=1000,
+            height=1000,
+            template="plotly_white",
+            font=dict(size=16),
+            margin=dict(l=80, r=80, t=100, b=80),
+            paper_bgcolor="white",
+            plot_bgcolor="white",
         )
 
         fig.show()
+
+        if filepath is not None:
+            fig.write_image(filepath, scale=2)
