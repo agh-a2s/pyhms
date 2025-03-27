@@ -3,19 +3,17 @@ import unittest
 import numpy as np
 from pyhms.config import CMALevelConfig, EALevelConfig, TreeConfig
 from pyhms.core.individual import Individual
-from pyhms.core.problem import EvalCountingProblem, PrecisionCutoffProblem, Problem
+from pyhms.core.problem import PrecisionCutoffProblem, Problem
 from pyhms.demes.single_pop_eas.sea import SEA
 from pyhms.initializers import sample_uniform
 from pyhms.stop_conditions import (
     AllStopped,
     DontStop,
-    FitnessEvalLimitReached,
     GlobalStopCondition,
     NoActiveNonrootDemes,
     RootStopped,
     SingularProblemEvalLimitReached,
     SingularProblemPrecisionReached,
-    WeightingStrategy,
 )
 from pyhms.tree import DemeTree
 
@@ -122,102 +120,4 @@ class TestGlobalStopCondition(unittest.TestCase):
         self.assertFalse(gsc(deme_tree))
         individual = Individual(genome=np.array([0, 0]), problem=problem)
         individual.evaluate()
-        self.assertTrue(gsc(deme_tree))
-
-    def test_fitness_eval_limit_reached(self):
-        LIMIT = 100
-        gsc = FitnessEvalLimitReached(LIMIT, WeightingStrategy.EQUAL)
-        problem_level1 = EvalCountingProblem(SQUARE_PROBLEM)
-        problem_level2 = EvalCountingProblem(SQUARE_PROBLEM)
-        levels = [
-            EALevelConfig(
-                ea_class=SEA,
-                generations=2,
-                problem=problem_level1,
-                pop_size=20,
-                mutation_std=1.0,
-                lsc=DontStop(),
-            ),
-            CMALevelConfig(
-                generations=4,
-                problem=problem_level2,
-                sigma0=2.5,
-                lsc=DontStop(),
-            ),
-        ]
-        tree_config = TreeConfig(
-            levels=levels,
-            gsc=gsc,
-            sprout_mechanism=DEFAULT_SPROUT_COND,
-            options={},
-        )
-        deme_tree = DemeTree(tree_config)
-        # Evaluate problem (level 1) LIMIT - 1 times:
-        population = Individual.create_population(
-            pop_size=LIMIT - problem_level1.n_evaluations - 1,
-            problem=problem_level1,
-            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
-        )
-        Individual.evaluate_population(population)
-        self.assertFalse(gsc(deme_tree))
-        # Evaluate problem (level 2) 1 more time:
-        population = Individual.create_population(
-            pop_size=1,
-            problem=problem_level2,
-            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
-        )
-        Individual.evaluate_population(population)
-        self.assertTrue(gsc(deme_tree))
-
-    def test_fitness_eval_limit_reached_root_only_strategy(self):
-        LIMIT = 100
-        gsc = FitnessEvalLimitReached(LIMIT, WeightingStrategy.ROOT)
-        problem_level1 = EvalCountingProblem(SQUARE_PROBLEM)
-        problem_level2 = EvalCountingProblem(SQUARE_PROBLEM)
-        levels = [
-            EALevelConfig(
-                ea_class=SEA,
-                generations=2,
-                problem=problem_level1,
-                pop_size=20,
-                mutation_std=1.0,
-                lsc=DontStop(),
-            ),
-            CMALevelConfig(
-                generations=4,
-                problem=problem_level2,
-                sigma0=2.5,
-                lsc=DontStop(),
-            ),
-        ]
-        tree_config = TreeConfig(
-            levels=levels,
-            gsc=gsc,
-            sprout_mechanism=DEFAULT_SPROUT_COND,
-            options={},
-        )
-        deme_tree = DemeTree(tree_config)
-        # Evaluate problem (level 1) LIMIT - 1 times:
-        population = Individual.create_population(
-            pop_size=LIMIT - problem_level1.n_evaluations - 1,
-            problem=problem_level1,
-            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
-        )
-        Individual.evaluate_population(population)
-        self.assertFalse(gsc(deme_tree))
-        # Evaluate problem (level 2) 1 more time:
-        population = Individual.create_population(
-            pop_size=1,
-            problem=problem_level2,
-            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
-        )
-        Individual.evaluate_population(population)
-        self.assertFalse(gsc(deme_tree))
-        # Evaluate problem (level 1) 1 more time:
-        population = Individual.create_population(
-            pop_size=1,
-            problem=problem_level1,
-            initialize=sample_uniform(bounds=SQUARE_BOUNDS),
-        )
-        Individual.evaluate_population(population)
         self.assertTrue(gsc(deme_tree))

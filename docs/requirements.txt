@@ -11,3 +11,4 @@ treelib>=1.7.0
 setuptools>=63.2.0
 structlog>=24.1.0
 dill>=0.3.8
+graphviz>=0.20.1

@@ -42,6 +42,7 @@ plotly = "^5.22.0"
 kaleido = "0.2.1"
 scikit-learn = "^1.5.1"
 pykrige = "^1.7.2"
+graphviz = "^0.20.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"

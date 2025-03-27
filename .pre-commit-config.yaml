@@ -57,3 +57,7 @@ repos:
         language: python
         types: [python]
         args: ["--line-length=120"]
+  - repo: https://github.com/srstevenson/nb-clean
+    rev: "2.4.0"
+    hooks:
+      - id: nb-clean

@@ -1,18 +1,20 @@
 from typing import Literal
 
 import dill as pkl
+import graphviz
 import matplotlib.animation as animation
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 from scipy.stats import pearsonr
 from sklearn.metrics import pairwise_distances
 from structlog.typing import FilteringBoundLogger
 
 from .config import TreeConfig
 from .core.individual import Individual
-from .core.problem import StatsGatheringProblem
+from .core.problem import StatsGatheringProblem, get_function_problem
 from .demes.abstract_deme import AbstractDeme
 from .demes.cma_deme import CMADeme
 from .demes.initialize import init_from_config, init_root
@@ -21,12 +23,14 @@ from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
 from .utils.clusterization import NearestBetterClustering, NearestBetterClusteringWithRule2
 from .utils.deme_performance import NAME_TO_METRIC
-from .utils.print_tree import format_deme, format_deme_children_tree
+from .utils.print_tree import format_deme, format_deme_children_tree, visualize_deme_tree
 from .utils.r5s import R5SSelection
 from .utils.redundancy_factor import count_redundant_evaluations_for_cma_demes
 from .utils.visualisation.animate import tree_animation
 from .utils.visualisation.dimensionality_reduction import DimensionalityReducer, NaiveDimensionalityReducer
 from .utils.visualisation.grid import Grid2DProblemEvaluation
+
+pio.kaleido.scope.mathjax = None
 
 
 class DemeTree:
@@ -270,6 +274,9 @@ class DemeTree:
             + format_deme_children_tree(self.root, best_fitness=self.best_individual.fitness)
         )
 
+    def tree_diagram(self, output_path: str | None = None, format: str = "pdf") -> graphviz.Digraph:
+        return visualize_deme_tree(self.root, self.best_individual, output_path, format)
+
     def get_redundancy_factor(self, optimal_solution: Individual | None = None) -> float:
         assert self.height == 2, "This method is only applicable to trees with two levels."
         assert all(
@@ -349,40 +356,73 @@ class DemeTree:
         if metric not in NAME_TO_METRIC:
             raise ValueError(f"Indicator {metric} is not available. Choose from {NAME_TO_METRIC.keys()}")
         indicator_df = NAME_TO_METRIC[metric](deme, selected_dimensions)
-        fig = px.line(
-            indicator_df,
-            x=indicator_df.index,
-            y=indicator_df.columns[0],
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=indicator_df.index,
+                y=indicator_df[indicator_df.columns[0]],
+                mode="lines+markers",
+                name=metric,
+            )
+        )
+
+        fig.update_layout(
+            template="plotly_white",
+            font=dict(size=14),
             title=f"{metric} for {deme_id.capitalize()} Deme",
-            labels={
-                "index": "Generation Number",
-            },
-            markers=True,
+            xaxis=dict(
+                title="Generation Number",
+            ),
+            yaxis=dict(
+                title=f"{metric} Value",
+            ),
         )
         if filepath:
-            fig.write_image(filepath)
+            fig.write_image(filepath, scale=2)
+
         fig.show()
 
-    def plot_fitness_value_by_distance(self, filepath: str | None = None) -> None:
+    def plot_fitness_value_by_distance(
+        self, filepath: str | None = None, group_by: Literal["level", "deme"] = "level"
+    ) -> None:
         data = []  # type: ignore[var-annotated]
         best_genome = self.best_individual.genome
         for level, deme in self.all_demes:
             genomes = np.array([x.genome for x in deme.all_individuals])
-            distances_to_best = np.linalg.norm(genomes - best_genome, axis=1)
-            fitness_differences = np.array([x.fitness for x in deme.all_individuals]) - self.best_individual.fitness
+            fitness_values = np.array([x.fitness for x in deme.all_individuals])
+            valid_mask = ~np.isinf(fitness_values)
+
+            if not np.any(valid_mask):
+                continue
+
+            filtered_genomes = genomes[valid_mask]
+            filtered_fitness = fitness_values[valid_mask]
+            distances_to_best = np.linalg.norm(filtered_genomes - best_genome, axis=1)
+            fitness_differences = filtered_fitness - self.best_individual.fitness
+
+            group_value = str(level) if group_by == "level" else f"Deme {deme.id}"
+
             data.extend(
                 zip(
                     distances_to_best,
                     fitness_differences,
-                    [str(level)] * len(distances_to_best),
+                    [group_value] * len(distances_to_best),
                 )
             )
+
+        group_column = "Level" if group_by == "level" else "Deme"
+
         df = pd.DataFrame(
             data,
-            columns=["Distance to Best Solution", "Fitness Value Difference", "Level"],
+            columns=[
+                "Distance to Best Solution",
+                "Fitness Value Difference",
+                group_column,
+            ],
         )
 
-        # Calculate correlation coefficient
         corr_coef, _ = pearsonr(df["Distance to Best Solution"], df["Fitness Value Difference"])
         corr_coef = round(corr_coef, 2)
 
@@ -390,13 +430,17 @@ class DemeTree:
             df,
             x="Distance to Best Solution",
             y="Fitness Value Difference",
-            color="Level",
+            color=group_column,
             labels={"x": "Distance to Best Genome", "y": "Fitness Value Difference"},
-            title=f"Scatter Plot of Individual Fitness vs Distance to Best by Level (Correlation: {corr_coef})",
+            title=f"Fitness vs Distance to Best by {group_column} (Correlation: {corr_coef})",
+        )
+        fig.update_layout(
+            template="plotly_white",
+            font=dict(size=14),
         )
 
         if filepath:
-            fig.write_image(filepath)
+            fig.write_image(filepath, scale=2)
         fig.show()
 
     def plot_sprout_seed_distances(self, filepath: str | None = None, level: int | None = 1) -> None:
@@ -491,6 +535,7 @@ class DemeTree:
             xaxis=dict(showgrid=True),
             yaxis=dict(showgrid=True),
             template="plotly_white",
+            font=dict(size=14),
         )
 
         if filepath:
@@ -514,3 +559,90 @@ class DemeTree:
         nbc = nbc_class(self.all_individuals, distance_factor, truncation_factor, use_correction)
         nbc._prepare_spanning_tree()
         nbc.plot_clusters(dimensionality_reducer)
+
+    def plot_population(
+        self,
+        filepath: str | None = None,
+        show_grid: bool = False,
+        grid_granularity: float | None = None,
+        optimal_fitness_value: float | None = None,
+        optimal_genome: np.ndarray | None = None,
+        show_all_individuals: bool = False,
+        show_scale: bool = False,
+    ) -> None:
+        function_problem = get_function_problem(self.root._problem)
+        bounds = function_problem.bounds
+        if show_grid:
+            grid_granularity = grid_granularity or (bounds[0][1] - bounds[0][0]) / 200
+            grid = Grid2DProblemEvaluation(function_problem, bounds, 0.05)
+            grid.evaluate()
+            fig = px.imshow(
+                grid.z.T,
+                labels={"x": "x", "y": "y", "color": "f(x, y)"},
+                x=grid.x,
+                y=grid.y,
+                origin="lower",
+                aspect="auto",
+                color_continuous_scale="Viridis",
+            )
+            fig.update_coloraxes(showscale=show_scale)
+        else:
+            fig = go.Figure()
+
+        for _, deme in self.all_demes:
+            deme_history = deme.all_individuals if show_all_individuals else deme.history[-1]
+            genomes = np.array([x.genome for x in deme_history])
+            fitness_values = np.array([x.fitness for x in deme_history])
+            labels = [f"f(x, y): {val:.2f}" for val in fitness_values]
+            scatter = go.Scatter(
+                x=genomes[:, 0],
+                y=genomes[:, 1],
+                text=labels,
+                mode="markers",
+                marker=dict(size=10),
+                name=f"Deme {deme.id}",
+            )
+            fig.add_trace(scatter)
+        if optimal_genome is not None and optimal_fitness_value is not None:
+            scatter = go.Scatter(
+                x=[optimal_genome[0]],
+                y=[optimal_genome[1]],
+                text=[f"f(x, y): {optimal_fitness_value:.2f}"],
+                mode="markers",
+                marker=dict(
+                    size=15,
+                    symbol="diamond",
+                    color="yellow",
+                    line=dict(
+                        width=2,
+                    ),
+                ),
+                name="Optimum",
+            )
+            fig.add_trace(scatter)
+
+        fig.update_layout(
+            xaxis_title="x",
+            yaxis_title="y",
+            width=1000,
+            height=1000,
+            template="plotly_white",
+            font=dict(size=16),
+            coloraxis_colorbar=dict(
+                title=dict(
+                    text="f(x, y)",
+                    side="right",
+                    font=dict(size=16),
+                ),
+                x=1.17,
+                y=0.5,
+                len=0.8,
+            ),
+            legend=dict(
+                y=0.5,
+            ),
+        )
+        if filepath:
+            fig.write_image(filepath, scale=2)
+
+        fig.show()
