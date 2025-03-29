@@ -45,5 +45,16 @@ class LandscapeApproximator:
     def plot(self, filepath: str | None = None) -> None:
         self.kriging.plot(filepath=filepath)
 
-    def plot_plateau_contour(self, threshold: float | None = None, filepath: str | None = None) -> None:
-        self.kriging.plot_plateau_contour(threshold=threshold, filepath=filepath)
+    def plot_plateau_contour(
+        self,
+        threshold: float | None = None,
+        filepath: str | None = None,
+        number_of_points_per_dim: int = 100,
+        show_true_plateau: bool = False,
+    ) -> None:
+        self.kriging.plot_plateau_contour(
+            threshold=threshold,
+            filepath=filepath,
+            show_true_plateau=show_true_plateau,
+            number_of_points_per_dim=number_of_points_per_dim,
+        )
