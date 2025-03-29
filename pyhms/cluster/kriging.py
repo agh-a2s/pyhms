@@ -77,6 +77,7 @@ class KrigingLandscapeApproximator:
         threshold: float | None = None,
         number_of_points_per_dim: int = 100,
         filepath: str | None = None,
+        show_true_plateau: bool = False,
     ) -> None:
         if self.population is None or self.model is None:
             raise ValueError("Model must be fitted before plotting")
@@ -87,7 +88,7 @@ class KrigingLandscapeApproximator:
         z, _ = self.model.execute("grid", x, y)
 
         if threshold is None:
-            threshold = np.median(self.population.fitnesses)
+            threshold = np.quantile(z, 0.1)
 
         fig = go.Figure(
             data=go.Contour(
@@ -104,8 +105,33 @@ class KrigingLandscapeApproximator:
                 line=dict(width=3, color="blue"),
                 colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],
                 showscale=False,
+                name="Kriging",
             )
         )
+
+        if show_true_plateau:
+            z_true = np.zeros((len(x), len(y)))
+            for i, xi in enumerate(x):
+                for j, yj in enumerate(y):
+                    z_true[j, i] = self.population.problem.evaluate(np.array([xi, yj]))
+            fig.add_trace(
+                go.Contour(
+                    x=x,
+                    y=y,
+                    z=z_true,
+                    contours=dict(
+                        start=threshold,
+                        end=threshold,
+                        size=0.1,
+                        showlabels=True,
+                        labelfont=dict(size=14, color="black"),
+                    ),
+                    line=dict(width=3, color="orange"),
+                    colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],
+                    showscale=False,
+                    name="Ground truth",
+                )
+            )
 
         fig.update_layout(
             xaxis_title="x",
@@ -115,12 +141,21 @@ class KrigingLandscapeApproximator:
             template="plotly_white",
             font=dict(size=16),
             showlegend=True,
+            legend=dict(
+                yanchor="top",
+                y=0.99,
+                xanchor="right",
+                x=0.99,
+            ),
             xaxis_range=[bounds[0][0], bounds[0][1]],
             yaxis_range=[bounds[1][0], bounds[1][1]],
             margin=dict(l=80, r=80, t=80, b=80),
             xaxis=dict(automargin=True, ticklabelposition="outside"),
             yaxis=dict(automargin=True, ticklabelposition="outside"),
         )
+
+        for trace in fig.data:
+            trace.showlegend = True
 
         fig.show()
 

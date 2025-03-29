@@ -628,18 +628,25 @@ class DemeTree:
             height=1000,
             template="plotly_white",
             font=dict(size=16),
+            margin=dict(t=30, pad=4),
+            xaxis=dict(range=[bounds[0][0], bounds[0][1]]),
+            yaxis=dict(range=[bounds[1][0], bounds[1][1]]),
             coloraxis_colorbar=dict(
                 title=dict(
                     text="f(x, y)",
                     side="right",
                     font=dict(size=16),
                 ),
-                x=1.17,
+                x=1.02,
                 y=0.5,
                 len=0.8,
             ),
             legend=dict(
-                y=0.5,
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5,
             ),
         )
         if filepath:
