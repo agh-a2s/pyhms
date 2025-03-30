@@ -1,12 +1,12 @@
-Adding Custom Demes to PyHMS
+Adding Custom Demes to pyHMS
 ============================
 
-This guide explains how to create your own custom deme implementations for PyHMS.
+This guide explains how to create your own custom deme implementations for pyHMS.
 
 Overview
 --------
 
-PyHMS allows you to extend the system with your own custom deme implementations. To create a custom deme, you need to:
+pyHMS allows you to extend the system with your own custom deme implementations. To create a custom deme, you need to:
 
 1. Define a new config class that inherits from ``BaseLevelConfig``
 2. Create a new deme class that inherits from ``AbstractDeme``
@@ -104,7 +104,7 @@ Finally, register your custom deme by creating a mapping from your config class 
         RandomSearchConfig: RandomSearchDeme
     }
 
-    # Use your custom deme in PyHMS
+    # Use your custom deme in pyHMS
     result = hms(
         level_config=[random_search_config],
         gsc=MetaepochLimit(10),
