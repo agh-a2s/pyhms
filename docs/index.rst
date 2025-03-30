@@ -26,5 +26,4 @@ Contents
    stop
    sprout
    problem
-   ea_algorithms
    custom_demes
