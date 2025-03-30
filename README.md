@@ -1,4 +1,7 @@
 # pyHMS
+
+<img src="docs/_static/images/pyhms.png" alt="pyHMS Logo" width="200"/>
+
 ![GitHub Test Badge][1] [![codecov][2]](https://codecov.io/gh/agh-a2s/pyhms) [![Documentation Status][3]](https://pyhms.readthedocs.io/en/latest/?badge=latest) [![pypi.org][4]][5] [![versions][6]][7] ![license][8]
 
 [1]: https://github.com/agh-a2s/pyhms/actions/workflows/pytest.yml/badge.svg "GitHub CI Badge"
