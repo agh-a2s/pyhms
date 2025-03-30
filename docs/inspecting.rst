@@ -91,6 +91,42 @@ To easily investigate the performance of each deme in the tree, we can use the `
    :alt: Best fitness plot
    :align: center
 
+Analyzing the relationship between distance to the best solution and fitness values can provide valuable insights into the fitness landscape and convergence behavior. For this purpose, you can use the `plot_fitness_value_by_distance` method.
+
+.. code-block:: python
+
+    hms_tree.plot_fitness_value_by_distance(filepath="fitness_by_distance_plot.png", group_by="deme")
+
+.. image:: _static/images/fitness_by_distance_plot.png
+   :alt: Fitness by distance plot
+   :align: center
+
+This plot shows how fitness changes as the distance from the best solution increases, which helps in understanding the smoothness of the fitness landscape and how well different demes are exploring promising regions. The grouping can be done by either "deme" or "level".
+
+To visualize the population of individuals across different demes, the `plot_population` method is useful, especially for 2D problems:
+
+.. code-block:: python
+
+    hms_tree.plot_population(filepath="population_plot.png")
+
+.. image:: _static/images/population_plot.png
+   :alt: Population visualization
+   :align: center
+
+This visualization shows the distribution of individuals in the search space. For 2D problems, it plots individuals directly in their coordinate space. Additional options include showing a grid representation of the problem surface, optimal points, and scaling.
+
+Another important aspect of evolutionary strategies is understanding how diversity changes over time. The `plot_deme_metric` method helps visualize the convergence behavior of a specific deme:
+
+.. code-block:: python
+
+    hms_tree.plot_deme_metric(filepath="deme_metric_plot.png")
+
+.. image:: _static/images/deme_metric_plot.png
+   :alt: Deme metric plot
+   :align: center
+
+This plot shows how the selected diversity metric changes across generations for a specific deme (root by default). Available metrics include "AvgVar", "SD", "SDNN", and "SPD". This helps in analyzing exploration versus exploitation behavior.
+
 We can also generate an animation presenting populations of all demes.
 
 .. code-block:: python
