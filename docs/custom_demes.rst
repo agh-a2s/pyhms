@@ -60,21 +60,21 @@ Next, create a deme class that inherits from ``AbstractDeme``. This class must i
             self.upper_bounds = config.bounds[:, 1]
             self.rng = np.random.RandomState(deme_init_args.random_seed)
             self.run()
-        
+
         def run(self) -> None:
             genomes = np.random.uniform(
-                self.lower_bounds, 
-                self.upper_bounds, 
+                self.lower_bounds,
+                self.upper_bounds,
                 size=(self._pop_size, len(self.lower_bounds))
             )
             population = [Individual(genome, problem=self._problem) for genome in genomes]
             Individual.evaluate_population(population)
             self._history.append([population])
-        
+
         def run_metaepoch(self, tree) -> None:
             # This method is called in each meta-epoch
             self.run()
-            
+
             # Check if stopping conditions are met
             if (gsc_value := tree._gsc(tree)) or self._lsc(self):
                 self._active = False
@@ -126,4 +126,4 @@ When implementing your custom deme, you can use the following properties and met
 - ``self.best_individual``: Get the best individual found by the deme
 - ``self.current_population``: Get the current population
 
-The most important method you must implement is ``run_metaepoch(self, tree)``, which is called in each meta-epoch of the HMS algorithm. 
+The most important method you must implement is ``run_metaepoch(self, tree)``, which is called in each meta-epoch of the HMS algorithm.
