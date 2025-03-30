@@ -152,8 +152,10 @@ class TreeConfig:
         gsc: GlobalStopCondition | UniversalStopCondition,
         sprout_mechanism,
         options: Options = DEFAULT_OPTIONS,
+        config_class_to_deme_class: dict[type[BaseLevelConfig], "type[AbstractDeme]"] = {},  # type: ignore # noqa: F821
     ) -> None:
         self.levels = levels
         self.gsc = gsc
         self.sprout_mechanism = sprout_mechanism
         self.options = options
+        self.config_class_to_deme_class = config_class_to_deme_class

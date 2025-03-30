@@ -1,24 +1,19 @@
 from scipy import optimize as sopt
-from structlog.typing import FilteringBoundLogger
 
 from ..config import LocalOptimizationConfig
 from ..core.individual import Individual
-from .abstract_deme import AbstractDeme
+from .abstract_deme import AbstractDeme, DemeInitArgs
 
 
 class LocalDeme(AbstractDeme):
     def __init__(
         self,
-        id: str,
-        level: int,
-        config: LocalOptimizationConfig,
-        logger: FilteringBoundLogger,
-        sprout_seed: Individual,
-        started_at=0,
+        deme_init_args: DemeInitArgs,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at)
+        super().__init__(deme_init_args)
+        config: LocalOptimizationConfig = deme_init_args.config  # type: ignore[assignment]
         self._method = config.method
-        self._sprout_seed = sprout_seed
+        self._sprout_seed = deme_init_args.sprout_seed
         self._n_evals = 0
         starting_pop = [self._sprout_seed]
         self._history.append([starting_pop])

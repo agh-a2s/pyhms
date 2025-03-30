@@ -1,6 +1,7 @@
 import numpy as np
 from pyhms.config import CMALevelConfig
 from pyhms.core.individual import Individual
+from pyhms.demes.abstract_deme import DemeInitArgs
 from pyhms.demes.cma_deme import CMADeme
 from pyhms.logging_ import get_logger
 from pyhms.tree import DemeTree
@@ -17,13 +18,14 @@ def test_format_deme():
         sigma0=1.0,
         generations=1,
     )
-    deme = CMADeme(
+    deme_init_args = DemeInitArgs(
         id="0",
         level=0,
         config=config,
         logger=logger,
-        x0=Individual(genome=np.array([0, 0]), problem=SQUARE_PROBLEM),
+        sprout_seed=Individual(genome=np.array([0, 0]), problem=SQUARE_PROBLEM),
     )
+    deme = CMADeme(deme_init_args)
     formatted_deme = format_deme(deme)
     assert formatted_deme.startswith("CMADeme 0")
     assert "sprout: (0.00, 0.00);" in formatted_deme

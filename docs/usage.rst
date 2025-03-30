@@ -40,14 +40,14 @@ The output of the function is a OptimizeResult object:
 
     @dataclass
     class OptimizeResult:
-        x: np.ndarray
-        nfev: int
-        fun: float
-        nit: int
+        x: np.ndarray    # Best solution found
+        nfev: int        # Number of function evaluations
+        fun: float       # Function value at the best solution
+        nit: int         # Number of iterations (metaepochs)
 
 
-Usage
------
+Detailed Usage
+--------------
 
 Let's begin by defining a problem that we want to solve. We will use the following example:
 
@@ -74,7 +74,13 @@ To use HMS we need to define global stop condition, in this case we want to run 
     from pyhms import MetaepochLimit
     global_stop_condition = MetaepochLimit(limit=10)
 
-Now we need to decide what should be the height of our tree (maximum number of levels) and what optimization algorithms to run on each level. We will use the following configuration:
+Now we need to configure the structure of our HMS tree by defining the optimization algorithms for each level. Each level configuration specifies the following:
+
+1. The optimization algorithm to use (`EALevelConfig` which can run multiple different GAs)
+2. The number of iterations per metaepoch (`generations`)
+3. The problem to solve (can be different for each level e.g. less accurate for higher levels)
+4. Population size and other algorithm-specific parameters
+5. Local stop condition (`lsc`)
 
 .. code-block:: python
 
@@ -82,32 +88,36 @@ Now we need to decide what should be the height of our tree (maximum number of l
 
     config = [
         EALevelConfig(
-            ea_class=SEA,
-            generations=2,
-            problem=square_problem,
-            pop_size=20,
-            mutation_std=1.0,
-            lsc=DontStop(),
+            ea_class=SEA,               # Use Simple Evolutionary Algorithm (GA)
+            generations=2,              # Number of generations per metaepoch
+            problem=square_problem,     # The problem to solve (problems can be different for each level)
+            pop_size=20,                # Population size
+            mutation_std=1.0,           # Standard deviation for mutation
+            lsc=DontStop(),             # Local stop condition (never stop)
         ),
         EALevelConfig(
             ea_class=SEA,
-            generations=4,
+            generations=4,              # More generations for deeper exploration
             problem=square_problem,
-            pop_size=10,
-            mutation_std=0.25,
-            sample_std_dev=1.0,
+            pop_size=10,                # Smaller population size at lower levels
+            mutation_std=0.25,          # Smaller mutations for local refinement
+            sample_std_dev=1.0,         # Standard deviation for sampling around parent
             lsc=DontStop(),
         ),
     ]
 
-Next step is to define sprout condition for our tree. We will use Nearest Better Clustering (NBC) sprout condition.
+The HMS algorithm creates a tree-like structure where demes (populations) at higher levels perform broad exploration, while demes at lower levels refine promising solutions. The configuration above defines two levels in our tree.
+
+Next, we need to define a sprouting condition that determines when and where to create new demes at lower levels. We'll use Nearest Better Clustering (NBC) sprouting:
 
 .. code-block:: python
 
     from pyhms import get_NBC_sprout
     sprout_condition = get_NBC_sprout(level_limit=4)
 
-Finally we can run the algorithm:
+The NBC sprouting condition identifies promising points in the search space by clustering solutions based on their fitness and proximity. See :doc:`sprout` for more details on sprouting mechanisms.
+
+Finally, we can run the algorithm:
 
 .. code-block:: python
 

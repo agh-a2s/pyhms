@@ -17,7 +17,7 @@ from .core.individual import Individual
 from .core.problem import StatsGatheringProblem, get_function_problem
 from .demes.abstract_deme import AbstractDeme
 from .demes.cma_deme import CMADeme
-from .demes.initialize import init_from_config, init_root
+from .demes.initialize import init_from_config
 from .logging_ import DEFAULT_LOGGING_LEVEL, get_logger
 from .sprout.sprout_candidates import DemeCandidates
 from .sprout.sprout_mechanisms import SproutMechanism
@@ -57,7 +57,16 @@ class DemeTree:
             self._random_seed = None
 
         self._levels: list[list[AbstractDeme]] = [[] for _ in range(nlevels)]
-        root_deme = init_root(config.levels[0], self._logger)
+        root_deme = init_from_config(
+            config=config.levels[0],
+            new_id="root",
+            target_level=0,
+            metaepoch_count=0,
+            sprout_seed=None,
+            logger=self._logger,
+            random_seed=self._random_seed,
+            config_class_to_deme_class=self.config.config_class_to_deme_class,
+        )
         self._levels[0].append(root_deme)
 
     @property
@@ -173,14 +182,15 @@ class DemeTree:
                 config = self.config.levels[target_level]
 
                 child = init_from_config(
-                    config,
-                    new_id,
-                    target_level,
-                    self.metaepoch_count,
+                    config=config,
+                    new_id=new_id,
+                    target_level=target_level,
+                    metaepoch_count=self.metaepoch_count,
                     sprout_seed=ind,
                     logger=self._logger,
                     random_seed=self._random_seed,
                     parent_deme=deme,
+                    config_class_to_deme_class=self.config.config_class_to_deme_class,
                 )
                 deme.add_child(child)
                 self._levels[target_level].append(child)
@@ -628,18 +638,25 @@ class DemeTree:
             height=1000,
             template="plotly_white",
             font=dict(size=16),
+            margin=dict(t=30, pad=4),
+            xaxis=dict(range=[bounds[0][0], bounds[0][1]]),
+            yaxis=dict(range=[bounds[1][0], bounds[1][1]]),
             coloraxis_colorbar=dict(
                 title=dict(
                     text="f(x, y)",
                     side="right",
                     font=dict(size=16),
                 ),
-                x=1.17,
+                x=1.02,
                 y=0.5,
                 len=0.8,
             ),
             legend=dict(
-                y=0.5,
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5,
             ),
         )
         if filepath:

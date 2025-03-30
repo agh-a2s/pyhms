@@ -1,4 +1,7 @@
-# pyhms
+# pyHMS
+
+<img src="docs/_static/images/pyhms.png" alt="pyHMS Logo" width="200"/>
+
 ![GitHub Test Badge][1] [![codecov][2]](https://codecov.io/gh/agh-a2s/pyhms) [![Documentation Status][3]](https://pyhms.readthedocs.io/en/latest/?badge=latest) [![pypi.org][4]][5] [![versions][6]][7] ![license][8]
 
 [1]: https://github.com/agh-a2s/pyhms/actions/workflows/pytest.yml/badge.svg "GitHub CI Badge"
@@ -10,7 +13,7 @@
 [7]: https://github.com/agh-a2s/pyhms
 [8]: https://img.shields.io/github/license/agh-a2s/pyhms
 
-`pyhms` is a Python implementation of Hierarchic Memetic Strategy (HMS).
+`pyHMS` is a Python implementation of Hierarchic Memetic Strategy (HMS).
 
 The Hierarchic Memetic Strategy is a stochastic global optimizer designed to tackle highly multimodal problems. It is a composite global optimization strategy consisting of a multi-population evolutionary strategy and some auxiliary methods. The HMS makes use of a dynamically-evolving data structure that provides an organization among the component populations. It is a tree with a fixed maximal height and variable internal node degree. Each component population is governed by a particular optimization engine. This package provides a simple python implementation.
 

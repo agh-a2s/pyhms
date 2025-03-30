@@ -1,43 +1,37 @@
-from structlog.typing import FilteringBoundLogger
-
 from ..config import SHADELevelConfig
 from ..core.individual import Individual
 from ..initializers import sample_normal, sample_uniform
-from .abstract_deme import AbstractDeme
+from .abstract_deme import AbstractDeme, DemeInitArgs
 from .single_pop_eas.de import SHADE
 
 
 class SHADEDeme(AbstractDeme):
     def __init__(
         self,
-        id: str,
-        level: int,
-        config: SHADELevelConfig,
-        logger: FilteringBoundLogger,
-        started_at: int = 0,
-        sprout_seed: Individual = None,
+        deme_init_args: DemeInitArgs,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, sprout_seed)
+        super().__init__(deme_init_args)
+        config: SHADELevelConfig = deme_init_args.config  # type: ignore[assignment]
         self._init_pop_size = config.pop_size
         self._pop_size = config.pop_size
         self._generations = config.generations
         self._sample_std_dev = config.sample_std_dev
         self._shade = SHADE(config.memory_size, config.pop_size)
 
-        if sprout_seed is None:
+        if deme_init_args.sprout_seed is None:
             starting_pop = Individual.create_population(
                 self._pop_size,
                 initialize=sample_uniform(bounds=self._bounds),
                 problem=self._problem,
             )
         else:
-            x = sprout_seed.genome
+            x0 = deme_init_args.sprout_seed.genome
             starting_pop = Individual.create_population(
                 self._pop_size - 1,
-                initialize=sample_normal(x, self._sample_std_dev, bounds=self._bounds),
+                initialize=sample_normal(x0, self._sample_std_dev, bounds=self._bounds),
                 problem=self._problem,
             )
-            seed_ind = Individual(x, problem=self._problem)
+            seed_ind = Individual(x0, problem=self._problem)
             starting_pop.append(seed_ind)
 
         Individual.evaluate_population(starting_pop)
