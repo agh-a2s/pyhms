@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 import numpy as np
 from pyhms.config import BaseLevelConfig
@@ -15,25 +16,33 @@ def compute_centroid(population: list[Individual]) -> np.ndarray | None:
     return np.mean([ind.genome for ind in population], axis=0)
 
 
+@dataclass
+class DemeInitArgs:
+    id: str
+    level: int
+    config: BaseLevelConfig
+    logger: FilteringBoundLogger
+    started_at: int = 0
+    sprout_seed: Individual | None = None
+    random_seed: int | None = None
+    # Use forward reference string to avoid circular dependency
+    parent_deme: "AbstractDeme | None" = None
+
+
 class AbstractDeme(ABC):
     def __init__(
         self,
-        id: str,
-        level: int,
-        config: BaseLevelConfig,
-        logger: FilteringBoundLogger,
-        started_at: int = 0,
-        sprout_seed: Individual = None,
+        deme_init_args: DemeInitArgs,
     ) -> None:
         super().__init__()
-        self._id = id
-        self._started_at = started_at
-        self._sprout_seed = sprout_seed
-        self._level = level
-        self._config: BaseLevelConfig = config
-        self._lsc: LocalStopCondition | UniversalStopCondition = config.lsc
-        self._problem: EvalCountingProblem = EvalCountingProblem(config.problem)
-        self._bounds: np.ndarray = config.bounds
+        self._id = deme_init_args.id
+        self._started_at = deme_init_args.started_at
+        self._sprout_seed = deme_init_args.sprout_seed
+        self._level = deme_init_args.level
+        self._config: BaseLevelConfig = deme_init_args.config
+        self._lsc: LocalStopCondition | UniversalStopCondition = deme_init_args.config.lsc
+        self._problem: EvalCountingProblem = EvalCountingProblem(deme_init_args.config.problem)
+        self._bounds: np.ndarray = deme_init_args.config.bounds
         self._active: bool = True
         self._centroid: np.ndarray | None = None
         # History of populations is a nested list, where each element is a list of individuals.
@@ -41,7 +50,7 @@ class AbstractDeme(ABC):
         # and for some algorithms (e.g. CMA-ES) HMS can run multiple generations during one metaepoch.
         self._history: list[list[list[Individual]]] = []
         self._children: list[AbstractDeme] = []
-        self._logger: FilteringBoundLogger = logger
+        self._logger: FilteringBoundLogger = deme_init_args.logger
 
         # Additional low-level options
         self._hibernating: bool = False

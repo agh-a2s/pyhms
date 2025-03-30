@@ -1,43 +1,37 @@
 import numpy as np
 from cma import CMAEvolutionStrategy
 from pyhms.core.individual import Individual
-from structlog.typing import FilteringBoundLogger
 
 from ..config import CMALevelConfig
 from ..utils.covariance_estimate import get_initial_sigma0, get_initial_stds
-from .abstract_deme import AbstractDeme
+from .abstract_deme import AbstractDeme, DemeInitArgs
 
 
 class CMADeme(AbstractDeme):
     def __init__(
         self,
-        id: str,
-        level: int,
-        config: CMALevelConfig,
-        logger: FilteringBoundLogger,
-        x0: Individual,
-        started_at: int = 0,
-        random_seed: int = None,
-        parent_deme: AbstractDeme | None = None,
+        deme_init_args: DemeInitArgs,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, x0)
+        super().__init__(deme_init_args)
+        config: CMALevelConfig = deme_init_args.config  # type: ignore[assignment]
         self.generations = config.generations
         lb = [bound[0] for bound in config.bounds]
         ub = [bound[1] for bound in config.bounds]
         opts = {"bounds": [lb, ub], "verbose": -9}
-        if random_seed is not None:
+        if deme_init_args.random_seed is not None:
             opts["randn"] = np.random.randn
-            opts["seed"] = random_seed + self._started_at
+            opts["seed"] = deme_init_args.random_seed + self._started_at
+        x0 = deme_init_args.sprout_seed.genome
         if config.__dict__.get("set_stds"):
-            opts["CMA_stds"] = get_initial_stds(parent_deme, x0)
+            opts["CMA_stds"] = get_initial_stds(deme_init_args.parent_deme, deme_init_args.sprout_seed)
             # We recommend to use sigma0 = 1 in this case.
             sigma0 = 1.0 if config.sigma0 is None else config.sigma0
-            self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
+            self._cma_es = CMAEvolutionStrategy(x0, sigma0, inopts=opts)
         elif config.sigma0:
-            self._cma_es = CMAEvolutionStrategy(x0.genome, config.sigma0, inopts=opts)
+            self._cma_es = CMAEvolutionStrategy(x0, config.sigma0, inopts=opts)
         else:
-            sigma0 = get_initial_sigma0(parent_deme, x0)
-            self._cma_es = CMAEvolutionStrategy(x0.genome, sigma0, inopts=opts)
+            sigma0 = get_initial_sigma0(deme_init_args.parent_deme, deme_init_args.sprout_seed)
+            self._cma_es = CMAEvolutionStrategy(x0, sigma0, inopts=opts)
 
         starting_pop = [Individual(solution, problem=self._problem) for solution in self._cma_es.ask()]
         Individual.evaluate_population(starting_pop)

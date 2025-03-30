@@ -2,24 +2,18 @@ from scipy.stats.qmc import Sobol
 
 from ..config import SobolLevelConfig
 from ..core.individual import Individual
-from ..logging_ import FilteringBoundLogger
-from .abstract_deme import AbstractDeme
+from .abstract_deme import AbstractDeme, DemeInitArgs
 
 
 class SobolDeme(AbstractDeme):
     def __init__(
         self,
-        id: str,
-        level: int,
-        config: SobolLevelConfig,
-        logger: FilteringBoundLogger,
-        started_at: int = 0,
-        sprout_seed: Individual = None,
-        random_seed: int = None,
+        deme_init_args: DemeInitArgs,
     ) -> None:
-        super().__init__(id, level, config, logger, started_at, sprout_seed)
+        super().__init__(deme_init_args)
+        config: SobolLevelConfig = deme_init_args.config  # type: ignore[assignment]
         self._pop_size = config.pop_size
-        self.sampler = Sobol(d=len(config.bounds), scramble=True, seed=random_seed)
+        self.sampler = Sobol(d=len(config.bounds), scramble=True, seed=deme_init_args.random_seed)
         self.lower_bounds = config.bounds[:, 0]
         self.upper_bounds = config.bounds[:, 1]
         self.run()
