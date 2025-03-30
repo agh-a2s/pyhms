@@ -31,10 +31,6 @@ CONFIG_CLASS_TO_DEME_CLASS = {
 }
 
 
-def init_root(config: BaseLevelConfig, logger: FilteringBoundLogger) -> AbstractDeme:
-    return init_from_config(config, "root", 0, 0, None, logger)
-
-
 def init_from_config(
     config: BaseLevelConfig,
     new_id: str,
@@ -44,6 +40,7 @@ def init_from_config(
     logger: FilteringBoundLogger,
     random_seed: int = None,
     parent_deme: AbstractDeme | None = None,
+    config_class_to_deme_class: dict[type[BaseLevelConfig], type[AbstractDeme]] = {},
 ):
     deme_init_args = DemeInitArgs(
         id=new_id,
@@ -55,4 +52,5 @@ def init_from_config(
         random_seed=random_seed,
         parent_deme=parent_deme,
     )
-    return CONFIG_CLASS_TO_DEME_CLASS[type(config)](deme_init_args)  # type: ignore[abstract]
+    merged_config_class_to_deme_class = config_class_to_deme_class | CONFIG_CLASS_TO_DEME_CLASS
+    return merged_config_class_to_deme_class[type(config)](deme_init_args)  # type: ignore[abstract]
