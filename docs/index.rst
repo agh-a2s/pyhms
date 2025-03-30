@@ -23,7 +23,7 @@ Contents
    algorithm
    usage
    inspecting
-   stop
    sprout
-   problem
    custom_demes
+   stop
+   problem

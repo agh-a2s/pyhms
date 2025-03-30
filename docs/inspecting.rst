@@ -6,7 +6,7 @@ Visualizing and inspecting the results of evolutionary strategies (ES) are cruci
 Visualization helps in understanding how solutions evolve over generations.
 Through visual inspection, one can observe if the population is converging towards a global optimum or if it is stuck in local optima.
 Visualization of the population distribution over time can also highlight issues with diversity, indicating whether the evolutionary strategy is exploring the solution space adequately.
-`pyhms` provides different methods for `DemeTree` object that enable inspecting results.
+`pyHMS` provides different methods for `DemeTree` object that enable inspecting results.
 Let's consider Sphere function as an example for `N=5`.
 
 .. code-block:: python
