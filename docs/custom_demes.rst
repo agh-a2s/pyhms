@@ -82,6 +82,42 @@ Next, create a deme class that inherits from ``AbstractDeme``. This class must i
                 self.log(message)
                 return
 
+Understanding DemeInitArgs
+--------------------------
+
+When implementing a custom deme, you'll receive a ``DemeInitArgs`` object in the constructor. This dataclass contains all the necessary initialization parameters for your deme:
+
+.. code-block:: python
+
+    @dataclass
+    class DemeInitArgs:
+        id: str
+        level: int
+        config: BaseLevelConfig
+        logger: FilteringBoundLogger
+        started_at: int = 0
+        sprout_seed: Individual | None = None
+        random_seed: int | None = None
+        parent_deme: AbstractDeme | None = None
+
+Understanding these fields:
+
+- ``id``: A unique string identifier for your deme
+- ``level``: The hierarchical level in the HMS tree (starts at 0 for root)
+- ``config``: Your custom configuration class instance that inherits from ``BaseLevelConfig``
+- ``logger``: A structured logger for outputting debug information
+- ``started_at``: The metaepoch number when this deme was created
+- ``sprout_seed``: For non-root demes, this is the first individual that sprouted this deme
+- ``random_seed``: A seed for random number generation to ensure reproducibility
+- ``parent_deme``: Reference to the parent deme that sprouted this deme (None for root demes)
+
+In your custom deme implementation, you'll typically:
+
+1. Pass the ``DemeInitArgs`` object to the parent constructor
+2. Cast the ``config`` field to your specific config class type
+3. Access the configuration parameters you need
+4. Use the provided random seed for any randomized operations
+
 Step 3: Register and Use Your Custom Deme
 -----------------------------------------
 
