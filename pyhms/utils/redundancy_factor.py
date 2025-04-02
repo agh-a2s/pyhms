@@ -15,7 +15,7 @@ def count_redundant_evaluations_for_cma_demes(
     sorted_demes = sorted(demes, key=lambda deme: deme.started_at)
     sorted_demes = [deme for deme in sorted_demes if deme.best_individual is not None]
     problem = sorted_demes[0]._problem
-    clusters = [Cluster.from_cma_deme(deme) for deme in sorted_demes]
+    clusters = [Cluster.from_deme(deme) for deme in sorted_demes]
     optimal_cluster = Cluster.from_individuals([optimal_solution], estimate_params=False) if optimal_solution else None
     merge_condition = HillValleyMergeCondition(problem=problem, k=k)
     redundant_evaluations_count = 0

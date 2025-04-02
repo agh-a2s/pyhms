@@ -2,7 +2,7 @@ import numpy as np
 
 from ..core.individual import Individual
 from ..core.population import Population
-from ..demes.cma_deme import CMADeme
+from ..demes.abstract_deme import AbstractDeme
 from ..utils.distances import mahalanobis_distance
 
 DEFAULT_CLUSTER_SIZE = 30
@@ -21,7 +21,7 @@ class Cluster:
         self.covariance_matrix_inverse = np.linalg.inv(covariance_matrix) if covariance_matrix is not None else None
 
     @classmethod
-    def from_cma_deme(cls, deme: CMADeme) -> "Cluster":
+    def from_deme(cls, deme: AbstractDeme) -> "Cluster":
         return cls(
             Population.from_individuals(deme.all_individuals[-DEFAULT_CLUSTER_SIZE:]),
             deme.mean,

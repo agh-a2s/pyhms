@@ -69,7 +69,7 @@ Next, create a deme class that inherits from ``AbstractDeme``. This class must i
                 self._active = False
                 self.log("Random Search Deme finished")
                 return
-        
+
         def _run_step(self) -> list[Individual]:
             genomes = np.random.uniform(
                 self.lower_bounds,

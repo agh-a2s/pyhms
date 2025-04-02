@@ -118,7 +118,7 @@ class MahalanobisFarEnough(DemeLevelCandidatesFilter):
                 child_seeds = [
                     ind
                     for ind in child_seeds
-                    if not Cluster.from_cma_deme(sibling).is_in_extension(ind.genome, self._threshold)
+                    if not Cluster.from_deme(sibling).is_in_extension(ind.genome, self._threshold)
                 ]
             candidates[deme].individuals = child_seeds
         return candidates

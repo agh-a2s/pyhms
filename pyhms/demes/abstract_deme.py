@@ -165,3 +165,11 @@ class AbstractDeme(ABC):
             best_fitness = max(pop for generation in metaepoch_history for pop in generation).fitness
             metaepoch_to_best_fitness[metaepoch_idx + self._started_at] = best_fitness
         return metaepoch_to_best_fitness
+
+    @property
+    def mean(self) -> np.ndarray:
+        return self.centroid
+
+    @property
+    def covariance_matrix(self) -> np.ndarray:
+        return np.cov(np.array([ind.genome for ind in self.all_individuals]), rowvar=False)
