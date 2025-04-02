@@ -61,7 +61,16 @@ Next, create a deme class that inherits from ``AbstractDeme``. This class must i
             self.rng = np.random.RandomState(deme_init_args.random_seed)
             self.run()
 
-        def run(self) -> None:
+        def run_metaepoch(self, tree) -> None:
+            new_population = self._run_step()
+            self._history.append(new_population)
+
+            if (gsc_value := tree._gsc(tree)) or self._lsc(self):
+                self._active = False
+                self.log("Random Search Deme finished")
+                return
+        
+        def _run_step(self) -> list[Individual]:
             genomes = np.random.uniform(
                 self.lower_bounds,
                 self.upper_bounds,
@@ -69,18 +78,7 @@ Next, create a deme class that inherits from ``AbstractDeme``. This class must i
             )
             population = [Individual(genome, problem=self._problem) for genome in genomes]
             Individual.evaluate_population(population)
-            self._history.append([population])
-
-        def run_metaepoch(self, tree) -> None:
-            # This method is called in each meta-epoch
-            self.run()
-
-            # Check if stopping conditions are met
-            if (gsc_value := tree._gsc(tree)) or self._lsc(self):
-                self._active = False
-                message = "Random Search Deme finished due to GSC" if gsc_value else "Random Search Deme finished due to LSC"
-                self.log(message)
-                return
+            return population
 
 Understanding DemeInitArgs
 --------------------------
