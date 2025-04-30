@@ -27,3 +27,4 @@ Contents
    custom_demes
    stop
    problem
+   configuration_options
