@@ -136,3 +136,4 @@ dmypy.json
 *.dat
 *.gdat
 *.mp4
+**/.DS_Store
