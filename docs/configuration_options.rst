@@ -48,8 +48,8 @@ Optional Parameters
      - ``False``
      - If ``True``, uses standard deviations estimated from parent deme population for each dimension separately instead of a single sigma value. This adapts the search to the local landscape shape.
    * - ``**kwargs``
-     - 
-     - 
+     -
+     -
      - Additional parameters passed directly to the ``CMAEvolutionStrategy`` constructor from the ``cma`` package (https://pypi.org/project/cma/). See pycma documentation for all available parameters.
 
 Implementation Notes
@@ -113,23 +113,23 @@ Optional Parameters
      - Standard deviation used when sampling new individuals around a sprout seed. Controls diversity of the initial population when sprouting.
    * - ``mutation_std``
      - ``float``
-     - 
+     -
      - Standard deviation for Gaussian mutation. Controls exploration vs exploitation balance.
    * - ``mutation_std_step``
      - ``float``
-     - 
+     -
      - Optional parameter to adapt ``mutation_std`` over time. If provided, ``mutation_std`` will increase by this amount after each generation if child deme was not sprouted.
    * - ``k_elites``
      - ``int``
-     - 
+     -
      - Number of elite individuals to preserve in each generation.
    * - ``p_mutation``
      - ``float``
-     - 
+     -
      - Probability of mutation for each individual.
    * - ``p_crossover``
      - ``float``
-     - 
+     -
      - Probability of crossover (used in ``SEAWithCrossover``).
 
 Available EA Classes
