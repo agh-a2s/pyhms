@@ -42,7 +42,7 @@ Optional Parameters
    * - ``sigma0``
      - ``float | None``
      - ``None``
-     - Initial step size parameter. If ``None`` and ``set_stds=True``, defaults to 1.0. Otherwise calculated automatically from the parent deme's population.
+     - Initial step size parameter. If ``None`` and ``set_stds=True``, defaults to 1.0. Otherwise (if ``None`` and ``set_stds=False``) calculated automatically from the parent deme's population.
    * - ``set_stds``
      - ``bool``
      - ``False``
@@ -118,7 +118,7 @@ Optional Parameters
    * - ``mutation_std_step``
      - ``float``
      - 
-     - Optional parameter to adapt ``mutation_std`` over time. If provided, ``mutation_std`` will increase by this amount after each generation.
+     - Optional parameter to adapt ``mutation_std`` over time. If provided, ``mutation_std`` will increase by this amount after each generation if child deme was not sprouted.
    * - ``k_elites``
      - ``int``
      - 
